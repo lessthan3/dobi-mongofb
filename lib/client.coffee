@@ -90,7 +90,7 @@ exports.utils =
       else
         return false if a isnt b
     true
-  
+
   # logging utility
   log: (msg) ->
     console.log "[monogfb] #{msg}"
@@ -117,7 +117,7 @@ exports.utils =
 
     # args[1] can be either fields or options or special
     # args[2] can be either options or special
-    
+
     # case: special was in args[2]
     if options and not special and (options.token or options._)
       [special, options] = [options, null]
@@ -206,13 +206,13 @@ class exports.Database
     }
 
   auth: (token, next) ->
-    @firebase.auth token, =>
+    @firebase.authWithCustomToken token, =>
       @token = token
       next()
 
   setToken: (token) ->
     @token = token
- 
+
 class exports.Collection
   constructor: (@database, @name) ->
     @ref = new exports.CollectionRef @
@@ -253,7 +253,7 @@ class exports.Collection
   # find(criteria, fields, options, next)
   find: (criteria=null, fields=null, options=null, next=null) ->
     [query, params, next] = exports.utils.prepareFind arguments
- 
+
     if next
       @database.request "#{@name}/find", params, (err, datas) =>
         return next err if err
@@ -398,7 +398,7 @@ class exports.Document
 
   name: ->
     @ref.name()
-    
+
   on: (event, handler) ->
     @ref.on event, handler
 
@@ -571,4 +571,3 @@ class exports.DocumentRef extends exports.EventEmitter
       extend {}, @data
     else
       @data
-
