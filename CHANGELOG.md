@@ -1,3 +1,6 @@
+**1.0.0** (2016-08-12)
+ - fork to dobi-mongofb
+
 **0.9.15** (2015-05-13)
 
  - leave token in authenticated requests

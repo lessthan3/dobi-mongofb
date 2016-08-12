@@ -106,7 +106,7 @@ exports.server = (cfg) ->
           catch err
             req.token_parse_error = err
         next()
-      
+
       _cache = new LRU cfg.cache
       cache = (fn) ->
         max_age = cfg.cache.maxAge / 1000
@@ -129,6 +129,10 @@ exports.server = (cfg) ->
       contentType = (type) ->
         res.set 'Content-Type', type
 
+      handleError = (err) ->
+        contentType 'text/plain'
+        res.send 400, err.toString()
+
       hook = (time, method, args) ->
         fn = cfg.hooks?[req.params.collection]?[time]?[method]
         if fn
@@ -136,12 +140,10 @@ exports.server = (cfg) ->
           fn.apply req, args
         else
           args
-  
 
       # routes
       router = new express.Router()
 
-      
       # fix query parameters
       router.route 'GET', "#{cfg.root}/*", (req, res, next) ->
         map =
@@ -160,7 +162,7 @@ exports.server = (cfg) ->
           asset = new wrap.Snockets {
             src: "#{__dirname}/client.coffee"
           }, (err) ->
-            return res.send 400, err.toString() if err
+            return handleError err if err
             next asset.data
 
       # client javascript minified
@@ -171,7 +173,7 @@ exports.server = (cfg) ->
             src: "#{__dirname}/client.coffee"
             minify: true
           }, (err) ->
-            return res.send 400, err.toString() if err
+            return handleError err if err
             next asset.data
 
       # firebase url
@@ -205,7 +207,7 @@ exports.server = (cfg) ->
             try
               qry = {_id: new mongodb.ObjectID req.params.id}
             catch err
-              return res.send 400, 'Invalid ObjectID'
+              return handleError 'Invalid ObjectID'
 
           # insert/update
           if doc
@@ -221,14 +223,14 @@ exports.server = (cfg) ->
             doc._id = qry._id
             opt = {safe: true, upsert: true}
             collection.update qry, doc, opt, (err) ->
-              return res.send 400, err.toString() if err
+              return handleError err if err
               hook 'after', 'find', doc
               res.send doc
 
           # remove
           else
             collection.remove qry, (err) ->
-              return res.end 400, err if err
+              return handleError err if err
               res.send null
 
 
@@ -256,19 +258,19 @@ exports.server = (cfg) ->
               try
                 criteria = JSON.parse req.query.criteria
               catch err
-                return res.send 400, 'invalid criteria'
+                return handleError 'invalid criteria'
 
             if req.query.fields
               try
                 fields = JSON.parse req.query.fields
               catch err
-                return res.send 400, 'invalid fields'
+                return handleError 'invalid fields'
 
             if req.query.options
               try
                 options = JSON.parse req.query.options
               catch err
-                return res.send 400, 'invalid options'
+                return handleError 'invalid options'
 
           # simple http queries
           else
@@ -304,7 +306,7 @@ exports.server = (cfg) ->
                   ids = criteria._id.$in
                   criteria._id.$in = (new mongodb.ObjectID id for id in ids)
             catch err
-              return res.send 400, 'Invalid ObjectID'
+              return handleError 'Invalid ObjectID'
           if cfg.options.limit_default
             options.limit ?= cfg.options.limit_default
           if cfg.options.limit_max
@@ -320,9 +322,9 @@ exports.server = (cfg) ->
           # run query
           collection = db.collection req.params.collection
           collection.find(criteria, fields, options).toArray (err, docs) ->
-            return res.send 400, err.toString() if err
+            return handleError err if err
             hook('after', 'find', doc) for doc in docs
-            
+
             if __field
               fn = (o) -> o = o?[key] for key in __field.split '.' ; o
               docs = (fn doc for doc in docs)
