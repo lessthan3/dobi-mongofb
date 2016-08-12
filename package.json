@@ -1,7 +1,7 @@
 {
   "author": {
-    "name": "Bryant Williams",
-    "email": "b.n.williams@gmail.com"
+    "name": "maestro_io",
+    "email": "ari@maestro.io"
   },
   "dependencies": {
     "asset-wrap": "0.8.x",
@@ -15,15 +15,15 @@
     "node.extend": "1.0.x",
     "request": "2.33.x"
   },
-  "description": "Mongo Firebase",
+  "description": "Dobi Mongo Firebase",
   "main": "./lib/server",
-  "name": "mongofb",
+  "name": "dobi-mongofb",
   "repository": {
     "type": "git",
-    "url": "git://github.com/scien/mongofb.git"
+    "url": "git://github.com/lessthan3/mongofb.git"
   },
   "engines": {
     "node": ">= 0.8.0"
   },
-  "version": "0.9.15"
+  "version": "1.0.0"
 }
