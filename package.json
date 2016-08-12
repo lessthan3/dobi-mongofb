@@ -20,7 +20,7 @@
   "name": "dobi-mongofb",
   "repository": {
     "type": "git",
-    "url": "git://github.com/lessthan3/mongofb.git"
+    "url": "git://github.com/lessthan3/dobi-mongofb.git"
   },
   "engines": {
     "node": ">= 0.8.0"
