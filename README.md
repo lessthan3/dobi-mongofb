@@ -360,4 +360,14 @@ Coming Soon!
 Coming Soon!
 ```
 
+### dependencies required for testing
+```
+  "devDependencies": {
+    "async": "2.0.1",
+    "body-parser": "1.6.x",
+    "coffee-script": "1.10.0",
+    "teacup": "2.0.0"
+  },
+```
+
 
