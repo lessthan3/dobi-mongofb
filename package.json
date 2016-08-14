@@ -4,12 +4,12 @@
     "email": "ari@maestro.io"
   },
   "devDependencies": {
-    "async": "2.0.1",
     "body-parser": "1.6.x",
     "coffee-script": "1.10.0",
     "teacup": "2.0.0"
   },
   "dependencies": {
+    "async": "2.0.1",
     "asset-wrap": "0.8.x",
     "deepmerge": "0.2.x",
     "express": "3.4.x",
