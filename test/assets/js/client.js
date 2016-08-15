@@ -303,7 +303,7 @@
     };
 
     Database.prototype.auth = function(token, next) {
-      return this.firebase.auth(token, (function(_this) {
+      return this.firebase.authWithCustomToken(token, (function(_this) {
         return function() {
           _this.token = token;
           return next();
@@ -824,8 +824,9 @@
     DocumentRef.prototype.refresh = function(next) {
       return this.ref.once('value', (function(_this) {
         return function(snapshot) {
-          _this.updateData(snapshot.val());
-          return typeof next === "function" ? next() : void 0;
+          return _this.updateData(snapshot.val(), function() {
+            return typeof next === "function" ? next() : void 0;
+          });
         };
       })(this));
     };
@@ -865,14 +866,15 @@
             if (err) {
               return typeof next === "function" ? next(err) : void 0;
             }
-            _this.updateData(value);
-            return typeof next === "function" ? next(null) : void 0;
+            return _this.updateData(value, function() {
+              return typeof next === "function" ? next(null) : void 0;
+            });
           });
         };
       })(this));
     };
 
-    DocumentRef.prototype.updateData = function(data) {
+    DocumentRef.prototype.updateData = function(data, next) {
       var ref1, ref2;
       if (this.key === this.document.key) {
         if ((ref1 = this.data) != null ? ref1.created : void 0) {
@@ -883,7 +885,7 @@
         }
       }
       if (exports.utils.isEquals(this.data, data)) {
-        return;
+        return typeof next === "function" ? next() : void 0;
       }
       return setTimeout(((function(_this) {
         return function() {
@@ -904,7 +906,8 @@
             target[key] = data;
           }
           _this.emit('update', _this.val());
-          return _this.emit('value', _this.val());
+          _this.emit('value', _this.val());
+          return typeof next === "function" ? next() : void 0;
         };
       })(this)), 1);
     };

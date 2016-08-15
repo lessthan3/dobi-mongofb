@@ -90,7 +90,7 @@ exports.utils =
       else
         return false if a isnt b
     true
-  
+
   # logging utility
   log: (msg) ->
     console.log "[monogfb] #{msg}"
@@ -117,7 +117,7 @@ exports.utils =
 
     # args[1] can be either fields or options or special
     # args[2] can be either options or special
-    
+
     # case: special was in args[2]
     if options and not special and (options.token or options._)
       [special, options] = [options, null]
@@ -206,13 +206,13 @@ class exports.Database
     }
 
   auth: (token, next) ->
-    @firebase.auth token, =>
+    @firebase.authWithCustomToken token, =>
       @token = token
       next()
 
   setToken: (token) ->
     @token = token
- 
+
 class exports.Collection
   constructor: (@database, @name) ->
     @ref = new exports.CollectionRef @
@@ -253,7 +253,7 @@ class exports.Collection
   # find(criteria, fields, options, next)
   find: (criteria=null, fields=null, options=null, next=null) ->
     [query, params, next] = exports.utils.prepareFind arguments
- 
+
     if next
       @database.request "#{@name}/find", params, (err, datas) =>
         return next err if err
@@ -398,7 +398,7 @@ class exports.Document
 
   name: ->
     @ref.name()
-    
+
   on: (event, handler) ->
     @ref.on event, handler
 
@@ -479,8 +479,8 @@ class exports.DocumentRef extends exports.EventEmitter
 
   refresh: (next) ->
     @ref.once 'value', (snapshot) =>
-      @updateData snapshot.val()
-      next?()
+      @updateData snapshot.val(), ->
+        next?()
 
   remove: (next) ->
     if typeof next not in ['function', 'undefined']
@@ -504,12 +504,12 @@ class exports.DocumentRef extends exports.EventEmitter
       return next?(err) if err
       @database.request "sync/#{@key}", (err, data) =>
         return next?(err) if err
-        @updateData value
-        next?(null)
+        @updateData value, ->
+          next?(null)
 
   # @data = what we got from mongodb or what was already updated here
   # data = new data from firebase
-  updateData: (data) ->
+  updateData: (data, next) ->
 
     # ignore special 'created' and 'last_modified' fields on documents
     if @key == @document.key
@@ -517,7 +517,7 @@ class exports.DocumentRef extends exports.EventEmitter
       data.last_modified = @data.last_modified if @data?.last_modified
 
     # no updates to send if data isn't changing
-    return if exports.utils.isEquals @data, data
+    return next?() if exports.utils.isEquals @data, data
 
     # here, we need to set a brief timeout so all firebase listeners can
     # fire before we update any data. if we ran this code synchonously
@@ -560,6 +560,7 @@ class exports.DocumentRef extends exports.EventEmitter
       # emit the updates
       @emit 'update', @val()
       @emit 'value', @val()
+      next?()
 
     ), 1
 
@@ -571,4 +572,3 @@ class exports.DocumentRef extends exports.EventEmitter
       extend {}, @data
     else
       @data
-

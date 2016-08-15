@@ -479,8 +479,8 @@ class exports.DocumentRef extends exports.EventEmitter
 
   refresh: (next) ->
     @ref.once 'value', (snapshot) =>
-      @updateData snapshot.val()
-      next?()
+      @updateData snapshot.val(), ->
+        next?()
 
   remove: (next) ->
     if typeof next not in ['function', 'undefined']
@@ -504,12 +504,12 @@ class exports.DocumentRef extends exports.EventEmitter
       return next?(err) if err
       @database.request "sync/#{@key}", (err, data) =>
         return next?(err) if err
-        @updateData value
-        next?(null)
+        @updateData value, ->
+          next? null
 
   # @data = what we got from mongodb or what was already updated here
   # data = new data from firebase
-  updateData: (data) ->
+  updateData: (data, next) ->
 
     # ignore special 'created' and 'last_modified' fields on documents
     if @key == @document.key
@@ -517,7 +517,7 @@ class exports.DocumentRef extends exports.EventEmitter
       data.last_modified = @data.last_modified if @data?.last_modified
 
     # no updates to send if data isn't changing
-    return if exports.utils.isEquals @data, data
+    return next?() if exports.utils.isEquals @data, data
 
     # here, we need to set a brief timeout so all firebase listeners can
     # fire before we update any data. if we ran this code synchonously
@@ -560,6 +560,7 @@ class exports.DocumentRef extends exports.EventEmitter
       # emit the updates
       @emit 'update', @val()
       @emit 'value', @val()
+      next?()
 
     ), 1
 
