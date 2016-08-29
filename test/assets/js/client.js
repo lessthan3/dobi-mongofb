@@ -303,7 +303,7 @@
     };
 
     Database.prototype.auth = function(token, next) {
-      return this.firebase.auth(token, (function(_this) {
+      return this.firebase.authWithCustomToken(token, (function(_this) {
         return function() {
           _this.token = token;
           return next();
