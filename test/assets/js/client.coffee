@@ -505,7 +505,7 @@ class exports.DocumentRef extends exports.EventEmitter
       @database.request "sync/#{@key}", (err, data) =>
         return next?(err) if err
         @updateData value, ->
-          next?(null)
+          next? null
 
   # @data = what we got from mongodb or what was already updated here
   # data = new data from firebase
