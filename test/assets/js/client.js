@@ -521,7 +521,6 @@
             if (err) {
               return typeof next === "function" ? next(err) : void 0;
             }
-            console.log('sync base', _this.sync_base);
             return _this.database.request(_this.sync_base + "/" + _this.name + "/" + _id, function(err, data) {
               if (err) {
                 return ref.set(old_data, function(err) {

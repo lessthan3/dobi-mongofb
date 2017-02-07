@@ -326,7 +326,6 @@ class exports.Collection
         return next?(err) if err
 
         # sync result to mongodb
-        console.log 'sync base', @sync_base
         @database.request "#{@sync_base}/#{@name}/#{_id}", (err, data) =>
 
           # if sync failed, rollback data

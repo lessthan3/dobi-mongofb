@@ -222,26 +222,94 @@ exports.server = (cfg) ->
       router.route 'GET', "#{cfg.root}/ObjectID", (req, res, next) ->
         res.send mongodb.ObjectID().toString()
 
-      # sync data from firebase and shards to mongofb
-      # NOTE: requires _id to be an ObjectID
-      # db.collection.update
-      # db.collection.insert
-      # db.collection.remove
-      # the format is /sync/:collection/:id and not /:collection/:sync/:id to
-      # match firebase urls. the key in firebase is /:collection/:id
-      # shard format: /sync/shard/:shard/:collection/:id
-      sync = (req, res, next) ->
+      # UNDER NO CIRUMSTANCES SHOULD WE ALLOW
+      # SHARD SYNC TO REMOVE DOCUMENTS OR HELL MAY BREAK LOOSE
+      # sync shard function
+      # how it works:
+      # 1. get shard value
+      # 2. ensure shard value isnt null if mongoDB value has data (bad)
+      # 3. update the mongoDB document
+      # 4. update all shards
+      url = "#{cfg.root}/shards/sync/:shard/:collection/:id*"
+      router.route 'GET', url, auth, (req, res, next) ->
         collection = db.collection req.params.collection
         shard = req.params.shard
+        key = "#{req.params.collection}/#{req.params.id}"
+
+        if not req.params.shard
+          return handleError 'Invalid Firebase Shard'
+        ref = shards[req.params.shard].child key
+
+        setAll = (value, next) ->
+          async.each Object.keys(shards), ((shard, next) ->
+            shard_ref = shards[shard].child key
+            shard_ref.set value, next
+          ), next
+
+        async.waterfall [
+
+          # get latest data
+          (next) ->
+            ref.once 'value', (snapshot) ->
+              doc = snapshot.val()
+
+              # convert _id if using ObjectIDs
+              if cfg.options.use_objectid
+                try
+                  qry = {_id: new mongodb.ObjectID req.params.id}
+                catch err
+                  return next 'Invalid ObjectID'
+
+              next null, {qry, doc}
+
+          # insert / update
+          ({qry, doc}, next) ->
+
+            collection.findOne qry, (err, current_value) ->
+              return next 'Error finding document' if err
+              return next 'Invalid command' if not doc? and current_value?
+
+              # if doc exists, sync will update all shards
+              if doc
+
+                # set created and last modified
+                doc.created ?= Date.now() if cfg.options.set_created
+                doc.last_modified = Date.now() if cfg.options.set_last_modified
+
+                # update mongodb
+                doc._id = qry._id
+                opt = {safe: true, upsert: true}
+                collection.update qry, doc, opt, (err) ->
+                  return next 'Error updating document' if err
+
+                  # set all
+                  doc._id = doc._id.toString()
+                  setAll doc, (err) ->
+                    return next 'Shard sync error' if err
+                    next null, doc
+
+              # if doc and current mongo value is null, do the remove
+              else if doc is null and current_value is null
+                collection.remove qry, (err) ->
+                  return handleError err if err
+                  next()
+
+              else
+                return next 'Unhandled exception'
+
+        ], (err, doc) ->
+          return handleError err if err
+          if doc
+            hook 'after', 'find', doc
+          res.send doc
+
+      # default sync (not shard)
+      url = "#{cfg.root}/sync/:collection/:id*"
+      router.route 'GET', url, auth, (req, res, next) ->
+        collection = db.collection req.params.collection
 
         # get data
-        key = "#{req.params.collection}/#{req.params.id}"
-        if shard
-          return handleError 'Invalid Firebase Shard' unless shards[shard]
-          ref = shards[shard].child key
-        else
-          ref = fb.child key
-
+        ref = fb.child "#{req.params.collection}/#{req.params.id}"
         ref.once 'value', (snapshot) ->
           doc = snapshot.val()
 
@@ -251,8 +319,6 @@ exports.server = (cfg) ->
               qry = {_id: new mongodb.ObjectID req.params.id}
             catch err
               return handleError 'Invalid ObjectID'
-
-          # unsharded logic
 
           # insert/update
           if doc
@@ -269,33 +335,14 @@ exports.server = (cfg) ->
             opt = {safe: true, upsert: true}
             collection.update qry, doc, opt, (err) ->
               return handleError err if err
-              collection.findOne qry, (err, mongo_doc) ->
-                return handleError err if err
-                mongo_doc._id = mongo_doc._id.toString()
-                if shard
-                  async.each Object.keys(shards), ((shard_name, next) ->
-                    )
-                  ref.set mongo_doc, (err) ->
-                    return handleError err if err
-                    hook 'after', 'find', mongo_doc
-                    res.send mongo_doc
-                else
-                  hook 'after', 'find', mongo_doc
-                  res.send mongo_doc
+              hook 'after', 'find', doc
+              res.send doc
 
           # remove
           else
             collection.remove qry, (err) ->
               return handleError err if err
               res.send null
-
-      # shard sync
-      url = "#{cfg.root}/shards/sync/:shard/:collection/:id*"
-      router.route 'GET', url, auth, sync
-
-      # default sync (not shard)
-      url = "#{cfg.root}/sync/:collection/:id*"
-      router.route 'GET', url, auth, sync
 
       # db.collection.find
       # uses only mongofb, no firebase
