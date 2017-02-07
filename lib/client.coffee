@@ -169,15 +169,14 @@ class exports.Database
       @request 'Firebase', false, (url) ->
         @firebase = new Firebase url
         @sync_base = 'sync'
+    else if cfg.shard
+      @api = cfg.server
+      @firebase = new Firebase cfg.shard
+      @sync_base = "shards/sync/#{shard}"
     else
       @api = cfg.server
-      if cfg.shard
-        @shard = shard
-        @firebase = new Firebase cfg.shard
-        @sync_base = "#{@shard}/sync"
-      else
-        @firebase = new Firebase cfg.firebase
-        @sync_base = 'sync'
+      @firebase = new Firebase cfg.firebase
+      @sync_base = 'sync'
 
   collection: (name) ->
     new exports.Collection @, name
@@ -432,7 +431,7 @@ class exports.Document
 class exports.DocumentRef extends exports.EventEmitter
   @_counter = 0
 
-  constructor: (@document, @path='') ->
+  constructor: (@document, @path='', @sync_base) ->
     super()
     @counter = ++exports.DocumentRef._counter
     @collection = @document.collection
@@ -509,7 +508,7 @@ class exports.DocumentRef extends exports.EventEmitter
     ref = @database.firebase.child @key
     ref.set value, (err) =>
       return next?(err) if err
-      @database.request "sync/#{@key}", (err, data) =>
+      @database.request "#{@sync_base}/#{@key}", (err, data) =>
         return next?(err) if err
         @updateData value, ->
           next? null

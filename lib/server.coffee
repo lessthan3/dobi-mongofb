@@ -56,7 +56,7 @@ exports.server = (cfg) ->
   exports.shards = {}
   db = null
   fb = null
-  shards = {}
+  shards = null
 
   connectFB = (options, next) ->
     {url, secret} = options or {}
@@ -74,7 +74,7 @@ exports.server = (cfg) ->
 
   # connect to firebase and mongodb
   connect = (next) ->
-    return next?() if db and fb
+    return next?() if db and fb and shards
     m = cfg.mongodb
     url = "mongodb://#{m.user}:#{m.pass}@#{m.host}:#{m.port}/#{m.db}"
     url = url.replace ':@', '@'
@@ -100,12 +100,19 @@ exports.server = (cfg) ->
           async.each shards, ((shard, next) ->
             connectFB shard, (err, fb) ->
               return next err if err
+              shards ?= {}
               shards[shard] = firebase
               exports.shards[shard] = firebase
               next()
-          ), next
+          ), (err) ->
+            return next err if err
 
-      ], next
+            # define shards to keep connect from looping
+            shards ?= {}
+            next()
+
+      ], (err) ->
+        return next? err
 
   connect()
 
@@ -113,7 +120,6 @@ exports.server = (cfg) ->
   (req, res, next) ->
     connect (err) ->
       return next err if err
-
 
       # databases
       req.db = db
@@ -214,20 +220,26 @@ exports.server = (cfg) ->
       router.route 'GET', "#{cfg.root}/ObjectID", (req, res, next) ->
         res.send mongodb.ObjectID().toString()
 
-
-      # sync data from firebase
+      # sync data from firebase and shards to mongofb
       # NOTE: requires _id to be an ObjectID
       # db.collection.update
       # db.collection.insert
       # db.collection.remove
       # the format is /sync/:collection/:id and not /:collection/:sync/:id to
       # match firebase urls. the key in firebase is /:collection/:id
-      url = "#{cfg.root}/sync/:collection/:id*"
-      router.route 'GET', url, auth, (req, res, next) ->
+      # shard format: /sync/shard/:shard/:collection/:id
+
+      sync = (req, res, next) ->
         collection = db.collection req.params.collection
+        shard = req.params.shard
 
         # get data
-        ref = fb.child "#{req.params.collection}/#{req.params.id}"
+        if shard
+          return handleError 'Invalid Firebase Shard' unless shards[shard]
+          ref = shards[shard].child "#{req.params.collection}/#{req.params.id}"
+        else
+          ref = fb.child "#{req.params.collection}/#{req.params.id}"
+
         ref.once 'value', (snapshot) ->
           doc = snapshot.val()
 
@@ -262,6 +274,13 @@ exports.server = (cfg) ->
               return handleError err if err
               res.send null
 
+      # shard sync
+      url = "#{cfg.root}/shards/sync/:shard/:collection/:id*"
+      router.route 'GET', url, auth, sync
+
+      # default sync (not shard)
+      url = "#{cfg.root}/sync/:collection/:id*"
+      router.route 'GET', url, auth, sync
 
       # db.collection.find
       # uses only mongofb, no firebase
@@ -365,6 +384,7 @@ exports.server = (cfg) ->
 
 
       # db.collection.findOne
+      # uses only mongofb, no firebase
       url = "#{cfg.root}/:collection/findOne"
       router.route 'GET', url, auth, (req, res, next) ->
         req.url = "#{cfg.root}/#{req.params.collection}/find"
@@ -373,6 +393,7 @@ exports.server = (cfg) ->
 
 
       # db.collection.findById
+      # uses only mongofb, no firebase
       url = "#{cfg.root}/:collection/:id*"
       router.route 'GET', url, auth, (req, res, next) ->
         req.url = "#{cfg.root}/#{req.params.collection}/find"
