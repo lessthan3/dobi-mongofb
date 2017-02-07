@@ -60,7 +60,7 @@ exports.server = (cfg) ->
 
   connectFB = (options, next) ->
     {url, secret} = options or {}
-    return next() unless url and secret
+    return next 'missing url and secret' unless url and secret
     firebase = new Firebase url
     token_generator = new FirebaseTokenGenerator secret
     token = token_generator.createToken {}, {
@@ -87,19 +87,21 @@ exports.server = (cfg) ->
       async.series [
 
         # connect main shard
-        (err) ->
-          connectFB cfb.firebase, (err, firebase) ->
-            return next err if err
+        (next) ->
+          connectFB cfg.firebase, (err, firebase) ->
+            return next? err if err
             fb = firebase
             exports.fb = firebase
             next()
 
         # connect shards
-        (err) ->
-          shards = Object.keys cfb.shards or {}
-          async.each shards, ((shard, next) ->
-            connectFB shard, (err, fb) ->
-              return next err if err
+        (next) ->
+          shard_keys = Object.keys cfg.shards or {}
+          console.log 'shard_keys', shard_keys
+          async.each shard_keys, ((shard, next) ->
+            connectFB cfg.shards[shard], (err, firebase) ->
+              return next? err if err
+              return next() unless firebase
               shards ?= {}
               shards[shard] = firebase
               exports.shards[shard] = firebase
@@ -114,7 +116,7 @@ exports.server = (cfg) ->
       ], (err) ->
         return next? err
 
-  connect()
+  connect (err) -> console.log err if err
 
   # middleware
   (req, res, next) ->
@@ -124,7 +126,7 @@ exports.server = (cfg) ->
       # databases
       req.db = db
       req.fb = fb
-      req.shards = shards
+      req.shards = shards if shards
       req.mongofb = new exports.client.Database {
         server: "http://#{req.get('host')}#{cfg.root}"
         firebase: cfg.firebase.url
@@ -228,17 +230,17 @@ exports.server = (cfg) ->
       # the format is /sync/:collection/:id and not /:collection/:sync/:id to
       # match firebase urls. the key in firebase is /:collection/:id
       # shard format: /sync/shard/:shard/:collection/:id
-
       sync = (req, res, next) ->
         collection = db.collection req.params.collection
         shard = req.params.shard
 
         # get data
+        key = "#{req.params.collection}/#{req.params.id}"
         if shard
           return handleError 'Invalid Firebase Shard' unless shards[shard]
-          ref = shards[shard].child "#{req.params.collection}/#{req.params.id}"
+          ref = shards[shard].child key
         else
-          ref = fb.child "#{req.params.collection}/#{req.params.id}"
+          ref = fb.child key
 
         ref.once 'value', (snapshot) ->
           doc = snapshot.val()
@@ -249,6 +251,8 @@ exports.server = (cfg) ->
               qry = {_id: new mongodb.ObjectID req.params.id}
             catch err
               return handleError 'Invalid ObjectID'
+
+          # unsharded logic
 
           # insert/update
           if doc
@@ -265,8 +269,19 @@ exports.server = (cfg) ->
             opt = {safe: true, upsert: true}
             collection.update qry, doc, opt, (err) ->
               return handleError err if err
-              hook 'after', 'find', doc
-              res.send doc
+              collection.findOne qry, (err, mongo_doc) ->
+                return handleError err if err
+                mongo_doc._id = mongo_doc._id.toString()
+                if shard
+                  async.each Object.keys(shards), ((shard_name, next) ->
+                    )
+                  ref.set mongo_doc, (err) ->
+                    return handleError err if err
+                    hook 'after', 'find', mongo_doc
+                    res.send mongo_doc
+                else
+                  hook 'after', 'find', mongo_doc
+                  res.send mongo_doc
 
           # remove
           else

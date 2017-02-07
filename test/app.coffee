@@ -50,11 +50,11 @@ copyFile ->
       mongofb.server {
         root: '/api/v1'
         cache:
+          enabled: false
           max: 100
           maxAge: 1000 * 60 * 5
-        firebase:
-          url: config.url
-          secret: config.secreet
+        firebase: config.firebase
+        shards: config.firebases
         mongodb:
           db: 'TestDB'
           host: 'localhost'

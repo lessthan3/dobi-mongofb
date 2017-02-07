@@ -164,6 +164,8 @@ class exports.Database
   constructor: (cfg) ->
     @cache = true
     @safe_writes = true
+
+    # create firebase ref
     if typeof cfg == 'string'
       @api = cfg
       @request 'Firebase', false, (url) ->
@@ -171,14 +173,15 @@ class exports.Database
         @sync_base = 'sync'
     else if cfg.shard
       @api = cfg.server
-      @firebase = new Firebase cfg.shard
-      @sync_base = "shards/sync/#{shard}"
+      @firebase = new Firebase "https://#{cfg.shard}.firebaseio.com"
+      @sync_base = "shards/sync/#{cfg.shard}"
     else
       @api = cfg.server
       @firebase = new Firebase cfg.firebase
       @sync_base = 'sync'
 
   collection: (name) ->
+    console.log 'collection this', @
     new exports.Collection @, name
 
   get: (path) ->
@@ -212,15 +215,17 @@ class exports.Database
     }
 
   auth: (token, next) ->
-    @firebase.authWithCustomToken token, =>
+    @firebase.authWithCustomToken token, (err) =>
+      return next? err if err
       @token = token
-      next()
+      next?()
 
   setToken: (token) ->
     @token = token
 
 class exports.Collection
-  constructor: (@database, @name, @sync_base) ->
+  constructor: (@database, @name) ->
+    @sync_base = @database.sync_base
     @ref = new exports.CollectionRef @
 
   get: (path) ->
@@ -321,6 +326,7 @@ class exports.Collection
         return next?(err) if err
 
         # sync result to mongodb
+        console.log 'sync base', @sync_base
         @database.request "#{@sync_base}/#{@name}/#{_id}", (err, data) =>
 
           # if sync failed, rollback data
@@ -436,6 +442,7 @@ class exports.DocumentRef extends exports.EventEmitter
     @counter = ++exports.DocumentRef._counter
     @collection = @document.collection
     @database = @collection.database
+    @sync_base = @database.sync_base
 
     # @path[0] doesn't work in ie6, must use @path[0..0]
     if typeof @path is 'string'
@@ -484,8 +491,10 @@ class exports.DocumentRef extends exports.EventEmitter
     new exports.DocumentRef @document, @path[0...@path.length-1]
 
   refresh: (next) ->
-    @ref.once 'value', (snapshot) =>
-      @updateData snapshot.val(), ->
+    @database.request "#{@collection.name}/#{@data._id}", (err, data) =>
+      return next?(err) if err
+      console.log 'data', data
+      @updateData data, ->
         next?()
 
   remove: (next) ->
@@ -512,6 +521,27 @@ class exports.DocumentRef extends exports.EventEmitter
         return next?(err) if err
         @updateData value, ->
           next? null
+
+  setAll: (value, next) ->
+
+    # if specific fields were queried for, only allow those to be updated
+    if @database.safe_writes
+      allow = true
+      if @document.query.fields
+        allow = false
+        for k, v of @document.query.fields
+          dst = "#{@document.key}/#{k.replace /\./g, '/'}"
+          allow = allow or @key.indexOf(dst) is 0
+      return next?('cannot set a field that was not queried for') unless allow
+
+    ref = @database.firebase.child @key
+    ref.set value, (err) =>
+      return next?(err) if err
+      @database.request "#{@sync_base}/#{@key}", (err, data) =>
+        return next?(err) if err
+        @updateData value, ->
+          next? null
+
 
   # @data = what we got from mongodb or what was already updated here
   # data = new data from firebase

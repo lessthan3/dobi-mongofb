@@ -244,15 +244,22 @@
       if (typeof cfg === 'string') {
         this.api = cfg;
         this.request('Firebase', false, function(url) {
-          return this.firebase = new Firebase(url);
+          this.firebase = new Firebase(url);
+          return this.sync_base = 'sync';
         });
+      } else if (cfg.shard) {
+        this.api = cfg.server;
+        this.firebase = new Firebase("https://" + cfg.shard + ".firebaseio.com");
+        this.sync_base = "shards/sync/" + cfg.shard;
       } else {
         this.api = cfg.server;
         this.firebase = new Firebase(cfg.firebase);
+        this.sync_base = 'sync';
       }
     }
 
     Database.prototype.collection = function(name) {
+      console.log('collection this', this);
       return new exports.Collection(this, name);
     };
 
@@ -304,9 +311,12 @@
 
     Database.prototype.auth = function(token, next) {
       return this.firebase.authWithCustomToken(token, (function(_this) {
-        return function() {
+        return function(err) {
+          if (err) {
+            return typeof next === "function" ? next(err) : void 0;
+          }
           _this.token = token;
-          return next();
+          return typeof next === "function" ? next() : void 0;
         };
       })(this));
     };
@@ -323,6 +333,7 @@
     function Collection(database, name1) {
       this.database = database;
       this.name = name1;
+      this.sync_base = this.database.sync_base;
       this.ref = new exports.CollectionRef(this);
     }
 
@@ -358,7 +369,7 @@
             if (priority) {
               ref.setPriority(priority);
             }
-            return _this.database.request("sync/" + _this.name + "/" + id, {
+            return _this.database.request(_this.sync_base + "/" + _this.name + "/" + id, {
               _: Date.now()
             }, function(err, data) {
               if (err) {
@@ -510,7 +521,8 @@
             if (err) {
               return typeof next === "function" ? next(err) : void 0;
             }
-            return _this.database.request("sync/" + _this.name + "/" + _id, function(err, data) {
+            console.log('sync base', _this.sync_base);
+            return _this.database.request(_this.sync_base + "/" + _this.name + "/" + _id, function(err, data) {
               if (err) {
                 return ref.set(old_data, function(err) {
                   if (err) {
@@ -737,14 +749,16 @@
 
     DocumentRef._counter = 0;
 
-    function DocumentRef(document, path1) {
+    function DocumentRef(document, path1, sync_base) {
       var i, k, len, ref1, ref2;
       this.document = document;
       this.path = path1 != null ? path1 : '';
+      this.sync_base = sync_base;
       DocumentRef.__super__.constructor.call(this);
       this.counter = ++exports.DocumentRef._counter;
       this.collection = this.document.collection;
       this.database = this.collection.database;
+      this.sync_base = this.database.sync_base;
       if (typeof this.path === 'string') {
         if (this.path.slice(0, 1) === '/') {
           this.path = this.path.slice(1);
@@ -797,10 +811,11 @@
       var ref1, ref2;
       DocumentRef.__super__.on.call(this, event, handler);
       if (((ref1 = this.events.update) != null ? ref1.length : void 0) > 0 || ((ref2 = this.events.value) != null ? ref2.length : void 0) > 0) {
-        this.emit('value', this.val());
         return this.ref.on('value', (function(_this) {
           return function(snapshot) {
-            return _this.updateData(snapshot.val());
+            return _this.updateData(snapshot.val(), function() {
+              return _this.emit('value', _this.val());
+            });
           };
         })(this));
       }
@@ -822,9 +837,13 @@
     };
 
     DocumentRef.prototype.refresh = function(next) {
-      return this.ref.once('value', (function(_this) {
-        return function(snapshot) {
-          return _this.updateData(snapshot.val(), function() {
+      return this.database.request(this.collection.name + "/" + this.data._id, (function(_this) {
+        return function(err, data) {
+          if (err) {
+            return typeof next === "function" ? next(err) : void 0;
+          }
+          console.log('data', data);
+          return _this.updateData(data, function() {
             return typeof next === "function" ? next() : void 0;
           });
         };
@@ -862,7 +881,42 @@
           if (err) {
             return typeof next === "function" ? next(err) : void 0;
           }
-          return _this.database.request("sync/" + _this.key, function(err, data) {
+          return _this.database.request(_this.sync_base + "/" + _this.key, function(err, data) {
+            if (err) {
+              return typeof next === "function" ? next(err) : void 0;
+            }
+            return _this.updateData(value, function() {
+              return typeof next === "function" ? next(null) : void 0;
+            });
+          });
+        };
+      })(this));
+    };
+
+    DocumentRef.prototype.setAll = function(value, next) {
+      var allow, dst, k, ref, ref1, v;
+      if (this.database.safe_writes) {
+        allow = true;
+        if (this.document.query.fields) {
+          allow = false;
+          ref1 = this.document.query.fields;
+          for (k in ref1) {
+            v = ref1[k];
+            dst = this.document.key + "/" + (k.replace(/\./g, '/'));
+            allow = allow || this.key.indexOf(dst) === 0;
+          }
+        }
+        if (!allow) {
+          return typeof next === "function" ? next('cannot set a field that was not queried for') : void 0;
+        }
+      }
+      ref = this.database.firebase.child(this.key);
+      return ref.set(value, (function(_this) {
+        return function(err) {
+          if (err) {
+            return typeof next === "function" ? next(err) : void 0;
+          }
+          return _this.database.request(_this.sync_base + "/" + _this.key, function(err, data) {
             if (err) {
               return typeof next === "function" ? next(err) : void 0;
             }

@@ -1,9 +1,15 @@
 (function() {
-  var collection, db, i, len, ref;
+  var collection, db, i, len, ref, url, urls;
+
+  urls = ['maestro-tweets', 'lt3-forum'];
+
+  url = urls[Math.floor(Math.random() * urls.length)];
+
+  $('body').append("<span>" + url + "</span>");
 
   db = new mongofb.Database({
     server: '/api/v1',
-    firebase: 'https://crackling-torch-8221.firebaseio.com'
+    shard: url
   });
 
   window.app = {};
