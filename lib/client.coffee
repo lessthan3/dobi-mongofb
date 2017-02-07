@@ -168,9 +168,16 @@ class exports.Database
       @api = cfg
       @request 'Firebase', false, (url) ->
         @firebase = new Firebase url
+        @sync_base = 'sync'
     else
       @api = cfg.server
-      @firebase = new Firebase cfg.firebase
+      if cfg.shard
+        @shard = shard
+        @firebase = new Firebase cfg.shard
+        @sync_base = "#{@shard}/sync"
+      else
+        @firebase = new Firebase cfg.firebase
+        @sync_base = 'sync'
 
   collection: (name) ->
     new exports.Collection @, name
@@ -214,7 +221,7 @@ class exports.Database
     @token = token
 
 class exports.Collection
-  constructor: (@database, @name) ->
+  constructor: (@database, @name, @sync_base) ->
     @ref = new exports.CollectionRef @
 
   get: (path) ->
@@ -234,7 +241,7 @@ class exports.Collection
       ref.set doc, (err) =>
         return next?(err) if err
         ref.setPriority priority if priority
-        @database.request "sync/#{@name}/#{id}", {
+        @database.request "#{@sync_base}/#{@name}/#{id}", {
           _: Date.now()
         }, (err, data) =>
           return next?(err) if err
@@ -315,7 +322,7 @@ class exports.Collection
         return next?(err) if err
 
         # sync result to mongodb
-        @database.request "sync/#{@name}/#{_id}", (err, data) =>
+        @database.request "#{@sync_base}/#{@name}/#{_id}", (err, data) =>
 
           # if sync failed, rollback data
           if err
@@ -464,9 +471,9 @@ class exports.DocumentRef extends exports.EventEmitter
     super event, handler
 
     if @events.update?.length > 0 or @events.value?.length > 0
-      @emit 'value', @val()
       @ref.on 'value', (snapshot) =>
-        @updateData snapshot.val()
+        @updateData snapshot.val(), =>
+          @emit 'value', @val()
 
   off: (event, handler=null) ->
     super event, handler

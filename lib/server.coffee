@@ -1,4 +1,5 @@
 # dependencies
+async = require 'async'
 crypto = require 'crypto'
 express = require 'express'
 Firebase = require 'firebase'
@@ -25,6 +26,7 @@ exports.server = (cfg) ->
     firebase:
       url: 'https://vn42xl9zsez.firebaseio-demo.com/'
       secret: null
+    shards: {}
     mongodb:
       db: 'test'
       host: 'localhost'
@@ -51,9 +53,24 @@ exports.server = (cfg) ->
   # variables
   exports.db = null
   exports.fb = null
+  exports.shards = {}
   db = null
   fb = null
+  shards = {}
 
+  connectFB = (options, next) ->
+    {url, secret} = options or {}
+    return next() unless url and secret
+    firebase = new Firebase url
+    token_generator = new FirebaseTokenGenerator secret
+    token = token_generator.createToken {}, {
+      expires: Date.now() + 1000*60*60*24*30
+      admin: true
+    }
+    firebase.authWithCustomToken token, (err) ->
+      return next? err if err
+      firebase.admin_token = token
+      next? null, firebase
 
   # connect to firebase and mongodb
   connect = (next) ->
@@ -66,19 +83,30 @@ exports.server = (cfg) ->
       db = database
       db.ObjectID = mongodb.ObjectID
       exports.db = db
-      fb = new Firebase cfg.firebase.url
-      if cfg.firebase.secret
-        token_generator = new FirebaseTokenGenerator cfg.firebase.secret
-        token = token_generator.createToken {}, {
-          expires: Date.now() + 1000*60*60*24*30
-          admin: true
-        }
-        fb.authWithCustomToken token, (err) ->
-          fb.admin_token = token
-          next?(err)
-          exports.fb = fb
-      else
-        next?()
+
+      async.series [
+
+        # connect main shard
+        (err) ->
+          connectFB cfb.firebase, (err, firebase) ->
+            return next err if err
+            fb = firebase
+            exports.fb = firebase
+            next()
+
+        # connect shards
+        (err) ->
+          shards = Object.keys cfb.shards or {}
+          async.each shards, ((shard, next) ->
+            connectFB shard, (err, fb) ->
+              return next err if err
+              shards[shard] = firebase
+              exports.shards[shard] = firebase
+              next()
+          ), next
+
+      ], next
+
   connect()
 
   # middleware
@@ -90,6 +118,7 @@ exports.server = (cfg) ->
       # databases
       req.db = db
       req.fb = fb
+      req.shards = shards
       req.mongofb = new exports.client.Database {
         server: "http://#{req.get('host')}#{cfg.root}"
         firebase: cfg.firebase.url
@@ -235,6 +264,7 @@ exports.server = (cfg) ->
 
 
       # db.collection.find
+      # uses only mongofb, no firebase
       url = "#{cfg.root}/:collection/find"
       router.route 'GET', url, auth, (req, res, next) ->
         cache (next) ->
