@@ -244,11 +244,13 @@
       if (typeof cfg === 'string') {
         this.api = cfg;
         this.request('Firebase', false, function(url) {
-          return this.firebase = new Firebase(url);
+          this.firebase = new Firebase(url);
+          return this.firebase_url = url;
         });
       } else {
         this.api = cfg.server;
         this.firebase = new Firebase(cfg.firebase);
+        this.firebase_url = cfg.firebase;
       }
     }
 
@@ -289,6 +291,7 @@
         }
       }
       url = this.api + "/" + resource;
+      params.firebase_url = this.firebase_url;
       if (this.token) {
         params.token = this.token;
       }
