@@ -164,13 +164,21 @@ class exports.Database
   constructor: (cfg) ->
     @cache = true
     @safe_writes = true
+
+    # create firebase ref
     if typeof cfg == 'string'
       @api = cfg
       @request 'Firebase', false, (url) ->
         @firebase = new Firebase url
+        @sync_base = 'sync'
+    else if cfg.shard
+      @api = cfg.server
+      @firebase = new Firebase "https://#{cfg.shard}.firebaseio.com"
+      @sync_base = "shards/sync/#{cfg.shard}"
     else
       @api = cfg.server
       @firebase = new Firebase cfg.firebase
+      @sync_base = 'sync'
 
   collection: (name) ->
     new exports.Collection @, name
@@ -206,15 +214,17 @@ class exports.Database
     }
 
   auth: (token, next) ->
-    @firebase.authWithCustomToken token, =>
+    @firebase.authWithCustomToken token, (err) =>
+      return next? err if err
       @token = token
-      next()
+      next?()
 
   setToken: (token) ->
     @token = token
 
 class exports.Collection
   constructor: (@database, @name) ->
+    @sync_base = @database.sync_base
     @ref = new exports.CollectionRef @
 
   get: (path) ->
@@ -234,7 +244,7 @@ class exports.Collection
       ref.set doc, (err) =>
         return next?(err) if err
         ref.setPriority priority if priority
-        @database.request "sync/#{@name}/#{id}", {
+        @database.request "#{@sync_base}/#{@name}/#{id}", {
           _: Date.now()
         }, (err, data) =>
           return next?(err) if err
@@ -315,7 +325,7 @@ class exports.Collection
         return next?(err) if err
 
         # sync result to mongodb
-        @database.request "sync/#{@name}/#{_id}", (err, data) =>
+        @database.request "#{@sync_base}/#{@name}/#{_id}", (err, data) =>
 
           # if sync failed, rollback data
           if err
@@ -430,6 +440,7 @@ class exports.DocumentRef extends exports.EventEmitter
     @counter = ++exports.DocumentRef._counter
     @collection = @document.collection
     @database = @collection.database
+    @sync_base = @database.sync_base
 
     # @path[0] doesn't work in ie6, must use @path[0..0]
     if typeof @path is 'string'
@@ -465,8 +476,7 @@ class exports.DocumentRef extends exports.EventEmitter
 
     if @events.update?.length > 0 or @events.value?.length > 0
       @emit 'value', @val()
-      @ref.on 'value', (snapshot) =>
-        @updateData snapshot.val()
+      @updateData snapshot.val()
 
   off: (event, handler=null) ->
     super event, handler
@@ -502,7 +512,7 @@ class exports.DocumentRef extends exports.EventEmitter
     ref = @database.firebase.child @key
     ref.set value, (err) =>
       return next?(err) if err
-      @database.request "sync/#{@key}", (err, data) =>
+      @database.request "#{@sync_base}/#{@key}", (err, data) =>
         return next?(err) if err
         @updateData value, ->
           next? null

@@ -1,4 +1,5 @@
 # dependencies
+async = require 'async'
 crypto = require 'crypto'
 express = require 'express'
 Firebase = require 'firebase'
@@ -25,6 +26,7 @@ exports.server = (cfg) ->
     firebase:
       url: 'https://vn42xl9zsez.firebaseio-demo.com/'
       secret: null
+    shards: {}
     mongodb:
       db: 'test'
       host: 'localhost'
@@ -51,34 +53,67 @@ exports.server = (cfg) ->
   # variables
   exports.db = null
   exports.fb = null
+  exports.shards = null
   db = null
   fb = null
+  shards = {}
 
+  connectFB = (options, next) ->
+    {url, secret} = options or {}
+    return next 'missing url and secret' unless url and secret
+    firebase = new Firebase url
+    token_generator = new FirebaseTokenGenerator secret
+    token = token_generator.createToken {}, {
+      expires: Date.now() + 1000*60*60*24*30
+      admin: true
+    }
+    firebase.authWithCustomToken token, (err) ->
+      return next? err if err
+      firebase.admin_token = token
+      next? null, firebase
 
   # connect to firebase and mongodb
   connect = (next) ->
-    return next?() if db and fb
-    m = cfg.mongodb
-    url = "mongodb://#{m.user}:#{m.pass}@#{m.host}:#{m.port}/#{m.db}"
-    url = url.replace ':@', '@'
-    mongodb.MongoClient.connect url, m.options, (err, database) ->
-      return next?(err) if err
-      db = database
-      db.ObjectID = mongodb.ObjectID
-      exports.db = db
-      fb = new Firebase cfg.firebase.url
-      if cfg.firebase.secret
-        token_generator = new FirebaseTokenGenerator cfg.firebase.secret
-        token = token_generator.createToken {}, {
-          expires: Date.now() + 1000*60*60*24*30
-          admin: true
-        }
-        fb.authWithCustomToken token, (err) ->
-          fb.admin_token = token
-          next?(err)
-          exports.fb = fb
-      else
-        next?()
+    return next?() if db and fb and exports.shards
+
+    async.parallel [
+
+      # connect mongoDB
+      (next) ->
+        m = cfg.mongodb
+        url = "mongodb://#{m.user}:#{m.pass}@#{m.host}:#{m.port}/#{m.db}"
+        url = url.replace ':@', '@'
+        mongodb.MongoClient.connect url, m.options, (err, database) ->
+          return next err if err
+          db = database
+          db.ObjectID = mongodb.ObjectID
+          exports.db = db
+          next()
+
+      # connect main shard
+      (next) ->
+        return next 'firebase required' unless cfg.firebase
+        connectFB cfg.firebase, (err, firebase) ->
+          return next? err if err
+          fb = firebase
+          exports.fb = firebase
+          next()
+
+      # connect shards
+      (next) ->
+        async.each Object.keys(cfg.shards or {}), ((shard, next) ->
+          connectFB cfg.shards[shard], (err, firebase) ->
+            return next? err if err
+            shards[shard] = firebase
+            next()
+        ), (err) ->
+          return next err if err
+          exports.shards = shards
+          next()
+
+    ], (err) ->
+      return next? err
+
   connect()
 
   # middleware
@@ -86,10 +121,10 @@ exports.server = (cfg) ->
     connect (err) ->
       return next err if err
 
-
       # databases
       req.db = db
       req.fb = fb
+      req.shards = shards if shards
       req.mongofb = new exports.client.Database {
         server: "http://#{req.get('host')}#{cfg.root}"
         firebase: cfg.firebase.url
@@ -185,6 +220,90 @@ exports.server = (cfg) ->
       router.route 'GET', "#{cfg.root}/ObjectID", (req, res, next) ->
         res.send mongodb.ObjectID().toString()
 
+      # UNDER NO CIRUMSTANCES SHOULD WE ALLOW
+      # SHARD SYNC TO REMOVE DOCUMENTS OR HELL MAY BREAK LOOSE
+      # sync shard function
+      # how it works:
+      # 1. get shard value
+      # 2. ensure shard value isnt null if mongoDB value has data (bad)
+      # 3. if shard has no data, then sync from cfb.firebase location
+      # 4. update the mongoDB document
+      # 5. update all shards
+      url = "#{cfg.root}/shards/sync/:shard/:collection/:id*"
+      router.route 'GET', url, auth, (req, res, next) ->
+        collection = db.collection req.params.collection
+        shard = req.params.shard
+        key = "#{req.params.collection}/#{req.params.id}"
+
+        if not shards[req.params.shard]
+          return handleError 'Invalid Firebase Shard'
+        ref = shards[req.params.shard].child key
+
+        setAll = (value, next) ->
+          value._id = value._id.toString() if value?._id
+          async.each Object.keys(shards), ((shard, next) ->
+            shard_ref = shards[shard].child key
+            shard_ref.set value, next
+          ), next
+
+        async.waterfall [
+
+          # get latest data
+          (next) ->
+            ref.once 'value', (snapshot) ->
+              doc = snapshot.val()
+
+              # if doc is null, pull it from the main firebase shard
+              # to ensure that non-sharded objects don't get
+              # cleared by shard sync
+              if not doc?
+                fb.child(key).once 'value', (snapshot) ->
+
+                  # if main shard (in cfg.firebase) isnt null
+                  # then revert all shards
+                  if doc isnt snapshot.val()
+                    setAll snapshot.val(), (err) ->
+                      return next 'invalid removal'
+                  else
+                    doc = snapshot.val()
+                    next null, doc
+              else
+                next null, doc
+
+          # insert / update
+          (doc, next) ->
+
+            # convert _id if using ObjectIDs
+            if cfg.options.use_objectid
+              try
+                qry = {_id: new mongodb.ObjectID req.params.id}
+              catch err
+                return next 'Invalid ObjectID'
+
+            # if doc exists, sync will update all shards
+            if doc
+
+              # set created and last modified
+              doc.created ?= Date.now() if cfg.options.set_created
+              doc.last_modified = Date.now() if cfg.options.set_last_modified
+
+              # update mongodb
+              doc._id = qry._id
+              opt = {safe: true, upsert: true}
+              collection.update qry, doc, opt, (err) ->
+                return next 'Error updating document' if err
+                next null, doc
+            else
+              collection.remove qry, (err) ->
+                return next 'Error removing document' if err
+                next null, doc
+
+        ], (err, doc) ->
+          return handleError err if err
+          setAll doc, (err) ->
+            return next 'Shard sync error' if err
+            hook 'after', 'find', doc if doc
+            res.send doc
 
       # sync data from firebase
       # NOTE: requires _id to be an ObjectID
@@ -232,7 +351,6 @@ exports.server = (cfg) ->
             collection.remove qry, (err) ->
               return handleError err if err
               res.send null
-
 
       # db.collection.find
       url = "#{cfg.root}/:collection/find"
