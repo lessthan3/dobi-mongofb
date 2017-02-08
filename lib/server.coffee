@@ -53,10 +53,10 @@ exports.server = (cfg) ->
   # variables
   exports.db = null
   exports.fb = null
-  exports.shards = {}
+  exports.shards = null
   db = null
   fb = null
-  shards = null
+  shards = {}
 
   connectFB = (options, next) ->
     {url, secret} = options or {}
@@ -74,7 +74,7 @@ exports.server = (cfg) ->
 
   # connect to firebase and mongodb
   connect = (next) ->
-    return next?() if db and fb and shards
+    return next?() if db and fb and exports.shards
 
     async.parallel [
 
@@ -101,21 +101,14 @@ exports.server = (cfg) ->
 
       # connect shards
       (next) ->
-        shard_keys = Object.keys cfg.shards or {}
-
-        async.each shard_keys, ((shard, next) ->
+        async.each Object.keys(cfg.shards or {}), ((shard, next) ->
           connectFB cfg.shards[shard], (err, firebase) ->
             return next? err if err
-            return next() unless firebase
-            shards ?= {}
             shards[shard] = firebase
-            exports.shards[shard] = firebase
             next()
         ), (err) ->
           return next err if err
-
-          # define shards to keep connect from looping
-          shards ?= {}
+          exports.shards = shards
           next()
 
     ], (err) ->
