@@ -356,7 +356,6 @@ exports.server = (cfg) ->
               res.send null
 
       # db.collection.find
-      # uses only mongofb, no firebase
       url = "#{cfg.root}/:collection/find"
       router.route 'GET', url, auth, (req, res, next) ->
         cache (next) ->
@@ -457,7 +456,6 @@ exports.server = (cfg) ->
 
 
       # db.collection.findOne
-      # uses only mongofb, no firebase
       url = "#{cfg.root}/:collection/findOne"
       router.route 'GET', url, auth, (req, res, next) ->
         req.url = "#{cfg.root}/#{req.params.collection}/find"
@@ -466,7 +464,6 @@ exports.server = (cfg) ->
 
 
       # db.collection.findById
-      # uses only mongofb, no firebase
       url = "#{cfg.root}/:collection/:id*"
       router.route 'GET', url, auth, (req, res, next) ->
         req.url = "#{cfg.root}/#{req.params.collection}/find"
