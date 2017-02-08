@@ -475,9 +475,8 @@ class exports.DocumentRef extends exports.EventEmitter
     super event, handler
 
     if @events.update?.length > 0 or @events.value?.length > 0
-      @ref.on 'value', (snapshot) =>
-        @updateData snapshot.val(), =>
-          @emit 'value', @val()
+      @emit 'value', @val()
+      @updateData snapshot.val()
 
   off: (event, handler=null) ->
     super event, handler
