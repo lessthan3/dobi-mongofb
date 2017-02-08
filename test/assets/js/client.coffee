@@ -181,7 +181,6 @@ class exports.Database
       @sync_base = 'sync'
 
   collection: (name) ->
-    console.log 'collection this', @
     new exports.Collection @, name
 
   get: (path) ->
@@ -436,7 +435,7 @@ class exports.Document
 class exports.DocumentRef extends exports.EventEmitter
   @_counter = 0
 
-  constructor: (@document, @path='', @sync_base) ->
+  constructor: (@document, @path='') ->
     super()
     @counter = ++exports.DocumentRef._counter
     @collection = @document.collection
@@ -518,27 +517,6 @@ class exports.DocumentRef extends exports.EventEmitter
         return next?(err) if err
         @updateData value, ->
           next? null
-
-  setAll: (value, next) ->
-
-    # if specific fields were queried for, only allow those to be updated
-    if @database.safe_writes
-      allow = true
-      if @document.query.fields
-        allow = false
-        for k, v of @document.query.fields
-          dst = "#{@document.key}/#{k.replace /\./g, '/'}"
-          allow = allow or @key.indexOf(dst) is 0
-      return next?('cannot set a field that was not queried for') unless allow
-
-    ref = @database.firebase.child @key
-    ref.set value, (err) =>
-      return next?(err) if err
-      @database.request "#{@sync_base}/#{@key}", (err, data) =>
-        return next?(err) if err
-        @updateData value, ->
-          next? null
-
 
   # @data = what we got from mongodb or what was already updated here
   # data = new data from firebase

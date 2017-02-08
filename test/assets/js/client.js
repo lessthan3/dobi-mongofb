@@ -259,7 +259,6 @@
     }
 
     Database.prototype.collection = function(name) {
-      console.log('collection this', this);
       return new exports.Collection(this, name);
     };
 
@@ -748,11 +747,10 @@
 
     DocumentRef._counter = 0;
 
-    function DocumentRef(document, path1, sync_base) {
+    function DocumentRef(document, path1) {
       var i, k, len, ref1, ref2;
       this.document = document;
       this.path = path1 != null ? path1 : '';
-      this.sync_base = sync_base;
       DocumentRef.__super__.constructor.call(this);
       this.counter = ++exports.DocumentRef._counter;
       this.collection = this.document.collection;
@@ -854,41 +852,6 @@
     };
 
     DocumentRef.prototype.set = function(value, next) {
-      var allow, dst, k, ref, ref1, v;
-      if (this.database.safe_writes) {
-        allow = true;
-        if (this.document.query.fields) {
-          allow = false;
-          ref1 = this.document.query.fields;
-          for (k in ref1) {
-            v = ref1[k];
-            dst = this.document.key + "/" + (k.replace(/\./g, '/'));
-            allow = allow || this.key.indexOf(dst) === 0;
-          }
-        }
-        if (!allow) {
-          return typeof next === "function" ? next('cannot set a field that was not queried for') : void 0;
-        }
-      }
-      ref = this.database.firebase.child(this.key);
-      return ref.set(value, (function(_this) {
-        return function(err) {
-          if (err) {
-            return typeof next === "function" ? next(err) : void 0;
-          }
-          return _this.database.request(_this.sync_base + "/" + _this.key, function(err, data) {
-            if (err) {
-              return typeof next === "function" ? next(err) : void 0;
-            }
-            return _this.updateData(value, function() {
-              return typeof next === "function" ? next(null) : void 0;
-            });
-          });
-        };
-      })(this));
-    };
-
-    DocumentRef.prototype.setAll = function(value, next) {
       var allow, dst, k, ref, ref1, v;
       if (this.database.safe_writes) {
         allow = true;
