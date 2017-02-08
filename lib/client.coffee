@@ -435,7 +435,7 @@ class exports.Document
 class exports.DocumentRef extends exports.EventEmitter
   @_counter = 0
 
-  constructor: (@document, @path='', @sync_base) ->
+  constructor: (@document, @path='') ->
     super()
     @counter = ++exports.DocumentRef._counter
     @collection = @document.collection
