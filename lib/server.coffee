@@ -88,6 +88,7 @@ exports.server = (cfg) ->
 
         # connect main shard
         (next) ->
+          return next 'firebase required' unless cfg.firebase
           connectFB cfg.firebase, (err, firebase) ->
             return next? err if err
             fb = firebase
@@ -97,7 +98,7 @@ exports.server = (cfg) ->
         # connect shards
         (next) ->
           shard_keys = Object.keys cfg.shards or {}
-          console.log 'shard_keys', shard_keys
+
           async.each shard_keys, ((shard, next) ->
             connectFB cfg.shards[shard], (err, firebase) ->
               return next? err if err
@@ -228,8 +229,9 @@ exports.server = (cfg) ->
       # how it works:
       # 1. get shard value
       # 2. ensure shard value isnt null if mongoDB value has data (bad)
-      # 3. update the mongoDB document
-      # 4. update all shards
+      # 3. if shard has no data, then sync from cfb.firebase location
+      # 4. update the mongoDB document
+      # 5. update all shards
       url = "#{cfg.root}/shards/sync/:shard/:collection/:id*"
       router.route 'GET', url, auth, (req, res, next) ->
         collection = db.collection req.params.collection
@@ -241,6 +243,8 @@ exports.server = (cfg) ->
         ref = shards[req.params.shard].child key
 
         setAll = (value, next) ->
+          if value?._id
+            value._id = value._id.toString()
           async.each Object.keys(shards), ((shard, next) ->
             shard_ref = shards[shard].child key
             shard_ref.set value, next
@@ -253,55 +257,54 @@ exports.server = (cfg) ->
             ref.once 'value', (snapshot) ->
               doc = snapshot.val()
 
-              # convert _id if using ObjectIDs
-              if cfg.options.use_objectid
-                try
-                  qry = {_id: new mongodb.ObjectID req.params.id}
-                catch err
-                  return next 'Invalid ObjectID'
-
-              next null, {qry, doc}
+              # if doc is null, pull it from the main firebase shard
+              # if main firebase shard is null or we run the risk
+              # of a non-sharded object being deleted. also means
+              # that all removals need to happen on cfg.firebase instance
+              if not doc?
+                fb.child(key).once 'value', (snapshot) ->
+                  if doc isnt snapshot.val()
+                    ref.set snapshot.val(), (err) ->
+                      return next 'invalid removal'
+                  else
+                    doc = snapshot.val()
+                    next null, doc
+              else
+                next null, doc
 
           # insert / update
-          ({qry, doc}, next) ->
+          (doc, next) ->
+            # convert _id if using ObjectIDs
+            if cfg.options.use_objectid
+              try
+                qry = {_id: new mongodb.ObjectID req.params.id}
+              catch err
+                return next 'Invalid ObjectID'
 
-            collection.findOne qry, (err, current_value) ->
-              return next 'Error finding document' if err
-              return next 'Invalid command' if not doc? and current_value?
+            # if doc exists, sync will update all shards
+            if doc
 
-              # if doc exists, sync will update all shards
-              if doc
+              # set created and last modified
+              doc.created ?= Date.now() if cfg.options.set_created
+              doc.last_modified = Date.now() if cfg.options.set_last_modified
 
-                # set created and last modified
-                doc.created ?= Date.now() if cfg.options.set_created
-                doc.last_modified = Date.now() if cfg.options.set_last_modified
-
-                # update mongodb
-                doc._id = qry._id
-                opt = {safe: true, upsert: true}
-                collection.update qry, doc, opt, (err) ->
-                  return next 'Error updating document' if err
-
-                  # set all
-                  doc._id = doc._id.toString()
-                  setAll doc, (err) ->
-                    return next 'Shard sync error' if err
-                    next null, doc
-
-              # if doc and current mongo value is null, do the remove
-              else if doc is null and current_value is null
-                collection.remove qry, (err) ->
-                  return handleError err if err
-                  next()
-
-              else
-                return next 'Unhandled exception'
+              # update mongodb
+              doc._id = qry._id
+              opt = {safe: true, upsert: true}
+              collection.update qry, doc, opt, (err) ->
+                return next 'Error updating document' if err
+                next null, doc
+            else
+              collection.remove qry, (err) ->
+                return next 'Error removing document' if err
+                next null, doc
 
         ], (err, doc) ->
           return handleError err if err
-          if doc
-            hook 'after', 'find', doc
-          res.send doc
+          setAll doc, (err) ->
+            return next 'Shard sync error' if err
+            hook 'after', 'find', doc if doc
+            res.send doc
 
       # default sync (not shard)
       url = "#{cfg.root}/sync/:collection/:id*"

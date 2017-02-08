@@ -836,13 +836,9 @@
     };
 
     DocumentRef.prototype.refresh = function(next) {
-      return this.database.request(this.collection.name + "/" + this.data._id, (function(_this) {
-        return function(err, data) {
-          if (err) {
-            return typeof next === "function" ? next(err) : void 0;
-          }
-          console.log('data', data);
-          return _this.updateData(data, function() {
+      return this.ref.once('value', (function(_this) {
+        return function(snapshot) {
+          return _this.updateData(snapshot.val(), function() {
             return typeof next === "function" ? next() : void 0;
           });
         };

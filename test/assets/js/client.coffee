@@ -490,10 +490,8 @@ class exports.DocumentRef extends exports.EventEmitter
     new exports.DocumentRef @document, @path[0...@path.length-1]
 
   refresh: (next) ->
-    @database.request "#{@collection.name}/#{@data._id}", (err, data) =>
-      return next?(err) if err
-      console.log 'data', data
-      @updateData data, ->
+    @ref.once 'value', (snapshot) =>
+      @updateData snapshot.val(), ->
         next?()
 
   remove: (next) ->
