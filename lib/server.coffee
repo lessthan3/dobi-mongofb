@@ -258,7 +258,6 @@ exports.server = (cfg) ->
         # get data
         ref.once 'value', (snapshot) ->
           doc = snapshot.val()
-          console.log 'doc', doc
 
           # convert _id if using ObjectIDs
           if cfg.options.use_objectid
@@ -285,7 +284,7 @@ exports.server = (cfg) ->
               hook 'after', 'find', doc
               res.send doc
 
-          # removal
+          # remove
           else
 
             # note: remove only from firebase in cfg.firebase
