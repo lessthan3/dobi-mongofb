@@ -168,9 +168,11 @@ class exports.Database
       @api = cfg
       @request 'Firebase', false, (url) ->
         @firebase = new Firebase url
+        @firebase_url = url
     else
       @api = cfg.server
       @firebase = new Firebase cfg.firebase
+      @firebase_url = cfg.firebase
 
   collection: (name) ->
     new exports.Collection @, name
@@ -195,6 +197,7 @@ class exports.Database
         when 'object' then params = arg
 
     url = "#{@api}/#{resource}"
+    params.firebase_url = @firebase_url
     params.token = @token if @token
     return fetch {
       cache: @cache
