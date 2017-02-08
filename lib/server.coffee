@@ -131,7 +131,7 @@ exports.server = (cfg) ->
       # databases
       req.db = db
       req.fb = fb
-      req.shards = shards if shards
+      req.shards = shards
       req.mongofb = new exports.client.Database {
         server: "http://#{req.get('host')}#{cfg.root}"
         firebase: cfg.firebase.url
@@ -221,7 +221,6 @@ exports.server = (cfg) ->
       # firebase url
       router.route 'GET', "#{cfg.root}/Firebase", (req, res, next) ->
         res.send cfg.firebase.url
-
 
       # ObjectID for creating documents
       router.route 'GET', "#{cfg.root}/ObjectID", (req, res, next) ->
