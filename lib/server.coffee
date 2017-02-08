@@ -261,8 +261,11 @@ exports.server = (cfg) ->
               # cleared by shard sync
               if not doc?
                 fb.child(key).once 'value', (snapshot) ->
+
+                  # if main shard (in cfg.firebase) isnt null
+                  # then revert all shards
                   if doc isnt snapshot.val()
-                    ref.set snapshot.val(), (err) ->
+                    setAll snapshot.val(), (err) ->
                       return next 'invalid removal'
                   else
                     doc = snapshot.val()
@@ -272,6 +275,7 @@ exports.server = (cfg) ->
 
           # insert / update
           (doc, next) ->
+
             # convert _id if using ObjectIDs
             if cfg.options.use_objectid
               try
