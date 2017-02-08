@@ -238,13 +238,12 @@ exports.server = (cfg) ->
         shard = req.params.shard
         key = "#{req.params.collection}/#{req.params.id}"
 
-        if not req.params.shard
+        if not shards[req.params.shard]
           return handleError 'Invalid Firebase Shard'
         ref = shards[req.params.shard].child key
 
         setAll = (value, next) ->
-          if value?._id
-            value._id = value._id.toString()
+          value._id = value._id.toString() if value?._id
           async.each Object.keys(shards), ((shard, next) ->
             shard_ref = shards[shard].child key
             shard_ref.set value, next
@@ -258,9 +257,8 @@ exports.server = (cfg) ->
               doc = snapshot.val()
 
               # if doc is null, pull it from the main firebase shard
-              # if main firebase shard is null or we run the risk
-              # of a non-sharded object being deleted. also means
-              # that all removals need to happen on cfg.firebase instance
+              # to ensure that non-sharded objects don't get
+              # cleared by shard sync
               if not doc?
                 fb.child(key).once 'value', (snapshot) ->
                   if doc isnt snapshot.val()
