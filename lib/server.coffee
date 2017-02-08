@@ -75,47 +75,51 @@ exports.server = (cfg) ->
   # connect to firebase and mongodb
   connect = (next) ->
     return next?() if db and fb and shards
-    m = cfg.mongodb
-    url = "mongodb://#{m.user}:#{m.pass}@#{m.host}:#{m.port}/#{m.db}"
-    url = url.replace ':@', '@'
-    mongodb.MongoClient.connect url, m.options, (err, database) ->
-      return next?(err) if err
-      db = database
-      db.ObjectID = mongodb.ObjectID
-      exports.db = db
 
-      async.series [
+    async.parallel [
 
-        # connect main shard
-        (next) ->
-          return next 'firebase required' unless cfg.firebase
-          connectFB cfg.firebase, (err, firebase) ->
+      # connect mongoDB
+      (next) ->
+        m = cfg.mongodb
+        url = "mongodb://#{m.user}:#{m.pass}@#{m.host}:#{m.port}/#{m.db}"
+        url = url.replace ':@', '@'
+        mongodb.MongoClient.connect url, m.options, (err, database) ->
+          return next err if err
+          db = database
+          db.ObjectID = mongodb.ObjectID
+          exports.db = db
+          next()
+
+      # connect main shard
+      (next) ->
+        return next 'firebase required' unless cfg.firebase
+        connectFB cfg.firebase, (err, firebase) ->
+          return next? err if err
+          fb = firebase
+          exports.fb = firebase
+          next()
+
+      # connect shards
+      (next) ->
+        shard_keys = Object.keys cfg.shards or {}
+
+        async.each shard_keys, ((shard, next) ->
+          connectFB cfg.shards[shard], (err, firebase) ->
             return next? err if err
-            fb = firebase
-            exports.fb = firebase
-            next()
-
-        # connect shards
-        (next) ->
-          shard_keys = Object.keys cfg.shards or {}
-
-          async.each shard_keys, ((shard, next) ->
-            connectFB cfg.shards[shard], (err, firebase) ->
-              return next? err if err
-              return next() unless firebase
-              shards ?= {}
-              shards[shard] = firebase
-              exports.shards[shard] = firebase
-              next()
-          ), (err) ->
-            return next err if err
-
-            # define shards to keep connect from looping
+            return next() unless firebase
             shards ?= {}
+            shards[shard] = firebase
+            exports.shards[shard] = firebase
             next()
+        ), (err) ->
+          return next err if err
 
-      ], (err) ->
-        return next? err
+          # define shards to keep connect from looping
+          shards ?= {}
+          next()
+
+    ], (err) ->
+      return next? err
 
   connect()
 
