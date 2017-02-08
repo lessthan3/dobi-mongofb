@@ -181,7 +181,6 @@ class exports.Database
       @sync_base = 'sync'
 
   collection: (name) ->
-    console.log 'collection this', @
     new exports.Collection @, name
 
   get: (path) ->

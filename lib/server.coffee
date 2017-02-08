@@ -117,7 +117,7 @@ exports.server = (cfg) ->
       ], (err) ->
         return next? err
 
-  connect (err) -> console.log err if err
+  connect()
 
   # middleware
   (req, res, next) ->
