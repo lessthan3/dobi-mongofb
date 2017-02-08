@@ -308,7 +308,13 @@ exports.server = (cfg) ->
             hook 'after', 'find', doc if doc
             res.send doc
 
-      # default sync (not shard)
+      # sync data from firebase
+      # NOTE: requires _id to be an ObjectID
+      # db.collection.update
+      # db.collection.insert
+      # db.collection.remove
+      # the format is /sync/:collection/:id and not /:collection/:sync/:id to
+      # match firebase urls. the key in firebase is /:collection/:id
       url = "#{cfg.root}/sync/:collection/:id*"
       router.route 'GET', url, auth, (req, res, next) ->
         collection = db.collection req.params.collection
