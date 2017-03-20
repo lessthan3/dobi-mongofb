@@ -1,9 +1,8 @@
 # setup mongoFB database
-db = new mongofb.Database {
+window.db = new mongofb.Database {
   server: '/api/v1'
-  firebase: 'https://crackling-torch-8221.firebaseio.com'
+  firebase: 'https://testproject-24602.firebaseio.com'
 }
 
-window.app = {}
 for collection in ['users', 'objects', 'sites']
-  window.app[collection] = db.collection collection
+  window.app[collection] = window.db.get collection
