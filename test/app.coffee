@@ -53,13 +53,17 @@ copyFile ->
           max: 100
           maxAge: 1000 * 60 * 5
         firebase:
-          url: config.url
-          secret: config.secreet
+          url: config.firebase.url
+          secret: config.firebase.secret
         mongodb:
           db: 'TestDB'
           host: 'localhost'
           post: 27017
           user: 'admin'
+        options:
+          blacklist: [
+            'blacklist'
+          ]
       }
     ]
 

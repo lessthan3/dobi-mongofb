@@ -40,6 +40,7 @@ exports.server = (cfg) ->
           socketOptions:
             keepAlive: 120
     options:
+      blacklist: []
       limit_default: 20
       limit_max: 1000
       set_created: true
@@ -195,6 +196,7 @@ exports.server = (cfg) ->
       # match firebase urls. the key in firebase is /:collection/:id
       url = "#{cfg.root}/sync/:collection/:id*"
       router.route 'GET', url, auth, (req, res, next) ->
+        return res.send 404 if req.params.collection in cfg.options.blacklist
         collection = db.collection req.params.collection
 
         # get data
@@ -237,6 +239,7 @@ exports.server = (cfg) ->
       # db.collection.find
       url = "#{cfg.root}/:collection/find"
       router.route 'GET', url, auth, (req, res, next) ->
+        return res.send 404 if req.params.collection in cfg.options.blacklist
         cache (next) ->
 
           # special options (mainly for use by findByID and findOne)
@@ -337,6 +340,7 @@ exports.server = (cfg) ->
       # db.collection.findOne
       url = "#{cfg.root}/:collection/findOne"
       router.route 'GET', url, auth, (req, res, next) ->
+        return res.send 404 if req.params.collection in cfg.options.blacklist
         req.url = "#{cfg.root}/#{req.params.collection}/find"
         req.query.__single = true
         router._dispatch req, res, next
@@ -345,6 +349,7 @@ exports.server = (cfg) ->
       # db.collection.findById
       url = "#{cfg.root}/:collection/:id*"
       router.route 'GET', url, auth, (req, res, next) ->
+        return res.send 404 if req.params.collection in cfg.options.blacklist
         req.url = "#{cfg.root}/#{req.params.collection}/find"
         req.query.criteria = JSON.stringify {_id: req.params.id}
         req.query.__single = true
