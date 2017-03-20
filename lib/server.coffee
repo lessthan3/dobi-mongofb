@@ -200,7 +200,6 @@ exports.server = (cfg) ->
         # get data
         ref = fb.child "#{req.params.collection}/#{req.params.id}"
         ref.once 'value', (snapshot) ->
-
           doc = snapshot.val()
 
           # convert _id if using ObjectIDs
