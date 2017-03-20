@@ -25,6 +25,14 @@ exports.server = (cfg) ->
     firebase:
       url: 'https://vn42xl9zsez.firebaseio-demo.com/'
       secret: null
+    shards: [
+      ###
+      {
+        url: url
+        secret: secret
+      }
+      ###
+    ]
     mongodb:
       db: 'test'
       host: 'localhost'
@@ -55,6 +63,22 @@ exports.server = (cfg) ->
   db = null
   fb = null
 
+  # connect to main
+  connectFirebase = ({url, secret}, next) ->
+    next ?= ->
+    firebase = new Firebase url
+    if secret
+      token_generator = new FirebaseTokenGenerator secret
+      token = token_generator.createToken {}, {
+        expires: Date.now() + 1000*60*60*24*30
+        admin: true
+      }
+      firebase.authWithCustomToken token, (err) ->
+        return next err if err
+        firebase.admin_token = token
+        next null, firebase
+    else
+      next null, firebase
 
   # connect to firebase and mongodb
   connect = (next) ->
@@ -67,26 +91,34 @@ exports.server = (cfg) ->
       db = database
       db.ObjectID = mongodb.ObjectID
       exports.db = db
-      fb = new Firebase cfg.firebase.url
-      if cfg.firebase.secret
-        token_generator = new FirebaseTokenGenerator cfg.firebase.secret
-        token = token_generator.createToken {}, {
-          expires: Date.now() + 1000*60*60*24*30
-          admin: true
-        }
-        fb.authWithCustomToken token, (err) ->
-          fb.admin_token = token
-          next?(err)
-          exports.fb = fb
-      else
-        next?()
+
+      # connect MASTER firebase
+      connectFirebase {
+        url: cfg.firebase.url
+        secret: cfb.firebase.secret
+      }, (err, firebase) ->
+        return next err if err
+        fb = firebase
+        exports.fb = fb
+
+        # connect shards
+        async.map cfb.shards, ((shard, next) ->
+          connectFirebase {
+            url: shard.url
+            secret: shard.secret
+          }, (err, firebase) ->
+            return next err if err
+            shard.fb = firebase
+            return next null, shard
+        ), (err) ->
+          next? err
+
   connect()
 
   # middleware
   (req, res, next) ->
     connect (err) ->
       return next err if err
-
 
       # databases
       req.db = db
@@ -199,41 +231,59 @@ exports.server = (cfg) ->
         return res.send 404 if req.params.collection in cfg.options.blacklist
         collection = db.collection req.params.collection
 
+        # combine firebases
+        firebases = []
+        slaves = cfg.shards.map (shard) ->
+          if shard.fb
+            return shard?.fb
+          else
+            return false
+
+        slaves = slaves.filter (slave) -> slave
+
         # get data
-        ref = fb.child "#{req.params.collection}/#{req.params.id}"
+        ref_url = "#{req.params.collection}/#{req.params.id}"
+        ref = fb.child ref_url
         ref.once 'value', (snapshot) ->
           doc = snapshot.val()
 
-          # convert _id if using ObjectIDs
-          if cfg.options.use_objectid
-            try
-              qry = {_id: new mongodb.ObjectID req.params.id}
-            catch err
-              return handleError 'Invalid ObjectID'
+          # set slaves
+          async.each slaves, ((slave_fb, next) ->
+            slave_ref = slave_fb.child ref_url
+            slave_ref.set doc, next
+          ), (err) ->
+            return handleError "sync error: #{err}" if err
 
-          # insert/update
-          if doc
+            # convert _id if using ObjectIDs
+            if cfg.options.use_objectid
+              try
+                qry = {_id: new mongodb.ObjectID req.params.id}
+              catch err
+                return handleError 'Invalid ObjectID'
 
-            # set created
-            if cfg.options.set_created
-              doc.created ?= Date.now()
+            # insert/update
+            if doc
 
-            # set last modified
-            if cfg.options.set_last_modified
-              doc.last_modified = Date.now()
+              # set created
+              if cfg.options.set_created
+                doc.created ?= Date.now()
 
-            doc._id = qry._id
-            opt = {safe: true, upsert: true}
-            collection.update qry, doc, opt, (err) ->
-              return handleError err if err
-              hook 'after', 'find', doc
-              res.send doc
+              # set last modified
+              if cfg.options.set_last_modified
+                doc.last_modified = Date.now()
 
-          # remove
-          else
-            collection.remove qry, (err) ->
-              return handleError err if err
-              res.send null
+              doc._id = qry._id
+              opt = {safe: true, upsert: true}
+              collection.update qry, doc, opt, (err) ->
+                return handleError err if err
+                hook 'after', 'find', doc
+                res.send doc
+
+            # remove
+            else
+              collection.remove qry, (err) ->
+                return handleError err if err
+                res.send null
 
 
       # db.collection.find
