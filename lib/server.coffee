@@ -87,7 +87,6 @@ exports.server = (cfg) ->
     connect (err) ->
       return next err if err
 
-
       # databases
       req.db = db
       req.fb = fb
@@ -196,12 +195,12 @@ exports.server = (cfg) ->
       # match firebase urls. the key in firebase is /:collection/:id
       url = "#{cfg.root}/sync/:collection/:id*"
       router.route 'GET', url, auth, (req, res, next) ->
-        return res.send 404 if req.params.collection in cfg.options.blacklist
         collection = db.collection req.params.collection
 
         # get data
         ref = fb.child "#{req.params.collection}/#{req.params.id}"
         ref.once 'value', (snapshot) ->
+
           doc = snapshot.val()
 
           # convert _id if using ObjectIDs
@@ -210,6 +209,11 @@ exports.server = (cfg) ->
               qry = {_id: new mongodb.ObjectID req.params.id}
             catch err
               return handleError 'Invalid ObjectID'
+
+          # send null if collection in blacklist
+          # WARNING: IF YOU ATTEMPT TO SYNC A COLLECTION ITEM NOT
+          # ON YOUR FIREBASE AND CALL SYNC, IT WILL GET DESTROYED
+          return res.send null if req.params.collection in cfg.options.blacklist
 
           # insert/update
           if doc
@@ -239,7 +243,6 @@ exports.server = (cfg) ->
       # db.collection.find
       url = "#{cfg.root}/:collection/find"
       router.route 'GET', url, auth, (req, res, next) ->
-        return res.send 404 if req.params.collection in cfg.options.blacklist
         cache (next) ->
 
           # special options (mainly for use by findByID and findOne)
@@ -319,6 +322,12 @@ exports.server = (cfg) ->
           if criteria.$where
             return res.send 403, 'use of the $where operator is not allowed'
 
+          # dont make a DB call for blacklist
+          # as mongo errors can be revealing
+          if req.params.collection in cfg.options.blacklist
+            return res.send 404 if __single
+            return next []
+
           # hooks
           hook 'before', 'find', [criteria, fields, options]
 
@@ -336,11 +345,9 @@ exports.server = (cfg) ->
               docs = docs[0]
             next docs
 
-
       # db.collection.findOne
       url = "#{cfg.root}/:collection/findOne"
       router.route 'GET', url, auth, (req, res, next) ->
-        return res.send 404 if req.params.collection in cfg.options.blacklist
         req.url = "#{cfg.root}/#{req.params.collection}/find"
         req.query.__single = true
         router._dispatch req, res, next
@@ -349,7 +356,6 @@ exports.server = (cfg) ->
       # db.collection.findById
       url = "#{cfg.root}/:collection/:id*"
       router.route 'GET', url, auth, (req, res, next) ->
-        return res.send 404 if req.params.collection in cfg.options.blacklist
         req.url = "#{cfg.root}/#{req.params.collection}/find"
         req.query.criteria = JSON.stringify {_id: req.params.id}
         req.query.__single = true
