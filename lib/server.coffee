@@ -108,7 +108,7 @@ exports.server = (cfg) ->
         next?()
 
       hasPermission = ->
-        auth()
+        auth req, res
         if req.admin
           return true
         else if req.params.collection in cfg.options.blacklist
