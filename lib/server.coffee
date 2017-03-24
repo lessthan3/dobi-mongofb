@@ -84,6 +84,8 @@ exports.server = (cfg) ->
 
   # middleware
   (req, res, next) ->
+
+
     connect (err) ->
       return next err if err
 
@@ -105,7 +107,16 @@ exports.server = (cfg) ->
             req.admin = payload.admin
           catch err
             req.token_parse_error = err
-        next()
+        next?()
+
+      hasPermission = ->
+        auth()
+        if req.admin
+          return true
+        else if req.params.collection in cfg.options.blacklist
+          return false
+        else
+          return true
 
       _cache = new LRU cfg.cache
       cache = (fn) ->
@@ -212,7 +223,7 @@ exports.server = (cfg) ->
           # send null if collection in blacklist
           # WARNING: IF YOU ATTEMPT TO SYNC A COLLECTION ITEM NOT
           # ON YOUR FIREBASE AND CALL SYNC, IT WILL GET DESTROYED
-          return res.send null if req.params.collection in cfg.options.blacklist
+          return res.send null unless hasPermission()
 
           # insert/update
           if doc
@@ -323,7 +334,7 @@ exports.server = (cfg) ->
 
           # dont make a DB call for blacklist
           # as mongo errors can be revealing
-          if req.params.collection in cfg.options.blacklist
+          if not hasPermission()
             return res.send 404 if __single
             return next []
 
