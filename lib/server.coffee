@@ -84,8 +84,6 @@ exports.server = (cfg) ->
 
   # middleware
   (req, res, next) ->
-
-
     connect (err) ->
       return next err if err
 
