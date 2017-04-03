@@ -12,7 +12,7 @@
   "dependencies": {
     "deepmerge": "1.3.2",
     "dobi-asset-wrap": "1.00.x",
-    "express": "4.15.2",
+    "express": "3.21.2",
     "firebase": "2.2.9",
     "firebase-token-generator": "2.0.0",
     "jwt-simple": "0.5.1",
