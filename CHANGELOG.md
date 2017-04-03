@@ -1,3 +1,6 @@
+**2.0.0** (2017-04-02)
+ - make compatable for node 6.10.0+
+
 **1.0.0** (2016-08-12)
  - fork to dobi-mongofb
 
