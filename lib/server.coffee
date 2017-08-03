@@ -7,7 +7,7 @@ jwt = require 'jwt-simple'
 LRU = require 'lru-cache'
 merge = require 'deepmerge'
 mongodb = require 'mongodb'
-wrap = require 'asset-wrap'
+wrap = require 'dobi-asset-wrap'
 
 
 # exports
