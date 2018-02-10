@@ -56,6 +56,7 @@ exports.server = (cfg) ->
   connect = (next) ->
     return next?() if db and fb
     m = cfg.mongodb
+    console
     url = "mongodb://#{m.user}:#{m.pass}@#{m.host}:#{m.port}/#{m.db}"
     url = url.replace ':@', '@'
     mongodb.MongoClient.connect url, m.options, (err, database) ->

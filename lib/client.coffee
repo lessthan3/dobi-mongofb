@@ -479,13 +479,10 @@ class exports.DocumentRef extends exports.EventEmitter
 
   refresh: (next) ->
     completed = false
-    done = ->
-      next?() unless completed
-      completed = true
     fallback = setTimeout done, 7000
     @ref.once 'value', (snapshot) =>
       @updateData snapshot.val(), ->
-        done()
+        next?()
 
   remove: (next) ->
     if typeof next not in ['function', 'undefined']

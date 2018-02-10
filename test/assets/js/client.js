@@ -822,21 +822,13 @@
     };
 
     DocumentRef.prototype.refresh = function(next) {
-      var completed, done, fallback;
+      var completed, fallback;
       completed = false;
-      done = function() {
-        if (!completed) {
-          if (typeof next === "function") {
-            next();
-          }
-        }
-        return completed = true;
-      };
       fallback = setTimeout(done, 7000);
       return this.ref.once('value', (function(_this) {
         return function(snapshot) {
           return _this.updateData(snapshot.val(), function() {
-            return done();
+            return typeof next === "function" ? next() : void 0;
           });
         };
       })(this));
