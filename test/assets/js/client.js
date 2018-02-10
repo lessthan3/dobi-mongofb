@@ -239,7 +239,6 @@
 
   exports.Database = (function() {
     function Database(cfg) {
-      this.shards = {};
       this.cache = true;
       this.safe_writes = true;
       if (typeof cfg === 'string') {
@@ -310,16 +309,6 @@
           return next();
         };
       })(this));
-    };
-
-    Database.prototype.authShard = function(shard, token, next) {
-      shard = new Firebase("https://" + shard + ".firebaseio.com");
-      return shard.authWithCustomToken(token, function(err) {
-        if (err) {
-          return next(err);
-        }
-        return this.shards[shard] = shard;
-      });
     };
 
     Database.prototype.setToken = function(token) {
@@ -833,10 +822,21 @@
     };
 
     DocumentRef.prototype.refresh = function(next) {
+      var completed, done, fallback;
+      completed = false;
+      done = function() {
+        if (!completed) {
+          if (typeof next === "function") {
+            next();
+          }
+        }
+        return completed = true;
+      };
+      fallback = setTimeout(done, 7000);
       return this.ref.once('value', (function(_this) {
         return function(snapshot) {
           return _this.updateData(snapshot.val(), function() {
-            return typeof next === "function" ? next() : void 0;
+            return done();
           });
         };
       })(this));
