@@ -822,9 +822,6 @@
     };
 
     DocumentRef.prototype.refresh = function(next) {
-      var completed, fallback;
-      completed = false;
-      fallback = setTimeout(done, 7000);
       return this.ref.once('value', (function(_this) {
         return function(snapshot) {
           return _this.updateData(snapshot.val(), function() {
