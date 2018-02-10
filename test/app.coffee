@@ -1,8 +1,10 @@
 async = require 'async'
 bodyParser = require 'body-parser'
 coffee = require 'coffee-script'
-config = require '/u/config/local-test'
+config = require '/u/config/test-keys'
 connectAssets = require 'teacup/lib/connect-assets'
+
+
 express = require 'express'
 fs = require 'fs'
 mongofb = require '../lib/server.coffee'
@@ -55,11 +57,7 @@ copyFile ->
         firebase:
           url: config.firebase.url
           secret: config.firebase.secret
-        mongodb:
-          db: 'TestDB'
-          host: 'localhost'
-          post: 27017
-          user: 'admin'
+        mongodb: config.mongo
         options:
           blacklist: [
             'blacklist'

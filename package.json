@@ -7,17 +7,18 @@
     "async": "2.0.1",
     "body-parser": "1.6.x",
     "coffee-script": "1.10.0",
-    "teacup": "2.0.0"
+    "teacup": "^2.0.0"
   },
   "dependencies": {
-    "asset-wrap": "0.8.x",
+    "connect-assets": "^5.4.0",
     "deepmerge": "0.2.x",
+    "dobi-asset-wrap": "2.0.0",
     "express": "3.4.x",
     "firebase": "2.2.9",
     "firebase-token-generator": "2.0.0",
     "jwt-simple": "0.1.x",
     "lru-cache": "2.5.x",
-    "mongodb": "1.3.x",
+    "mongodb": "2.2.x",
     "node.extend": "1.0.x",
     "request": "2.33.x"
   },
@@ -30,7 +31,7 @@
     "url": "git://github.com/lessthan3/dobi-mongofb.git"
   },
   "engines": {
-    "node": ">= 0.8.0"
+    "node": ">= 6.11.x"
   },
-  "version": "1.0.8"
+  "version": "1.1.0-beta"
 }

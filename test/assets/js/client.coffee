@@ -162,6 +162,7 @@ class exports.EventEmitter
 
 class exports.Database
   constructor: (cfg) ->
+    @shards = {}
     @cache = true
     @safe_writes = true
     if typeof cfg == 'string'
@@ -209,6 +210,12 @@ class exports.Database
     @firebase.authWithCustomToken token, =>
       @token = token
       next()
+
+  authShard: (shard, token, next) ->
+    shard = new Firebase "https://#{shard}.firebaseio.com"
+    shard.authWithCustomToken token, (err) ->
+      return next err if err
+      @shards[shard] = shard
 
   setToken: (token) ->
     @token = token

@@ -7,7 +7,7 @@ jwt = require 'jwt-simple'
 LRU = require 'lru-cache'
 merge = require 'deepmerge'
 mongodb = require 'mongodb'
-wrap = require 'asset-wrap'
+wrap = require 'dobi-asset-wrap'
 
 
 # exports
@@ -32,13 +32,10 @@ exports.server = (cfg) ->
       port: 27017
       user: 'admin'
       options:
-        db:
-          native_parser: false
-        server:
-          auto_reconnect: true
-          poolSize: 1
-          socketOptions:
-            keepAlive: 120
+        native_parser: false
+        autoReconnect: true
+        poolSize: 1
+        keepAlive: 120
     options:
       blacklist: []
       limit_default: 20
@@ -47,7 +44,6 @@ exports.server = (cfg) ->
       set_last_modified: true
       use_objectid: true
   }, cfg
-
 
   # variables
   exports.db = null
