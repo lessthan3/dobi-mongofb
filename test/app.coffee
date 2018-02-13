@@ -1,6 +1,6 @@
 async = require 'async'
 bodyParser = require 'body-parser'
-coffee = require 'coffee-script'
+coffee = require 'coffeescript'
 config = require '/u/config/test-keys'
 connectAssets = require 'teacup/lib/connect-assets'
 express = require 'express'
