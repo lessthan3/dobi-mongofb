@@ -6,7 +6,7 @@
   "devDependencies": {
     "async": "2.0.1",
     "body-parser": "1.6.x",
-    "coffeescript": "1.10.0",
+    "coffee-script": "1.10.0",
     "teacup": "^2.0.0"
   },
   "dependencies": {
