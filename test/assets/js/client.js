@@ -822,10 +822,21 @@
     };
 
     DocumentRef.prototype.refresh = function(next) {
+      var completed, done, fallback;
+      completed = false;
+      done = function() {
+        if (!completed) {
+          if (typeof next === "function") {
+            next();
+          }
+        }
+        return completed = true;
+      };
+      fallback = setTimeout(done, 7000);
       return this.ref.once('value', (function(_this) {
         return function(snapshot) {
           return _this.updateData(snapshot.val(), function() {
-            return typeof next === "function" ? next() : void 0;
+            return done();
           });
         };
       })(this));
