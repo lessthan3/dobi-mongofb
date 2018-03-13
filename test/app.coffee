@@ -1,7 +1,7 @@
 async = require 'async'
 bodyParser = require 'body-parser'
 coffee = require 'coffeescript'
-config = require '/u/config/dobi-server.js'
+config = require '/u/config/test-config.js'
 connectAssets = require 'teacup/lib/connect-assets'
 express = require 'express'
 fs = require 'fs'
@@ -55,7 +55,17 @@ copyFile ->
         firebase:
           url: config.firebase.url
           secret: config.firebase.secret
-        mongodb: config.mongo
+        mongodb:
+          db: 'test'
+          host: 'localhost'
+          pass: ''
+          port: 27017
+          user: 'admin'
+          options:
+            native_parser: false
+            autoReconnect: true
+            poolSize: 1
+            keepAlive: 12
         options:
           blacklist: [
             'blacklist'
