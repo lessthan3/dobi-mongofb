@@ -1,8 +1,8 @@
 (function() {
   var Firebase, exports, extend, fetch, request,
-    slice = [].slice,
-    extend1 = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    hasProp = {}.hasOwnProperty;
+    __slice = [].slice,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   if (typeof window !== 'undefined') {
     exports = window.mongofb = {};
@@ -47,13 +47,13 @@
     request = require('request');
     Firebase = require('firebase');
     fetch = function(args) {
-      var base;
+      var _base;
       if (args.params == null) {
         args.params = {};
       }
       if (!args.cache) {
-        if ((base = args.params)._ == null) {
-          base._ = Date.now();
+        if ((_base = args.params)._ == null) {
+          _base._ = Date.now();
         }
       }
       return request({
@@ -62,7 +62,6 @@
         method: 'GET'
       }, (function(_this) {
         return function(err, resp, body) {
-          var error1;
           if (err) {
             return args.next(err);
           }
@@ -74,8 +73,8 @@
               if (args.json) {
                 try {
                   body = JSON.parse(body);
-                } catch (error1) {
-                  err = error1;
+                } catch (_error) {
+                  err = _error;
                   body = null;
                 }
               }
@@ -135,7 +134,7 @@
       return console.log("[monogfb] " + msg);
     },
     prepareFind: function(the_arguments) {
-      var args, criteria, fields, has_callback, jsonify, next, options, params, query, ref1, ref2, ref3, special;
+      var args, criteria, fields, has_callback, jsonify, next, options, params, query, special, _ref, _ref1, _ref2;
       args = Array.prototype.slice.call(the_arguments, 0);
       jsonify = function(q) {
         var k, o, v;
@@ -166,13 +165,13 @@
         special = args[3];
       }
       if (options && !special && (options.token || options._)) {
-        ref1 = [options, null], special = ref1[0], options = ref1[1];
+        _ref = [options, null], special = _ref[0], options = _ref[1];
       }
       if (fields && !options && (fields.limit || fields.skip || fields.sort)) {
-        ref2 = [fields, null], options = ref2[0], fields = ref2[1];
+        _ref1 = [fields, null], options = _ref1[0], fields = _ref1[1];
       }
       if (fields && !special && (fields.token || fields._)) {
-        ref3 = [fields, null], special = ref3[0], fields = ref3[1];
+        _ref2 = [fields, null], special = _ref2[0], fields = _ref2[1];
       }
       query = {
         criteria: criteria,
@@ -199,34 +198,34 @@
     }
 
     EventEmitter.prototype.emit = function() {
-      var args, event, handler, i, len, ref1, results;
-      event = arguments[0], args = 2 <= arguments.length ? slice.call(arguments, 1) : [];
+      var args, event, handler, _i, _len, _ref, _results;
+      event = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
       if (this.events[event]) {
-        ref1 = this.events[event];
-        results = [];
-        for (i = 0, len = ref1.length; i < len; i++) {
-          handler = ref1[i];
-          results.push(handler.apply(null, args));
+        _ref = this.events[event];
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          handler = _ref[_i];
+          _results.push(handler.apply(null, args));
         }
-        return results;
+        return _results;
       }
     };
 
     EventEmitter.prototype.on = function(event, handler) {
-      var base;
-      if ((base = this.events)[event] == null) {
-        base[event] = [];
+      var _base;
+      if ((_base = this.events)[event] == null) {
+        _base[event] = [];
       }
       return this.events[event].push(handler);
     };
 
     EventEmitter.prototype.off = function(event, handler) {
-      var base;
+      var _base;
       if (handler == null) {
         handler = null;
       }
-      if ((base = this.events)[event] == null) {
-        base[event] = [];
+      if ((_base = this.events)[event] == null) {
+        _base[event] = [];
       }
       return this.events[event] = this.events[event].filter(function(fn) {
         return handler !== null && fn !== handler;
@@ -267,13 +266,13 @@
     };
 
     Database.prototype.request = function() {
-      var arg, i, json, len, next, params, resource, url;
+      var arg, json, next, params, resource, url, _i, _len;
       json = true;
       resource = '';
       next = null;
       params = {};
-      for (i = 0, len = arguments.length; i < len; i++) {
-        arg = arguments[i];
+      for (_i = 0, _len = arguments.length; _i < _len; _i++) {
+        arg = arguments[_i];
         switch (typeof arg) {
           case 'boolean':
             json = arg;
@@ -288,7 +287,7 @@
             params = arg;
         }
       }
-      url = this.api + "/" + resource;
+      url = "" + this.api + "/" + resource;
       if (this.token) {
         params.token = this.token;
       }
@@ -320,9 +319,9 @@
   })();
 
   exports.Collection = (function() {
-    function Collection(database, name1) {
+    function Collection(database, name) {
       this.database = database;
-      this.name = name1;
+      this.name = name;
       this.ref = new exports.CollectionRef(this);
     }
 
@@ -337,12 +336,12 @@
     };
 
     Collection.prototype.insert = function(doc, priority, next) {
-      var ref1;
+      var _ref;
       if (typeof priority === 'function') {
-        ref1 = [priority, null], next = ref1[0], priority = ref1[1];
+        _ref = [priority, null], next = _ref[0], priority = _ref[1];
       }
       return this.database.request('ObjectID', false, {
-        _: (Date.now()) + "-" + (Math.random())
+        _: "" + (Date.now()) + "-" + (Math.random())
       }, (function(_this) {
         return function(err, id) {
           var ref;
@@ -350,7 +349,7 @@
             return typeof next === "function" ? next(err) : void 0;
           }
           doc._id = id;
-          ref = _this.database.firebase.child(_this.name + "/" + id);
+          ref = _this.database.firebase.child("" + _this.name + "/" + id);
           return ref.set(doc, function(err) {
             if (err) {
               return typeof next === "function" ? next(err) : void 0;
@@ -372,7 +371,7 @@
     };
 
     Collection.prototype.find = function(criteria, fields, options, next) {
-      var data, datas, params, query, ref1;
+      var data, datas, params, query, _ref;
       if (criteria == null) {
         criteria = null;
       }
@@ -385,41 +384,41 @@
       if (next == null) {
         next = null;
       }
-      ref1 = exports.utils.prepareFind(arguments), query = ref1[0], params = ref1[1], next = ref1[2];
+      _ref = exports.utils.prepareFind(arguments), query = _ref[0], params = _ref[1], next = _ref[2];
       if (next) {
-        return this.database.request(this.name + "/find", params, (function(_this) {
+        return this.database.request("" + this.name + "/find", params, (function(_this) {
           return function(err, datas) {
             var data;
             if (err) {
               return next(err);
             }
             return next(null, (function() {
-              var i, len, results;
-              results = [];
-              for (i = 0, len = datas.length; i < len; i++) {
-                data = datas[i];
-                results.push(new exports.Document(this, data, query));
+              var _i, _len, _results;
+              _results = [];
+              for (_i = 0, _len = datas.length; _i < _len; _i++) {
+                data = datas[_i];
+                _results.push(new exports.Document(this, data, query));
               }
-              return results;
+              return _results;
             }).call(_this));
           };
         })(this));
       } else {
-        datas = this.database.request(this.name + "/find", params) || [];
+        datas = this.database.request("" + this.name + "/find", params) || [];
         return (function() {
-          var i, len, results;
-          results = [];
-          for (i = 0, len = datas.length; i < len; i++) {
-            data = datas[i];
-            results.push(new exports.Document(this, data, query));
+          var _i, _len, _results;
+          _results = [];
+          for (_i = 0, _len = datas.length; _i < _len; _i++) {
+            data = datas[_i];
+            _results.push(new exports.Document(this, data, query));
           }
-          return results;
+          return _results;
         }).call(this);
       }
     };
 
     Collection.prototype.findById = function(id, fields, options, next) {
-      var data, params, query, ref1;
+      var data, params, query, _ref;
       if (id == null) {
         id = null;
       }
@@ -432,9 +431,9 @@
       if (next == null) {
         next = null;
       }
-      ref1 = exports.utils.prepareFind(arguments), query = ref1[0], params = ref1[1], next = ref1[2];
+      _ref = exports.utils.prepareFind(arguments), query = _ref[0], params = _ref[1], next = _ref[2];
       if (next) {
-        return this.database.request(this.name + "/" + id, params, (function(_this) {
+        return this.database.request("" + this.name + "/" + id, params, (function(_this) {
           return function(err, data) {
             if (err) {
               return next(err);
@@ -446,7 +445,7 @@
           };
         })(this));
       } else {
-        data = this.database.request(this.name + "/" + id, params);
+        data = this.database.request("" + this.name + "/" + id, params);
         if (!data) {
           return null;
         }
@@ -455,7 +454,7 @@
     };
 
     Collection.prototype.findOne = function(criteria, fields, options, next) {
-      var data, params, query, ref1;
+      var data, params, query, _ref;
       if (criteria == null) {
         criteria = null;
       }
@@ -468,9 +467,9 @@
       if (next == null) {
         next = null;
       }
-      ref1 = exports.utils.prepareFind(arguments), query = ref1[0], params = ref1[1], next = ref1[2];
+      _ref = exports.utils.prepareFind(arguments), query = _ref[0], params = _ref[1], next = _ref[2];
       if (next) {
-        return this.database.request(this.name + "/findOne", params, (function(_this) {
+        return this.database.request("" + this.name + "/findOne", params, (function(_this) {
           return function(err, data) {
             if (err) {
               return next(err);
@@ -482,7 +481,7 @@
           };
         })(this));
       } else {
-        data = this.database.request(this.name + "/findOne", params);
+        data = this.database.request("" + this.name + "/findOne", params);
         if (!data) {
           return null;
         }
@@ -501,7 +500,7 @@
 
     Collection.prototype.removeById = function(_id, next) {
       var ref;
-      ref = this.database.firebase.child(this.name + "/" + _id);
+      ref = this.database.firebase.child("" + this.name + "/" + _id);
       return ref.once('value', (function(_this) {
         return function(snapshot) {
           var old_data;
@@ -532,28 +531,28 @@
 
   })();
 
-  exports.PseudoCollection = (function(superClass) {
-    extend1(PseudoCollection, superClass);
+  exports.PseudoCollection = (function(_super) {
+    __extends(PseudoCollection, _super);
 
-    function PseudoCollection(database, name1, defaults) {
+    function PseudoCollection(database, name, defaults) {
       this.database = database;
-      this.name = name1;
+      this.name = name;
       this.defaults = defaults != null ? defaults : {};
       PseudoCollection.__super__.constructor.call(this, this.database, this.name);
     }
 
     PseudoCollection.prototype.insert = function(doc, priority, next) {
-      var k, ref1, v;
-      ref1 = this.defaults;
-      for (k in ref1) {
-        v = ref1[k];
+      var k, v, _ref;
+      _ref = this.defaults;
+      for (k in _ref) {
+        v = _ref[k];
         doc[k] = v;
       }
       return PseudoCollection.__super__.insert.call(this, doc, priority, next);
     };
 
     PseudoCollection.prototype.find = function(criteria, fields, options, next) {
-      var k, params, query, ref1, ref2, v;
+      var k, params, query, v, _ref, _ref1;
       if (criteria == null) {
         criteria = null;
       }
@@ -566,17 +565,17 @@
       if (next == null) {
         next = null;
       }
-      ref1 = exports.utils.prepareFind(arguments), query = ref1[0], params = ref1[1], next = ref1[2];
-      ref2 = this.defaults;
-      for (k in ref2) {
-        v = ref2[k];
+      _ref = exports.utils.prepareFind(arguments), query = _ref[0], params = _ref[1], next = _ref[2];
+      _ref1 = this.defaults;
+      for (k in _ref1) {
+        v = _ref1[k];
         query.criteria[k] = v;
       }
       return PseudoCollection.__super__.find.call(this, query.criteria, query.fields, query.options, next);
     };
 
     PseudoCollection.prototype.findOne = function(criteria, fields, options, next) {
-      var k, params, query, ref1, ref2, v;
+      var k, params, query, v, _ref, _ref1;
       if (criteria == null) {
         criteria = null;
       }
@@ -589,10 +588,10 @@
       if (next == null) {
         next = null;
       }
-      ref1 = exports.utils.prepareFind(arguments), query = ref1[0], params = ref1[1], next = ref1[2];
-      ref2 = this.defaults;
-      for (k in ref2) {
-        v = ref2[k];
+      _ref = exports.utils.prepareFind(arguments), query = _ref[0], params = _ref[1], next = _ref[2];
+      _ref1 = this.defaults;
+      for (k in _ref1) {
+        v = _ref1[k];
         query.criteria[k] = v;
       }
       return PseudoCollection.__super__.findOne.call(this, query.criteria, query.fields, query.options, next);
@@ -602,11 +601,11 @@
 
   })(exports.Collection);
 
-  exports.CollectionRef = (function(superClass) {
-    extend1(CollectionRef, superClass);
+  exports.CollectionRef = (function(_super) {
+    __extends(CollectionRef, _super);
 
-    function CollectionRef(collection1) {
-      this.collection = collection1;
+    function CollectionRef(collection) {
+      this.collection = collection;
       this.database = this.collection.database;
       this.ref = this.database.firebase.child(this.collection.name);
     }
@@ -624,9 +623,9 @@
     };
 
     CollectionRef.prototype.on = function(event, handler) {
-      var ref1, ref2;
+      var _ref, _ref1;
       CollectionRef.__super__.on.call(this, event, handler);
-      if (((ref1 = this.events.insert) != null ? ref1.length : void 0) > 0) {
+      if (((_ref = this.events.insert) != null ? _ref.length : void 0) > 0) {
         this.ref.off('child_added');
         this.ref.on('child_added', (function(_this) {
           return function(snapshot) {
@@ -634,7 +633,7 @@
           };
         })(this));
       }
-      if (((ref2 = this.events.remove) != null ? ref2.length : void 0) > 0) {
+      if (((_ref1 = this.events.remove) != null ? _ref1.length : void 0) > 0) {
         this.ref.off('child_removed');
         return this.ref.on('child_removed', (function(_this) {
           return function(snapshot) {
@@ -645,15 +644,15 @@
     };
 
     CollectionRef.prototype.off = function(event, handler) {
-      var ref1, ref2;
+      var _ref, _ref1;
       if (handler == null) {
         handler = null;
       }
       CollectionRef.__super__.off.call(this, event, handler);
-      if (((ref1 = this.events.insert) != null ? ref1.length : void 0) === 0) {
+      if (((_ref = this.events.insert) != null ? _ref.length : void 0) === 0) {
         this.ref.off('child_added');
       }
-      if (((ref2 = this.events.remove) != null ? ref2.length : void 0) === 0) {
+      if (((_ref1 = this.events.remove) != null ? _ref1.length : void 0) === 0) {
         return this.ref.off('child_removed');
       }
     };
@@ -663,12 +662,12 @@
   })(exports.EventEmitter);
 
   exports.Document = (function() {
-    function Document(collection1, data1, query1) {
-      this.collection = collection1;
-      this.data = data1;
-      this.query = query1;
+    function Document(collection, data, query) {
+      this.collection = collection;
+      this.data = data;
+      this.query = query;
       this.database = this.collection.database;
-      this.key = this.collection.name + "/" + this.data._id;
+      this.key = "" + this.collection.name + "/" + this.data._id;
       if (this.query == null) {
         this.query = {
           criteria: null,
@@ -680,9 +679,9 @@
     }
 
     Document.prototype.emit = function() {
-      var args, event, ref1;
-      event = arguments[0], args = 2 <= arguments.length ? slice.call(arguments, 1) : [];
-      return (ref1 = this.ref).emit.apply(ref1, [event].concat(slice.call(args)));
+      var args, event, _ref;
+      event = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
+      return (_ref = this.ref).emit.apply(_ref, [event].concat(__slice.call(args)));
     };
 
     Document.prototype.get = function(path) {
@@ -706,8 +705,8 @@
     };
 
     Document.prototype.remove = function(next) {
-      var ref1;
-      if ((ref1 = typeof next) !== 'function' && ref1 !== 'undefined') {
+      var _ref;
+      if ((_ref = typeof next) !== 'function' && _ref !== 'undefined') {
         return exports.utils.log('invalid callback function to remove');
       }
       return this.collection.removeById(this.data._id, next);
@@ -732,15 +731,15 @@
 
   })();
 
-  exports.DocumentRef = (function(superClass) {
-    extend1(DocumentRef, superClass);
+  exports.DocumentRef = (function(_super) {
+    __extends(DocumentRef, _super);
 
     DocumentRef._counter = 0;
 
-    function DocumentRef(document, path1) {
-      var i, k, len, ref1, ref2;
+    function DocumentRef(document, path) {
+      var k, _i, _len, _ref, _ref1;
       this.document = document;
-      this.path = path1 != null ? path1 : '';
+      this.path = path != null ? path : '';
       DocumentRef.__super__.constructor.call(this);
       this.counter = ++exports.DocumentRef._counter;
       this.collection = this.document.collection;
@@ -753,13 +752,13 @@
           this.path = this.path.split(/[\/\.]/g);
         }
       }
-      this.key = (this.document.key + "/" + (this.path.join('/'))).replace(/\/$/, '');
+      this.key = ("" + this.document.key + "/" + (this.path.join('/'))).replace(/\/$/, '');
       this.data = this.document.data;
-      ref1 = this.path;
-      for (i = 0, len = ref1.length; i < len; i++) {
-        k = ref1[i];
+      _ref = this.path;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        k = _ref[_i];
         if (k !== '') {
-          this.data = (ref2 = this.data) != null ? ref2[k] : void 0;
+          this.data = (_ref1 = this.data) != null ? _ref1[k] : void 0;
         }
       }
       if (this.data == null) {
@@ -769,7 +768,7 @@
     }
 
     DocumentRef.prototype.log = function() {
-      return console.log.apply(console, ["ref_" + this.counter].concat(slice.call(arguments)));
+      return console.log.apply(console, ["ref_" + this.counter].concat(__slice.call(arguments)));
     };
 
     DocumentRef.prototype.get = function(path) {
@@ -782,7 +781,7 @@
           path = path.slice(1);
         }
       }
-      return new exports.DocumentRef(this.document, (temp.join('/')) + "/" + path);
+      return new exports.DocumentRef(this.document, "" + (temp.join('/')) + "/" + path);
     };
 
     DocumentRef.prototype.name = function() {
@@ -794,9 +793,9 @@
     };
 
     DocumentRef.prototype.on = function(event, handler) {
-      var ref1, ref2;
+      var _ref, _ref1;
       DocumentRef.__super__.on.call(this, event, handler);
-      if (((ref1 = this.events.update) != null ? ref1.length : void 0) > 0 || ((ref2 = this.events.value) != null ? ref2.length : void 0) > 0) {
+      if (((_ref = this.events.update) != null ? _ref.length : void 0) > 0 || ((_ref1 = this.events.value) != null ? _ref1.length : void 0) > 0) {
         this.emit('value', this.val());
         return this.ref.on('value', (function(_this) {
           return function(snapshot) {
@@ -807,12 +806,12 @@
     };
 
     DocumentRef.prototype.off = function(event, handler) {
-      var ref1, ref2;
+      var _ref, _ref1;
       if (handler == null) {
         handler = null;
       }
       DocumentRef.__super__.off.call(this, event, handler);
-      if (!(((ref1 = this.events.update) != null ? ref1.length : void 0) && ((ref2 = this.events.value) != null ? ref2.length : void 0))) {
+      if (!(((_ref = this.events.update) != null ? _ref.length : void 0) && ((_ref1 = this.events.value) != null ? _ref1.length : void 0))) {
         return this.ref.off('value');
       }
     };
@@ -843,23 +842,23 @@
     };
 
     DocumentRef.prototype.remove = function(next) {
-      var ref1;
-      if ((ref1 = typeof next) !== 'function' && ref1 !== 'undefined') {
+      var _ref;
+      if ((_ref = typeof next) !== 'function' && _ref !== 'undefined') {
         return exports.utils.log('invalid callback function to remove');
       }
       return this.set(null, next);
     };
 
     DocumentRef.prototype.set = function(value, next) {
-      var allow, dst, k, ref, ref1, v;
+      var allow, dst, k, ref, v, _ref;
       if (this.database.safe_writes) {
         allow = true;
         if (this.document.query.fields) {
           allow = false;
-          ref1 = this.document.query.fields;
-          for (k in ref1) {
-            v = ref1[k];
-            dst = this.document.key + "/" + (k.replace(/\./g, '/'));
+          _ref = this.document.query.fields;
+          for (k in _ref) {
+            v = _ref[k];
+            dst = "" + this.document.key + "/" + (k.replace(/\./g, '/'));
             allow = allow || this.key.indexOf(dst) === 0;
           }
         }
@@ -886,12 +885,12 @@
     };
 
     DocumentRef.prototype.updateData = function(data, next) {
-      var ref1, ref2;
+      var _ref, _ref1;
       if (this.key === this.document.key) {
-        if ((ref1 = this.data) != null ? ref1.created : void 0) {
+        if ((_ref = this.data) != null ? _ref.created : void 0) {
           data.created = this.data.created;
         }
-        if ((ref2 = this.data) != null ? ref2.last_modified : void 0) {
+        if ((_ref1 = this.data) != null ? _ref1.last_modified : void 0) {
           data.last_modified = this.data.last_modified;
         }
       }
@@ -900,15 +899,15 @@
       }
       return setTimeout(((function(_this) {
         return function() {
-          var i, j, k, key, keys, len, ref3, target;
+          var k, key, keys, target, _i, _j, _len, _ref2;
           _this.data = data;
           if (_this.path.length === 1 && _this.path[0] === '') {
             _this.document.data = data;
           } else {
-            ref3 = _this.path, keys = 2 <= ref3.length ? slice.call(ref3, 0, i = ref3.length - 1) : (i = 0, []), key = ref3[i++];
+            _ref2 = _this.path, keys = 2 <= _ref2.length ? __slice.call(_ref2, 0, _i = _ref2.length - 1) : (_i = 0, []), key = _ref2[_i++];
             target = _this.document.data;
-            for (j = 0, len = keys.length; j < len; j++) {
-              k = keys[j];
+            for (_j = 0, _len = keys.length; _j < _len; _j++) {
+              k = keys[_j];
               if (target[k] == null) {
                 target[k] = {};
               }

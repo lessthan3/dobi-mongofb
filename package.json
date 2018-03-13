@@ -3,6 +3,12 @@
     "name": "maestro_io",
     "email": "ari@maestro.io"
   },
+  "scripts": {
+    "prepare": "npm run compile",
+    "prepublishOnly": "npm run compile",
+    "compile": "coffee --compile --output lib/ src/",
+    "test": "npm run compile ; coffee test/app.coffee"
+  },
   "devDependencies": {
     "async": "2.0.1",
     "body-parser": "1.6.x",

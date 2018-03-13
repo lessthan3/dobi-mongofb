@@ -164,7 +164,7 @@ exports.server = (cfg) ->
         contentType 'text/javascript'
         cache (next) ->
           asset = new wrap.Snockets {
-            src: "#{__dirname}/client.coffee"
+            src: "#{__dirname}/client.js"
           }, (err) ->
             return handleError err if err
             next asset.data
@@ -174,7 +174,7 @@ exports.server = (cfg) ->
         contentType 'text/javascript'
         cache (next) ->
           asset = new wrap.Snockets {
-            src: "#{__dirname}/client.coffee"
+            src: "#{__dirname}/client.js"
             minify: true
           }, (err) ->
             return handleError err if err
