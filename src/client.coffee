@@ -9,7 +9,14 @@
 # DocumentRef
 #
 
-if typeof window != 'undefined'
+# from https://github.com/iliakan/detect-node
+isNode = ->
+  process_obj = if typeof process isnt 'undefined' then process else 0
+  expected_process_type = '[object process]'
+  env_process_type = Object.prototype.toString.call process_obj
+  return env_process_type is expected_process_type
+
+if not isNode()
   exports = window.mongofb = {}
   extend = (target, object) ->
     $.extend true, target, object
