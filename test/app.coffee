@@ -5,7 +5,7 @@ config = require '/u/config/test-keys'
 connectAssets = require 'teacup/lib/connect-assets'
 express = require 'express'
 fs = require 'fs'
-mongofb = require '../lib/server.coffee'
+mongofb = require '../lib/server.js'
 teacup = require 'teacup/lib/express'
 
 # helpers
@@ -14,7 +14,7 @@ fail = (msg) -> console.log "FATAL: #{msg}"; process.exit 1
 
 # copy file over
 copyFile = (next) ->
-  read = fs.createReadStream('../lib/client.coffee')
+  read = fs.createReadStream('../lib/client.js')
   read.on 'error', fail
   wr = fs.createWriteStream 'assets/js/client.coffee'
   wr.on 'error', fail
