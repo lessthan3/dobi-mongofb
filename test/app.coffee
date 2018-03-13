@@ -5,7 +5,7 @@ config = require '/u/config/dobi-server.js'
 connectAssets = require 'teacup/lib/connect-assets'
 express = require 'express'
 fs = require 'fs'
-mongofb = require '../lib/server.coffee'
+mongofb = require '../lib/server.js'
 teacup = require 'teacup/lib/express'
 
 # helpers
@@ -14,7 +14,7 @@ fail = (msg) -> console.log "FATAL: #{msg}"; process.exit 1
 
 # copy file over
 copyFile = (next) ->
-  read = fs.createReadStream("#{__dirname}/../lib/client.js")
+  read = fs.createReadStream "#{__dirname}/../lib/client.js"
   read.on 'error', fail
   wr = fs.createWriteStream "#{__dirname}/assets/js/client.js"
   wr.on 'error', fail
@@ -44,8 +44,8 @@ copyFile ->
     middleware = [
       bodyParser.json()
       connectAssets {
-        src: 'assets/js'
-        jsDir: 'assets/js'
+        src: "#{__dirname}/assets/js"
+        jsDir: "#{__dirname}/assets/js"
       }
       mongofb.server {
         root: '/api/v1'
@@ -64,6 +64,7 @@ copyFile ->
     ]
 
     app = express()
+    app.set 'views', "#{__dirname}/views"
     app.set 'view engine', 'coffee'
     app.engine 'coffee', teacup.renderFile
     app.use ware for ware in middleware
