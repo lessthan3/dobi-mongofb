@@ -147,7 +147,7 @@ exports.server = (cfg) ->
           args
 
       # routes
-      router = new express.Router()
+      router = express.Router()
 
       # fix query parameters
       router.route 'GET', "#{cfg.root}/*", (req, res, next) ->
@@ -364,9 +364,7 @@ exports.server = (cfg) ->
         req.query.criteria = JSON.stringify {_id: req.params.id}
         req.query.__single = true
         req.query.__field = req.params[1] if req.params[1]
-        router._dispatch req, res, next
-
+        router.handle req, res, next
 
       # execute routes
-      router._dispatch req, res, next
-
+      router.handle req, res, next
