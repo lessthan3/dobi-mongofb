@@ -1,11 +1,11 @@
 async = require 'async'
 bodyParser = require 'body-parser'
 coffee = require 'coffeescript'
-config = require '/u/config/test-keys'
+config = require '/u/config/test-config.js'
 connectAssets = require 'teacup/lib/connect-assets'
 express = require 'express'
 fs = require 'fs'
-mongofb = require '../lib/server.coffee'
+mongofb = require '../lib/server.js'
 teacup = require 'teacup/lib/express'
 
 # helpers
@@ -14,21 +14,21 @@ fail = (msg) -> console.log "FATAL: #{msg}"; process.exit 1
 
 # copy file over
 copyFile = (next) ->
-  read = fs.createReadStream('../lib/client.coffee')
+  read = fs.createReadStream "#{__dirname}/../lib/client.js"
   read.on 'error', fail
-  wr = fs.createWriteStream 'assets/js/client.coffee'
+  wr = fs.createWriteStream "#{__dirname}/assets/js/client.js"
   wr.on 'error', fail
   wr.on 'close', next
   read.pipe wr
 
 compile = (next) ->
-  files = fs.readdirSync './assets/js'
+  files = fs.readdirSync "#{__dirname}/assets/js"
   files = files.filter (file) -> return /\.coffee/.test file
   async.each files, ((file, next) ->
     [name, extension] = file.split '.'
-    contents = fs.readFileSync "./assets/js/#{file}", 'utf-8'
+    contents = fs.readFileSync "#{__dirname}/assets/js/#{file}", 'utf-8'
     output = coffee.compile contents
-    fs.writeFileSync "./assets/js/#{name}.js", output
+    fs.writeFileSync "#{__dirname}/assets/js/#{name}.js", output
     next()
   ), (err) ->
     return fail err if err
@@ -44,8 +44,8 @@ copyFile ->
     middleware = [
       bodyParser.json()
       connectAssets {
-        src: 'assets/js'
-        jsDir: 'assets/js'
+        src: "#{__dirname}/assets/js"
+        jsDir: "#{__dirname}/assets/js"
       }
       mongofb.server {
         root: '/api/v1'
@@ -56,10 +56,16 @@ copyFile ->
           url: config.firebase.url
           secret: config.firebase.secret
         mongodb:
-          db: 'TestDB'
+          db: 'test'
           host: 'localhost'
-          post: 27017
+          pass: ''
+          port: 27017
           user: 'admin'
+          options:
+            native_parser: false
+            autoReconnect: true
+            poolSize: 1
+            keepAlive: 12
         options:
           blacklist: [
             'blacklist'
@@ -68,11 +74,12 @@ copyFile ->
     ]
 
     app = express()
+    app.set 'views', "#{__dirname}/views"
     app.set 'view engine', 'coffee'
     app.engine 'coffee', teacup.renderFile
     app.use ware for ware in middleware
     app.get point, action for point, action of endpoints
     app.listen 8080
-    log 'server running...'
+    log 'server running..., connect to localhost:8080'
 
 

@@ -51,7 +51,6 @@ exports.server = (cfg) ->
   db = null
   fb = null
 
-
   # connect to firebase and mongodb
   connect = (next) ->
     return next?() if db and fb
@@ -147,10 +146,10 @@ exports.server = (cfg) ->
           args
 
       # routes
-      router = new express.Router()
+      router = express.Router()
 
       # fix query parameters
-      router.route 'GET', "#{cfg.root}/*", (req, res, next) ->
+      router.get "#{cfg.root}/*", (req, res, next) ->
         map =
           'false': false
           'true': true
@@ -161,33 +160,33 @@ exports.server = (cfg) ->
         next()
 
       # client javascript
-      router.route 'GET', "#{cfg.root}/mongofb.js", (req, res, next) ->
+      router.get "#{cfg.root}/mongofb.js", (req, res, next) ->
         contentType 'text/javascript'
         cache (next) ->
           asset = new wrap.Snockets {
-            src: "#{__dirname}/client.coffee"
+            src: "#{__dirname}/client.js"
           }, (err) ->
             return handleError err if err
             next asset.data
 
       # client javascript minified
-      router.route 'GET', "#{cfg.root}/mongofb.min.js", (req, res, next) ->
+      router.get "#{cfg.root}/mongofb.min.js", (req, res, next) ->
         contentType 'text/javascript'
         cache (next) ->
           asset = new wrap.Snockets {
-            src: "#{__dirname}/client.coffee"
+            src: "#{__dirname}/client.js"
             minify: true
           }, (err) ->
             return handleError err if err
             next asset.data
 
       # firebase url
-      router.route 'GET', "#{cfg.root}/Firebase", (req, res, next) ->
+      router.get "#{cfg.root}/Firebase", (req, res, next) ->
         res.send cfg.firebase.url
 
 
       # ObjectID for creating documents
-      router.route 'GET', "#{cfg.root}/ObjectID", (req, res, next) ->
+      router.get "#{cfg.root}/ObjectID", (req, res, next) ->
         res.send mongodb.ObjectID().toString()
 
 
@@ -199,7 +198,7 @@ exports.server = (cfg) ->
       # the format is /sync/:collection/:id and not /:collection/:sync/:id to
       # match firebase urls. the key in firebase is /:collection/:id
       url = "#{cfg.root}/sync/:collection/:id*"
-      router.route 'GET', url, auth, (req, res, next) ->
+      router.get url, auth, (req, res, next) ->
         collection = db.collection req.params.collection
 
         # get data
@@ -246,7 +245,7 @@ exports.server = (cfg) ->
 
       # db.collection.find
       url = "#{cfg.root}/:collection/find"
-      router.route 'GET', url, auth, (req, res, next) ->
+      router.get url, auth, (req, res, next) ->
         cache (next) ->
 
           # special options (mainly for use by findByID and findOne)
@@ -351,22 +350,20 @@ exports.server = (cfg) ->
 
       # db.collection.findOne
       url = "#{cfg.root}/:collection/findOne"
-      router.route 'GET', url, auth, (req, res, next) ->
+      router.get url, auth, (req, res, next) ->
         req.url = "#{cfg.root}/#{req.params.collection}/find"
         req.query.__single = true
-        router._dispatch req, res, next
+        router.handle req, res, next
 
 
       # db.collection.findById
       url = "#{cfg.root}/:collection/:id*"
-      router.route 'GET', url, auth, (req, res, next) ->
+      router.get url, auth, (req, res, next) ->
         req.url = "#{cfg.root}/#{req.params.collection}/find"
         req.query.criteria = JSON.stringify {_id: req.params.id}
         req.query.__single = true
         req.query.__field = req.params[1] if req.params[1]
-        router._dispatch req, res, next
-
+        router.handle req, res, next
 
       # execute routes
-      router._dispatch req, res, next
-
+      router.handle req, res, next
