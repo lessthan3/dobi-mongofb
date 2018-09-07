@@ -27,7 +27,7 @@
     "lru-cache": "2.5.x",
     "mongodb": "3.1.4",
     "node.extend": "2.0.0",
-    "request": "2.81.x"
+    "request": "^2.88.0"
   },
   "description": "Dobi Mongo Firebase",
   "license": "MIT",
