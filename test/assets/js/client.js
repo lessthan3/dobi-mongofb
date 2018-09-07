@@ -1,10 +1,3 @@
-/*
- * decaffeinate suggestions:
- * DS201: Simplify complex destructure assignments
- * DS205: Consider reworking code to avoid use of IIFEs
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 //
 // Mongo Firebase
 // mongofb.js
@@ -94,7 +87,6 @@
       let special;
 
       const args = _args.filter(arg => arg != null);
-      console.log(args);
 
       // stringify json params
       const jsonify = (q) => {
