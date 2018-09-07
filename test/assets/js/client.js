@@ -1,112 +1,61 @@
-(function() {
-  var Firebase, exports, extend, fetch, request,
-    __slice = [].slice,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+/*
+ * decaffeinate suggestions:
+ * DS201: Simplify complex destructure assignments
+ * DS205: Consider reworking code to avoid use of IIFEs
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+//
+// Mongo Firebase
+// mongofb.js
+//
+// Database
+// Collection
+// CollectionRef
+// Document
+// DocumentRef
+//
 
-  if (typeof window !== 'undefined') {
-    exports = window.mongofb = {};
-    extend = function(target, object) {
-      return $.extend(true, target, object);
-    };
-    Firebase = window.Firebase;
-    fetch = function(args) {
-      var async, error, result, success;
-      result = null;
-      if (args.next) {
-        success = function(data) {
-          return args.next(null, data);
-        };
-        error = function(jqXHR, textStatus, err) {
-          return args.next(jqXHR, null);
-        };
-        async = true;
-      } else {
-        success = function(data) {
-          return result = data;
-        };
-        error = function() {
-          return result = null;
-        };
-        async = false;
-      }
-      $.ajax({
-        url: args.url,
-        cache: args.cache,
-        type: 'GET',
-        data: args.params,
-        success: success,
-        error: error,
-        async: async
-      });
-      return result;
-    };
-  } else {
-    exports = module.exports = {};
-    extend = require('node.extend');
-    request = require('request');
-    Firebase = require('firebase');
-    fetch = function(args) {
-      var _base;
-      if (args.params == null) {
-        args.params = {};
-      }
-      if (!args.cache) {
-        if ((_base = args.params)._ == null) {
-          _base._ = Date.now();
-        }
-      }
-      return request({
-        url: args.url,
-        qs: args.params,
-        method: 'GET'
-      }, (function(_this) {
-        return function(err, resp, body) {
-          if (err) {
-            return args.next(err);
-          }
-          if (!resp) {
-            return args.next('bad response');
-          }
-          switch (resp.statusCode) {
-            case 200:
-              if (args.json) {
-                try {
-                  body = JSON.parse(body);
-                } catch (_error) {
-                  err = _error;
-                  body = null;
-                }
-              }
-              break;
-            case 404:
-              body = null;
-              break;
-            default:
-              err = body;
-              body = null;
-          }
-          return args.next(err, body);
-        };
-      })(this));
-    };
-  }
+// from https://github.com/iliakan/detect-node
+(() => {
+  let extend;
+  let fetch;
+  let Firebase;
+  let request;
+  let Collection;
+  let DocumentRef;
+  let Document;
+  let CollectionRef;
+  const isNode = () => {
+    const processObj = typeof process !== 'undefined' ? process : 0;
+    const expectedProcessType = '[object process]';
+    const envProcessType = Object.prototype.toString.call(processObj);
+    return envProcessType === expectedProcessType;
+  };
 
-  exports.utils = {
-    isEquals: function(a, b) {
-      var k;
+  const utils = {
+    isEquals(a, b) {
       if (a && !b) {
         return false;
       }
       if (b && !a) {
         return false;
       }
-      if (typeof a !== typeof b) {
+      if (typeof (
+        a
+      ) !== typeof (
+        b
+      )) {
         return false;
       }
-      if (a === null && b === null) {
+      if ((
+        a === null
+      ) && (
+        b === null
+      )) {
         return true;
       }
+
       switch (typeof a) {
         case 'function':
           if (a.toString() !== b.toString()) {
@@ -117,8 +66,8 @@
           if (Object.keys(a).length !== Object.keys(b).length) {
             return false;
           }
-          for (k in a) {
-            if (!exports.utils.isEquals(a[k], b[k])) {
+          for (const k in a) {
+            if (!utils.isEquals(a[k], b[k])) {
               return false;
             }
           }
@@ -130,120 +79,142 @@
       }
       return true;
     },
-    log: function(msg) {
-      return console.log("[monogfb] " + msg);
+
+    // logging utility
+    log(msg) {
+      // eslint-disable-next-line no-console
+      return console.log(`[monogfb] ${msg}`);
     },
-    prepareFind: function(the_arguments) {
-      var args, criteria, fields, has_callback, jsonify, next, options, params, query, special, _ref, _ref1, _ref2;
-      args = Array.prototype.slice.call(the_arguments, 0);
-      jsonify = function(q) {
-        var k, o, v;
-        o = {};
-        for (k in q) {
-          v = q[k];
+
+    // prepare query parameters for a find
+    prepareFind(..._args) {
+      let fields;
+      let next;
+      let options;
+      let special;
+
+      const args = _args.filter(arg => arg != null);
+      console.log(args);
+
+      // stringify json params
+      const jsonify = (q) => {
+        const o = {};
+        for (const k of Object.keys(q)) {
+          const v = q[k];
           if (v) {
             o[k] = JSON.stringify(v);
           }
         }
         return o;
       };
-      has_callback = typeof args[args.length - 1] === 'function';
-      if (has_callback) {
+
+      // callback
+      const hasCallback = typeof args[args.length - 1] === 'function';
+      if (hasCallback) {
         next = args[args.length - 1];
       }
-      criteria = {};
+
+      // defaults
+      let criteria = {};
+
+      // query objects
       if (typeof args[0] === 'object') {
-        criteria = args[0];
+        [criteria] = args;
       }
       if (typeof args[1] === 'object') {
-        fields = args[1];
+        [, fields] = args;
       }
       if (typeof args[2] === 'object') {
-        options = args[2];
+        [, , options] = args;
       }
       if (typeof args[3] === 'object') {
-        special = args[3];
+        [, , , special] = args;
       }
-      if (options && !special && (options.token || options._)) {
-        _ref = [options, null], special = _ref[0], options = _ref[1];
+
+      // args[1] can be either fields or options or special
+      // args[2] can be either options or special
+
+      // case: special was in args[2]
+      if (options && !special && (
+        options.token || options._
+      )) {
+        [special, options] = [options, null];
       }
-      if (fields && !options && (fields.limit || fields.skip || fields.sort)) {
-        _ref1 = [fields, null], options = _ref1[0], fields = _ref1[1];
+
+      // case: options was in args[1]
+      if (fields && !options && (
+        fields.limit || fields.skip || fields.sort
+      )) {
+        [options, fields] = [fields, null];
       }
-      if (fields && !special && (fields.token || fields._)) {
-        _ref2 = [fields, null], special = _ref2[0], fields = _ref2[1];
+
+      // case: special was in args[1]
+      if (fields && !special && (
+        fields.token || fields._
+      )) {
+        [special, fields] = [fields, null];
       }
-      query = {
-        criteria: criteria,
-        fields: fields,
-        options: options
-      };
-      params = jsonify(query);
-      if (special != null ? special.token : void 0) {
+
+      // format query objects and prepare to send
+      const query = { criteria, fields, options };
+      const params = jsonify(query);
+
+      if (special != null ? special.token : undefined) {
         params.token = special.token;
       }
-      if (special != null ? special._ : void 0) {
+      if (special != null ? special._ : undefined) {
         params._ = special._;
       }
+
       return [query, params, next];
     },
-    startsWith: function(str, target) {
+
+    startsWith(str, target) {
       return str.slice(0, target.length) === target;
-    }
+    },
   };
 
-  exports.EventEmitter = (function() {
-    function EventEmitter() {
+  class EventEmitter {
+    constructor() {
       this.events = {};
     }
 
-    EventEmitter.prototype.emit = function() {
-      var args, event, handler, _i, _len, _ref, _results;
-      event = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
+    emit(event, ...args) {
       if (this.events[event]) {
-        _ref = this.events[event];
-        _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          handler = _ref[_i];
-          _results.push(handler.apply(null, args));
+        for (const handler of this.events[event]) {
+          handler(...args || []);
         }
-        return _results;
       }
-    };
+    }
 
-    EventEmitter.prototype.on = function(event, handler) {
-      var _base;
-      if ((_base = this.events)[event] == null) {
-        _base[event] = [];
+    on(event, handler) {
+      if (this.events[event] == null) {
+        this.events[event] = [];
       }
-      return this.events[event].push(handler);
-    };
+      this.events[event].push(handler);
+    }
 
-    EventEmitter.prototype.off = function(event, handler) {
-      var _base;
-      if (handler == null) {
-        handler = null;
+    // handler=null will remove all events of that type
+    off(event, handler = null) {
+      if (this.events[event] == null) {
+        this.events[event] = [];
       }
-      if ((_base = this.events)[event] == null) {
-        _base[event] = [];
-      }
-      return this.events[event] = this.events[event].filter(function(fn) {
-        return handler !== null && fn !== handler;
-      });
-    };
+      this.events[event] = this.events[event].filter(fn => (
+        handler !== null
+      ) && (
+        fn !== handler
+      ));
+    }
+  }
 
-    return EventEmitter;
-
-  })();
-
-  exports.Database = (function() {
-    function Database(cfg) {
+  class Database {
+    constructor(cfg) {
       this.cache = true;
       this.safe_writes = true;
       if (typeof cfg === 'string') {
         this.api = cfg;
-        this.request('Firebase', false, function(url) {
-          return this.firebase = new Firebase(url);
+        this.request('Firebase', false, (url) => {
+          this.firebase = new Firebase(url);
         });
       } else {
         this.api = cfg.server;
@@ -251,28 +222,26 @@
       }
     }
 
-    Database.prototype.collection = function(name) {
-      return new exports.Collection(this, name);
-    };
+    collection(name) {
+      return new Collection(this, name);
+    }
 
-    Database.prototype.get = function(path) {
-      var collection;
-      path = path.split(/[\/\.]/g);
-      collection = this.collection(path[0]);
+    get(_path) {
+      const path = _path.split(/[/.]/g);
+      const collection = this.collection(path[0]);
       if (path.length === 1) {
         return collection;
       }
       return collection.get(path.slice(1).join('/'));
-    };
+    }
 
-    Database.prototype.request = function() {
-      var arg, json, next, params, resource, url, _i, _len;
-      json = true;
-      resource = '';
-      next = null;
-      params = {};
-      for (_i = 0, _len = arguments.length; _i < _len; _i++) {
-        arg = arguments[_i];
+    request(...args) {
+      let json = true;
+      let resource = '';
+      let next = null;
+      let params = {};
+
+      for (const arg of args) {
         switch (typeof arg) {
           case 'boolean':
             json = arg;
@@ -285,480 +254,390 @@
             break;
           case 'object':
             params = arg;
+            break;
+          default:
+            break;
         }
       }
-      url = "" + this.api + "/" + resource;
+
+      const url = `${this.api}/${resource}`;
       if (this.token) {
         params.token = this.token;
       }
       return fetch({
         cache: this.cache,
-        json: json,
-        next: next,
-        params: params,
-        resource: resource,
-        url: url
+        json,
+        next,
+        params,
+        resource,
+        url,
       });
-    };
-
-    Database.prototype.auth = function(token, next) {
-      return this.firebase.authWithCustomToken(token, (function(_this) {
-        return function() {
-          _this.token = token;
-          return next();
-        };
-      })(this));
-    };
-
-    Database.prototype.setToken = function(token) {
-      return this.token = token;
-    };
-
-    return Database;
-
-  })();
-
-  exports.Collection = (function() {
-    function Collection(database, name) {
-      this.database = database;
-      this.name = name;
-      this.ref = new exports.CollectionRef(this);
     }
 
-    Collection.prototype.get = function(path) {
-      var doc;
-      path = path.split(/[\/\.]/g);
-      doc = collection.findById(path[0]);
-      if (path.length === 1) {
-        return doc;
-      }
-      return doc.get(path.slice(1).join('/'));
-    };
+    auth(token, next) {
+      return this.firebase.authWithCustomToken(token, () => {
+        this.token = token;
+        return next();
+      });
+    }
 
-    Collection.prototype.insert = function(doc, priority, next) {
-      var _ref;
+    setToken(token) {
+      this.token = token;
+    }
+  }
+
+  // eslint-disable-next-line no-shadow
+  Collection = class Collection {
+    constructor(database, name) {
+      this.database = database;
+      this.name = name;
+      this.ref = new CollectionRef(this);
+    }
+
+    insert(_doc, _priority, _next) {
+      const doc = _doc;
+      let next = _next;
+      let priority = _priority;
       if (typeof priority === 'function') {
-        _ref = [priority, null], next = _ref[0], priority = _ref[1];
+        [next, priority] = [priority, null];
+      }
+      if (typeof next !== 'function') {
+        next = () => {
+        };
       }
       return this.database.request('ObjectID', false, {
-        _: "" + (Date.now()) + "-" + (Math.random())
-      }, (function(_this) {
-        return function(err, id) {
-          var ref;
-          if (err) {
-            return typeof next === "function" ? next(err) : void 0;
+        _: `${Date.now()}-${Math.random()}`,
+      }, (requestErr, id) => {
+        if (requestErr) {
+          return next(requestErr);
+        }
+        doc._id = id;
+        const ref = this.database.firebase.child(`${this.name}/${id}`);
+        return ref.set(doc, (setErr) => {
+          if (setErr) {
+            return next(setErr);
           }
-          doc._id = id;
-          ref = _this.database.firebase.child("" + _this.name + "/" + id);
-          return ref.set(doc, function(err) {
+          if (priority) {
+            ref.setPriority(priority);
+          }
+          return this.database.request(`sync/${this.name}/${id}`, {
+            _: Date.now(),
+          }, (err, data) => {
             if (err) {
-              return typeof next === "function" ? next(err) : void 0;
+              return next(err);
             }
-            if (priority) {
-              ref.setPriority(priority);
-            }
-            return _this.database.request("sync/" + _this.name + "/" + id, {
-              _: Date.now()
-            }, function(err, data) {
-              if (err) {
-                return typeof next === "function" ? next(err) : void 0;
-              }
-              return typeof next === "function" ? next(null, new exports.Document(_this, data)) : void 0;
-            });
+            return next(null, new Document(this, data));
           });
-        };
-      })(this));
-    };
+        });
+      });
+    }
 
-    Collection.prototype.find = function(criteria, fields, options, next) {
-      var data, datas, params, query, _ref;
-      if (criteria == null) {
-        criteria = null;
-      }
-      if (fields == null) {
-        fields = null;
-      }
-      if (options == null) {
-        options = null;
-      }
-      if (next == null) {
-        next = null;
-      }
-      _ref = exports.utils.prepareFind(arguments), query = _ref[0], params = _ref[1], next = _ref[2];
+    // find()
+    // find(criteria)
+    // find(criteria, fields)
+    // find(criteria, options)
+    // find(criteria, fields, options)
+    //
+    // find(next)
+    // find(criteria, next)
+    // find(criteria, fields, next)
+    // find(criteria, options, next)
+    // find(criteria, fields, options, next)
+    find(criteria = null, fields = null, options = null, _next = null) {
+      const [query, params, next] = utils.prepareFind(criteria, fields, options, _next);
+
       if (next) {
-        return this.database.request("" + this.name + "/find", params, (function(_this) {
-          return function(err, datas) {
-            var data;
-            if (err) {
-              return next(err);
-            }
-            return next(null, (function() {
-              var _i, _len, _results;
-              _results = [];
-              for (_i = 0, _len = datas.length; _i < _len; _i++) {
-                data = datas[_i];
-                _results.push(new exports.Document(this, data, query));
-              }
-              return _results;
-            }).call(_this));
-          };
-        })(this));
-      } else {
-        datas = this.database.request("" + this.name + "/find", params) || [];
-        return (function() {
-          var _i, _len, _results;
-          _results = [];
-          for (_i = 0, _len = datas.length; _i < _len; _i++) {
-            data = datas[_i];
-            _results.push(new exports.Document(this, data, query));
+        return this.database.request(`${this.name}/find`, params, (err, datas) => {
+          if (err) {
+            return next(err);
           }
-          return _results;
-        }).call(this);
+          const output = [];
+          for (const data of datas) {
+            output.push(new Document(this, data, query));
+          }
+          return next(null, output);
+        });
       }
-    };
+      const datas = this.database.request(`${this.name}/find`, params) || [];
+      const result = [];
+      for (const data of datas) {
+        result.push(new Document(this, data, query));
+      }
+      return result;
+    }
 
-    Collection.prototype.findById = function(id, fields, options, next) {
-      var data, params, query, _ref;
-      if (id == null) {
-        id = null;
-      }
-      if (fields == null) {
-        fields = null;
-      }
-      if (options == null) {
-        options = null;
-      }
-      if (next == null) {
-        next = null;
-      }
-      _ref = exports.utils.prepareFind(arguments), query = _ref[0], params = _ref[1], next = _ref[2];
+    findById(id = null, fields = null, options = null, _next = null) {
+      const [, params, next] = utils.prepareFind(id, fields, options, _next);
+
       if (next) {
-        return this.database.request("" + this.name + "/" + id, params, (function(_this) {
-          return function(err, data) {
-            if (err) {
-              return next(err);
-            }
-            if (!data) {
-              return next(null, null);
-            }
-            return next(null, new exports.Document(_this, data));
-          };
-        })(this));
-      } else {
-        data = this.database.request("" + this.name + "/" + id, params);
-        if (!data) {
-          return null;
-        }
-        return new exports.Document(this, data);
+        return this.database.request(`${this.name}/${id}`, params, (err, data) => {
+          if (err) {
+            return next(err);
+          }
+          if (!data) {
+            return next(null, null);
+          }
+          return next(null, new Document(this, data));
+        });
       }
-    };
+      const data = this.database.request(`${this.name}/${id}`, params);
+      if (!data) {
+        return null;
+      }
+      return new Document(this, data);
+    }
 
-    Collection.prototype.findOne = function(criteria, fields, options, next) {
-      var data, params, query, _ref;
-      if (criteria == null) {
-        criteria = null;
-      }
-      if (fields == null) {
-        fields = null;
-      }
-      if (options == null) {
-        options = null;
-      }
-      if (next == null) {
-        next = null;
-      }
-      _ref = exports.utils.prepareFind(arguments), query = _ref[0], params = _ref[1], next = _ref[2];
+    // findOne()
+    // findOne(criteria)
+    // findOne(criteria, fields)
+    // findOne(criteria, fields, options)
+    //
+    // findOne(next)
+    // findOne(criteria, next)
+    // findOne(criteria, fields, next)
+    // findOne(criteria, fields, options, next)
+    findOne(criteria = null, fields = null, options = null, _next = null) {
+      const [query, params, next] = utils.prepareFind(criteria, fields, options, _next);
+
       if (next) {
-        return this.database.request("" + this.name + "/findOne", params, (function(_this) {
-          return function(err, data) {
-            if (err) {
-              return next(err);
-            }
-            if (!data) {
-              return next(null, null);
-            }
-            return next(null, new exports.Document(_this, data, query));
-          };
-        })(this));
-      } else {
-        data = this.database.request("" + this.name + "/findOne", params);
-        if (!data) {
-          return null;
-        }
-        return new exports.Document(this, data, query);
+        return this.database.request(`${this.name}/findOne`, params, (err, data) => {
+          if (err) {
+            return next(err);
+          }
+          if (!data) {
+            return next(null, null);
+          }
+          return next(null, new Document(this, data, query));
+        });
       }
-    };
+      const data = this.database.request(`${this.name}/findOne`, params);
+      if (!data) {
+        return null;
+      }
+      return new Document(this, data, query);
+    }
 
-    Collection.prototype.list = function(priority, limit) {
-      if (limit == null) {
-        limit = 1;
-      }
+    list(priority, _limit) {
+      const limit = _limit == null ? 1 : _limit;
       this.ref.endAt(priority);
       this.ref.limit(limit);
       return this.ref;
-    };
-
-    Collection.prototype.removeById = function(_id, next) {
-      var ref;
-      ref = this.database.firebase.child("" + this.name + "/" + _id);
-      return ref.once('value', (function(_this) {
-        return function(snapshot) {
-          var old_data;
-          old_data = snapshot.val();
-          return ref.set(null, function(err) {
-            if (err) {
-              return typeof next === "function" ? next(err) : void 0;
-            }
-            return _this.database.request("sync/" + _this.name + "/" + _id, function(err, data) {
-              if (err) {
-                return ref.set(old_data, function(err) {
-                  if (err) {
-                    return typeof next === "function" ? next('sync failed, and rollback failed') : void 0;
-                  } else {
-                    return typeof next === "function" ? next('sync failed, data rollback successful') : void 0;
-                  }
-                });
-              } else {
-                return typeof next === "function" ? next(null) : void 0;
-              }
-            });
-          });
-        };
-      })(this));
-    };
-
-    return Collection;
-
-  })();
-
-  exports.PseudoCollection = (function(_super) {
-    __extends(PseudoCollection, _super);
-
-    function PseudoCollection(database, name, defaults) {
-      this.database = database;
-      this.name = name;
-      this.defaults = defaults != null ? defaults : {};
-      PseudoCollection.__super__.constructor.call(this, this.database, this.name);
     }
 
-    PseudoCollection.prototype.insert = function(doc, priority, next) {
-      var k, v, _ref;
-      _ref = this.defaults;
-      for (k in _ref) {
-        v = _ref[k];
+    removeById(_id, _next) {
+      let next = _next;
+      if (typeof next !== 'function') {
+        next = () => {
+        };
+      }
+      const ref = this.database.firebase.child(`${this.name}/${_id}`);
+
+      // store current value
+      return ref.once('value', (snapshot) => {
+        const oldData = snapshot.val();
+
+        // remove value from firebase
+        return ref.set(null, (refSetErr) => {
+          if (refSetErr) {
+            return next(refSetErr);
+          }
+
+          // sync result to mongodb
+          return this.database.request(`sync/${this.name}/${_id}`, (syncErr) => {
+            // if sync failed, rollback data
+            if (syncErr) {
+              return ref.set(oldData, (err) => {
+                if (err) {
+                  return next('sync failed, and rollback failed');
+                }
+                return next('sync failed, data rollback successful');
+              });
+
+              // sync successful
+            }
+            return (
+              typeof next === 'function' ? next(null) : undefined
+            );
+          });
+        });
+      });
+    }
+  };
+
+  class PseudoCollection extends Collection {
+    constructor(database, name, defaults) {
+      super(database, name);
+      this.database = database;
+      this.name = name;
+      this.defaults = defaults == null ? {} : defaults;
+    }
+
+    insert(_doc, priority, next) {
+      const doc = _doc;
+      for (const k of Object.keys(this.defaults)) {
+        const v = this.defaults[k];
         doc[k] = v;
       }
-      return PseudoCollection.__super__.insert.call(this, doc, priority, next);
-    };
+      return super.insert(doc, priority, next);
+    }
 
-    PseudoCollection.prototype.find = function(criteria, fields, options, next) {
-      var k, params, query, v, _ref, _ref1;
-      if (criteria == null) {
-        criteria = null;
-      }
-      if (fields == null) {
-        fields = null;
-      }
-      if (options == null) {
-        options = null;
-      }
-      if (next == null) {
-        next = null;
-      }
-      _ref = exports.utils.prepareFind(arguments), query = _ref[0], params = _ref[1], next = _ref[2];
-      _ref1 = this.defaults;
-      for (k in _ref1) {
-        v = _ref1[k];
+    find(criteria = null, fields = null, options = null, _next = null) {
+      const [query, , next] = utils.prepareFind(criteria, fields, options, _next);
+      for (const k of Object.keys(this.defaults)) {
+        const v = this.defaults[k];
         query.criteria[k] = v;
       }
-      return PseudoCollection.__super__.find.call(this, query.criteria, query.fields, query.options, next);
-    };
+      return super.find(query.criteria, query.fields, query.options, next);
+    }
 
-    PseudoCollection.prototype.findOne = function(criteria, fields, options, next) {
-      var k, params, query, v, _ref, _ref1;
-      if (criteria == null) {
-        criteria = null;
-      }
-      if (fields == null) {
-        fields = null;
-      }
-      if (options == null) {
-        options = null;
-      }
-      if (next == null) {
-        next = null;
-      }
-      _ref = exports.utils.prepareFind(arguments), query = _ref[0], params = _ref[1], next = _ref[2];
-      _ref1 = this.defaults;
-      for (k in _ref1) {
-        v = _ref1[k];
+    findOne(criteria = null, fields = null, options = null, _next = null) {
+      const [query, , next] = utils.prepareFind(criteria, fields, options, _next);
+      for (const k of Object.keys(this.defaults)) {
+        const v = this.defaults[k];
         query.criteria[k] = v;
       }
-      return PseudoCollection.__super__.findOne.call(this, query.criteria, query.fields, query.options, next);
-    };
+      return super.findOne(query.criteria, query.fields, query.options, next);
+    }
+  }
 
-    return PseudoCollection;
-
-  })(exports.Collection);
-
-  exports.CollectionRef = (function(_super) {
-    __extends(CollectionRef, _super);
-
-    function CollectionRef(collection) {
+  // eslint-disable-next-line no-shadow
+  CollectionRef = class CollectionRef extends EventEmitter {
+    constructor(collection) {
+      super();
       this.collection = collection;
       this.database = this.collection.database;
       this.ref = this.database.firebase.child(this.collection.name);
     }
 
-    CollectionRef.prototype.endAt = function(priority) {
-      return this.ref = this.ref.endAt(priority);
-    };
+    endAt(priority) {
+      this.ref = this.ref.endAt(priority);
+    }
 
-    CollectionRef.prototype.limit = function(num) {
-      return this.ref = this.ref.limit(num);
-    };
+    limit(num) {
+      this.ref = this.ref.limit(num);
+    }
 
-    CollectionRef.prototype.startAt = function(priority) {
-      return this.ref = this.ref.startAt(priority);
-    };
+    startAt(priority) {
+      this.ref = this.ref.startAt(priority);
+    }
 
-    CollectionRef.prototype.on = function(event, handler) {
-      var _ref, _ref1;
-      CollectionRef.__super__.on.call(this, event, handler);
-      if (((_ref = this.events.insert) != null ? _ref.length : void 0) > 0) {
+    on(event, handler) {
+      super.on(event, handler);
+
+      if ((
+        this.events.insert != null ? this.events.insert.length : undefined
+      ) > 0) {
         this.ref.off('child_added');
-        this.ref.on('child_added', (function(_this) {
-          return function(snapshot) {
-            return _this.emit('insert', snapshot.val());
-          };
-        })(this));
+        this.ref.on('child_added', snapshot => this.emit('insert', snapshot.val()));
       }
-      if (((_ref1 = this.events.remove) != null ? _ref1.length : void 0) > 0) {
+
+      if ((
+        this.events.remove != null ? this.events.remove.length : undefined
+      ) > 0) {
         this.ref.off('child_removed');
-        return this.ref.on('child_removed', (function(_this) {
-          return function(snapshot) {
-            return _this.emit('remove', snapshot.val());
-          };
-        })(this));
+        this.ref.on('child_removed', snapshot => this.emit('remove', snapshot.val()));
       }
-    };
+    }
 
-    CollectionRef.prototype.off = function(event, handler) {
-      var _ref, _ref1;
-      if (handler == null) {
-        handler = null;
-      }
-      CollectionRef.__super__.off.call(this, event, handler);
-      if (((_ref = this.events.insert) != null ? _ref.length : void 0) === 0) {
+    off(event, handler = null) {
+      super.off(event, handler);
+
+      if ((
+        this.events.insert != null ? this.events.insert.length : undefined
+      ) === 0) {
         this.ref.off('child_added');
       }
-      if (((_ref1 = this.events.remove) != null ? _ref1.length : void 0) === 0) {
-        return this.ref.off('child_removed');
+
+      if ((
+        this.events.remove != null ? this.events.remove.length : undefined
+      ) === 0) {
+        this.ref.off('child_removed');
       }
-    };
+    }
+  };
 
-    return CollectionRef;
-
-  })(exports.EventEmitter);
-
-  exports.Document = (function() {
-    function Document(collection, data, query) {
+  // eslint-disable-next-line no-shadow
+  Document = class Document {
+    constructor(collection, data, query) {
       this.collection = collection;
       this.data = data;
       this.query = query;
       this.database = this.collection.database;
-      this.key = "" + this.collection.name + "/" + this.data._id;
+      this.key = `${this.collection.name}/${this.data._id}`;
       if (this.query == null) {
-        this.query = {
-          criteria: null,
-          fields: null,
-          options: null
-        };
+        this.query = { criteria: null, fields: null, options: null };
       }
-      this.ref = new exports.DocumentRef(this);
+      this.ref = new DocumentRef(this);
     }
 
-    Document.prototype.emit = function() {
-      var args, event, _ref;
-      event = arguments[0], args = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
-      return (_ref = this.ref).emit.apply(_ref, [event].concat(__slice.call(args)));
-    };
+    emit(event, ...args) {
+      return this.ref.emit(event, args);
+    }
 
-    Document.prototype.get = function(path) {
+    get(path) {
       return this.ref.get(path);
-    };
+    }
 
-    Document.prototype.name = function() {
+    name() {
       return this.ref.name();
-    };
+    }
 
-    Document.prototype.on = function(event, handler) {
+    on(event, handler) {
       return this.ref.on(event, handler);
-    };
+    }
 
-    Document.prototype.off = function(event, handler) {
+    off(event, handler) {
       return this.ref.off(event, handler);
-    };
+    }
 
-    Document.prototype.refresh = function(next) {
+    refresh(next) {
       return this.ref.refresh(next);
-    };
+    }
 
-    Document.prototype.remove = function(next) {
-      var _ref;
-      if ((_ref = typeof next) !== 'function' && _ref !== 'undefined') {
-        return exports.utils.log('invalid callback function to remove');
+    remove(next) {
+      if (!['function', 'undefined'].includes(typeof next)) {
+        return utils.log('invalid callback function to remove');
       }
       return this.collection.removeById(this.data._id, next);
-    };
+    }
 
-    Document.prototype.save = function(next) {
+    save(next) {
       return this.ref.set(this.data, next);
-    };
+    }
 
-    Document.prototype.set = function(value, next) {
-      if (next == null) {
-        next = null;
-      }
+    set(value, next = null) {
       return this.ref.set(value, next);
-    };
+    }
 
-    Document.prototype.val = function() {
+    val() {
       return this.ref.val();
-    };
+    }
+  };
 
-    return Document;
-
-  })();
-
-  exports.DocumentRef = (function(_super) {
-    __extends(DocumentRef, _super);
-
-    DocumentRef._counter = 0;
-
-    function DocumentRef(document, path) {
-      var k, _i, _len, _ref, _ref1;
+  // eslint-disable-next-line no-shadow
+  DocumentRef = class DocumentRef extends EventEmitter {
+    constructor(document, path) {
+      super();
       this.document = document;
-      this.path = path != null ? path : '';
-      DocumentRef.__super__.constructor.call(this);
-      this.counter = ++exports.DocumentRef._counter;
+      this.path = path == null ? '' : path;
+      this.counter = ++DocumentRef._counter;
       this.collection = this.document.collection;
       this.database = this.collection.database;
+
+      // @path[0] doesn't work in ie6, must use @path[0..0]
       if (typeof this.path === 'string') {
         if (this.path.slice(0, 1) === '/') {
           this.path = this.path.slice(1);
         }
         if (typeof this.path === 'string') {
-          this.path = this.path.split(/[\/\.]/g);
+          this.path = this.path.split(/[/.]/g);
         }
       }
-      this.key = ("" + this.document.key + "/" + (this.path.join('/'))).replace(/\/$/, '');
+      this.key = `${this.document.key}/${this.path.join('/')}`.replace(/\/$/, '');
       this.data = this.document.data;
-      _ref = this.path;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        k = _ref[_i];
+      for (const k of this.path) {
         if (k !== '') {
-          this.data = (_ref1 = this.data) != null ? _ref1[k] : void 0;
+          this.data = this.data != null ? this.data[k] : undefined;
         }
       }
       if (this.data == null) {
@@ -767,147 +646,202 @@
       this.ref = this.database.firebase.child(this.key);
     }
 
-    DocumentRef.prototype.log = function() {
-      return console.log.apply(console, ["ref_" + this.counter].concat(__slice.call(arguments)));
-    };
+    log(...args) {
+      // eslint-disable-next-line no-console
+      return console.log(`ref_${this.counter}`, args);
+    }
 
-    DocumentRef.prototype.get = function(path) {
-      var temp;
-      temp = this.path.slice(0);
-      while (exports.utils.startsWith(path, '..')) {
+    get(_path) {
+      let path = _path;
+      const temp = this.path.slice(0);
+      while (utils.startsWith(path, '..')) {
         temp.pop();
         path = path.slice(2);
-        if (exports.utils.startsWith(path, '/')) {
+        if (utils.startsWith(path, '/')) {
           path = path.slice(1);
         }
       }
-      return new exports.DocumentRef(this.document, "" + (temp.join('/')) + "/" + path);
-    };
+      return new DocumentRef(this.document, `${temp.join('/')}/${path}`);
+    }
 
-    DocumentRef.prototype.name = function() {
-      if (this.path.length === 1 && this.path[0] === '') {
+    name() {
+      if ((
+        this.path.length === 1
+      ) && (
+        this.path[0] === ''
+      )) {
         return this.data._id;
-      } else {
-        return this.path[this.path.length - 1];
       }
-    };
+      return this.path[this.path.length - 1];
+    }
 
-    DocumentRef.prototype.on = function(event, handler) {
-      var _ref, _ref1;
-      DocumentRef.__super__.on.call(this, event, handler);
-      if (((_ref = this.events.update) != null ? _ref.length : void 0) > 0 || ((_ref1 = this.events.value) != null ? _ref1.length : void 0) > 0) {
+    // value: emit now and when updated
+    // update: emit only when updated
+    on(event, handler) {
+      super.on(event, handler);
+
+      if (
+        (
+          (
+            this.events.update != null ? this.events.update.length : undefined
+          ) > 0
+        )
+        || (
+          (
+            this.events.value != null ? this.events.value.length : undefined
+          ) > 0
+        )
+      ) {
         this.emit('value', this.val());
-        return this.ref.on('value', (function(_this) {
-          return function(snapshot) {
-            return _this.updateData(snapshot.val());
-          };
-        })(this));
+        this.ref.on('value', snapshot => this.updateData(snapshot.val()));
       }
-    };
+    }
 
-    DocumentRef.prototype.off = function(event, handler) {
-      var _ref, _ref1;
-      if (handler == null) {
-        handler = null;
+    off(event, handler = null) {
+      super.off(event, handler);
+
+      if (
+        !(
+          this.events.update != null ? this.events.update.length : undefined
+        )
+        || !(
+          this.events.value != null ? this.events.value.length : undefined
+        )
+      ) {
+        this.ref.off('value');
       }
-      DocumentRef.__super__.off.call(this, event, handler);
-      if (!(((_ref = this.events.update) != null ? _ref.length : void 0) && ((_ref1 = this.events.value) != null ? _ref1.length : void 0))) {
-        return this.ref.off('value');
-      }
-    };
+    }
 
-    DocumentRef.prototype.parent = function() {
-      return new exports.DocumentRef(this.document, this.path.slice(0, this.path.length - 1));
-    };
+    parent() {
+      return new DocumentRef(this.document, this.path.slice(0, this.path.length - 1));
+    }
 
-    DocumentRef.prototype.refresh = function(next) {
-      var completed, done, fallback;
-      completed = false;
-      done = function() {
+    refresh(next) {
+      let completed = false;
+      const done = () => {
         if (!completed) {
-          if (typeof next === "function") {
+          if (typeof next === 'function') {
             next();
           }
         }
-        return completed = true;
+        completed = true;
       };
-      fallback = setTimeout(done, 7000);
-      return this.ref.once('value', (function(_this) {
-        return function(snapshot) {
-          return _this.updateData(snapshot.val(), function() {
-            return done();
-          });
-        };
-      })(this));
-    };
+      return this.ref.once('value', snapshot => this.updateData(snapshot.val(), () => done()));
+    }
 
-    DocumentRef.prototype.remove = function(next) {
-      var _ref;
-      if ((_ref = typeof next) !== 'function' && _ref !== 'undefined') {
-        return exports.utils.log('invalid callback function to remove');
+    remove(next) {
+      if (!['function', 'undefined'].includes(typeof next)) {
+        return utils.log('invalid callback function to remove');
       }
       return this.set(null, next);
-    };
+    }
 
-    DocumentRef.prototype.set = function(value, next) {
-      var allow, dst, k, ref, v, _ref;
+    set(value, next) {
+      // if specific fields were queried for, only allow those to be updated
       if (this.database.safe_writes) {
-        allow = true;
+        let allow = true;
         if (this.document.query.fields) {
           allow = false;
-          _ref = this.document.query.fields;
-          for (k in _ref) {
-            v = _ref[k];
-            dst = "" + this.document.key + "/" + (k.replace(/\./g, '/'));
-            allow = allow || this.key.indexOf(dst) === 0;
+          for (const k in this.document.query.fields) {
+            if (k) {
+              const dst = `${this.document.key}/${k.replace(/\./g, '/')}`;
+              allow = allow || (
+                this.key.indexOf(dst) === 0
+              );
+            }
           }
         }
         if (!allow) {
-          return typeof next === "function" ? next('cannot set a field that was not queried for') : void 0;
+          return (
+            typeof next === 'function' ? next(
+              'cannot set a field that was not queried for',
+            ) : undefined
+          );
         }
       }
-      ref = this.database.firebase.child(this.key);
-      return ref.set(value, (function(_this) {
-        return function(err) {
-          if (err) {
-            return typeof next === "function" ? next(err) : void 0;
-          }
-          return _this.database.request("sync/" + _this.key, function(err, data) {
-            if (err) {
-              return typeof next === "function" ? next(err) : void 0;
-            }
-            return _this.updateData(value, function() {
-              return typeof next === "function" ? next(null) : void 0;
-            });
-          });
-        };
-      })(this));
-    };
 
-    DocumentRef.prototype.updateData = function(data, next) {
-      var _ref, _ref1;
+      const ref = this.database.firebase.child(this.key);
+      return ref.set(value, (err) => {
+        if (err) {
+          return (
+            typeof next === 'function' ? next(err) : undefined
+          );
+        }
+        return this.database.request(`sync/${this.key}`, (syncErr) => {
+          if (syncErr) {
+            return (
+              typeof next === 'function' ? next(syncErr) : undefined
+            );
+          }
+          return this.updateData(value, () => (
+            typeof next === 'function' ? next(null) : undefined
+          ));
+        });
+      });
+    }
+
+    // @data = what we got from mongodb or what was already updated here
+    // data = new data from firebase
+    updateData(_data, next) {
+      const data = _data;
+      // ignore special 'created' and 'last_modified' fields on documents
       if (this.key === this.document.key) {
-        if ((_ref = this.data) != null ? _ref.created : void 0) {
+        if (this.data != null ? this.data.created : undefined) {
           data.created = this.data.created;
         }
-        if ((_ref1 = this.data) != null ? _ref1.last_modified : void 0) {
+        if (this.data != null ? this.data.last_modified : undefined) {
           data.last_modified = this.data.last_modified;
         }
       }
-      if (exports.utils.isEquals(this.data, data)) {
-        return typeof next === "function" ? next() : void 0;
+
+      // no updates to send if data isn't changing
+      if (utils.isEquals(this.data, data)) {
+        return (
+          typeof next === 'function' ? next() : undefined
+        );
       }
-      return setTimeout(((function(_this) {
-        return function() {
-          var k, key, keys, target, _i, _j, _len, _ref2;
-          _this.data = data;
-          if (_this.path.length === 1 && _this.path[0] === '') {
-            _this.document.data = data;
+
+
+      // here, we need to set a brief timeout so all firebase listeners can
+      // fire before we update any data. if we ran this code synchonously
+      // a DocumentRef may update the Document data before the Document
+      // listener had a chance to update. In that case, the isEquals call a few
+      // lines above would return true, and the listener for the Document would
+      // never be fired. With this setTimeout, all listeners have a chance to
+      // compare against past data before anything is updated.
+      //
+      // example
+      // ```
+      //   cookie = db.cookies.findOne()
+      //   type = cookie.get 'type'
+      //   cookie.on 'update', (val) ->
+      //     console.log 'cookie was updated'
+      //   type.on 'update', (val) ->
+      //     console.log 'type was updated'
+      //   type.set 'new type'
+      // ```
+      //
+      // this works because setTimeout() re-queues the new javascript at the end
+      // of the execution queue.
+      return setTimeout((
+        () => {
+          // update DocumentRef data
+          this.data = data;
+
+          // update document data. this will allow handlers to use
+          // ref.get and have access to new data
+          if ((
+            this.path.length === 1
+          ) && (
+            this.path[0] === ''
+          )) {
+            this.document.data = data;
           } else {
-            _ref2 = _this.path, keys = 2 <= _ref2.length ? __slice.call(_ref2, 0, _i = _ref2.length - 1) : (_i = 0, []), key = _ref2[_i++];
-            target = _this.document.data;
-            for (_j = 0, _len = keys.length; _j < _len; _j++) {
-              k = keys[_j];
+            const adjustedLength = Math.max(this.path.length, 1);
+            const keys = this.path.slice(0, adjustedLength - 1);
+            const key = this.path[adjustedLength - 1];
+            let target = this.document.data;
+            for (const k of keys) {
               if (target[k] == null) {
                 target[k] = {};
               }
@@ -915,28 +849,143 @@
             }
             target[key] = data;
           }
-          _this.emit('update', _this.val());
-          _this.emit('value', _this.val());
-          return typeof next === "function" ? next() : void 0;
-        };
-      })(this)), 1);
-    };
 
-    DocumentRef.prototype.val = function() {
+          // emit the updates
+          this.emit('update', this.val());
+          this.emit('value', this.val());
+          return (
+            typeof next === 'function' ? next() : undefined
+          );
+        }
+
+      ), 1);
+    }
+
+    val() {
       if (this.data === null) {
         return null;
       }
       if (Array.isArray(this.data)) {
         return extend([], this.data);
-      } else if (typeof this.data === 'object') {
-        return extend({}, this.data);
-      } else {
-        return this.data;
       }
+      if (typeof this.data === 'object') {
+        return extend({}, this.data);
+      }
+      return this.data;
+    }
+  };
+
+  DocumentRef._counter = 0;
+
+  if (!isNode()) {
+    window.mongofb = {
+      Collection,
+      CollectionRef,
+      Database,
+      Document,
+      DocumentRef,
+      EventEmitter,
+      PseudoCollection,
+      utils,
     };
+    extend = (target, object) => $.extend(true, target, object);
+    (
+      { Firebase } = window
+    );
+    fetch = (args) => {
+      let async;
+      let error;
+      let success;
+      let result = null;
+      if (args.next) {
+        success = data => args.next(null, data);
+        error = jqXHR => args.next(jqXHR, null);
+        async = true;
+      } else {
+        success = (data) => {
+          result = data;
+        };
+        error = () => {
+          result = null;
+        };
+        async = false;
+      }
+      $.ajax({
+        async,
+        cache: args.cache,
+        data: args.params,
+        error,
+        success,
+        type: 'GET',
+        url: args.url,
+      });
+      return result;
+    };
+  } else {
+    module.exports = {
+      Collection,
+      CollectionRef,
+      Database,
+      Document,
+      DocumentRef,
+      EventEmitter,
+      PseudoCollection,
+      utils,
+    };
+    extend = require('node.extend'); // eslint-disable-line global-require
+    request = require('request'); // eslint-disable-line global-require
+    Firebase = require('firebase'); // eslint-disable-line global-require
+    fetch = (_args) => {
+      const args = _args;
+      if (args.params == null) {
+        args.params = {};
+      }
+      if (!args.cache) {
+        if (args.params._ == null) {
+          args.params._ = Date.now();
+        }
+      }
+      return request({
+        method: 'GET',
+        qs: args.params,
+        url: args.url,
+      }, (_err, resp, _body) => {
+        let err = _err;
+        let body = _body;
+        if (err) {
+          return args.next(err);
+        }
+        if (!resp) {
+          return args.next('bad response');
+        }
 
-    return DocumentRef;
+        switch (resp.statusCode) {
+          // success
+          case 200:
+            if (args.json) {
+              try {
+                body = JSON.parse(body);
+              } catch (error) {
+                err = error;
+                body = null;
+              }
+            }
+            break;
 
-  })(exports.EventEmitter);
+          // not found, return null
+          case 404:
+            body = null;
+            break;
 
-}).call(this);
+          // unexpected response, send error
+          // example: 500 error for duplicate key error
+          default:
+            err = body;
+            body = null;
+        }
+
+        return args.next(err, body);
+      });
+    };
+  }
+})();
