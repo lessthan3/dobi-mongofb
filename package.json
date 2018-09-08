@@ -17,9 +17,8 @@
     "teacup": "^2.0.0"
   },
   "dependencies": {
-    "connect-assets": "^5.4.0",
     "deepmerge": "2.0.1",
-    "dobi-asset-wrap": "3.0.0",
+    "dobi-asset-wrap": "^3.0.1",
     "express": "4.16.x",
     "firebase": "2.2.9",
     "firebase-token-generator": "2.0.0",
@@ -40,5 +39,5 @@
   "engines": {
     "node": ">= 10"
   },
-  "version": "2.0.0"
+  "version": "2.0.1"
 }
