@@ -89,12 +89,12 @@
 
 **v0.7.7** (2014-05-23)
 
- - fix caching when running server-side
+ - fix caching when running index-side
 
 **v0.7.6** (2014-05-23)
 
  - add npm-debug.log to gitignore
- - handle 500 responses as errors from server-side usage fetches
+ - handle 500 responses as errors from index-side usage fetches
 
 **v0.7.5** (2014-05-22)
 
@@ -194,7 +194,7 @@
 **v0.3.14** (2013-11-22)
 
  - add Database.auth
- - fix server-side ObjectID fetching (response is not json)
+ - fix index-side ObjectID fetching (response is not json)
 
 **v0.3.13** (2013-11-22)
 
@@ -203,7 +203,7 @@
 **v0.3.12** (2013-11-04)
 
  - setToken function for client
- - check for statusCode on server-side client.coffee fetch
+ - check for statusCode on index-side client.coffee fetch
  - check for admin property in authentication
  - add mongofb reference to incoming requests
 
@@ -227,7 +227,7 @@
 
 **v0.3.7** (2013-10-29)
 
- - pass json to fetch (needed for server-side mongofb client)
+ - pass json to fetch (needed for index-side mongofb client)
  - set correct limit parameter for finds
 
 **v0.3.6** (2013-10-26)
@@ -258,7 +258,7 @@
 
 **v0.3.0** (2013-10-12)
 
- - make javascript sdk accessible server-side
+ - make javascript sdk accessible index-side
 
 **v0.2.6** (2013-08-11)
 

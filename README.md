@@ -6,16 +6,16 @@
   - [What is MongoFB](#what-is-mongofb)
   - [Diagram](#diagram)
  - [Usage](#usage)
-  - [Server Configuration](#server-configuration)
-  - [Server API](#server-api)
-  - [Server Hooks](#server-hooks)
+  - [Server Configuration](#index-configuration)
+  - [Server API](#index-api)
+  - [Server Hooks](#index-hooks)
   - [Authentication](#authentication)
   - [Client SDK](#client-sdk)
  - [Examples](#examples)
-  - [Server](#server)
-  - [Javascript Client](#javascript-client) 
-  - [iOS Client](#ios-client) 
-  - [Android Client](#android-client) 
+  - [Server](#index)
+  - [Javascript Client](#javascript-client)
+  - [iOS Client](#ios-client)
+  - [Android Client](#android-client)
 
 ## General Information
 
@@ -44,7 +44,7 @@ of any document (all the things you wish your mongodb would do).
 
 ### Sever Configuration
 
-MongoFB can be included in your express or zappajs server, using middleware.
+MongoFB can be included in your express or zappajs index, using middleware.
 ```
 mongofb = require 'mongofb'
 
@@ -86,8 +86,8 @@ The client calls here to get a new ObjectID before writing to Firebase
 
 /API-ROOT/sync/:collection/:id
 ```
-After an insert, update, or remove, a client will tell the server it needs to
-update data in Firebase. The server will then pull the most up-to-date data
+After an insert, update, or remove, a client will tell the index it needs to
+update data in Firebase. The index will then pull the most up-to-date data
 directly from Firebase and write it to MongoDB for querying.
 ```
 
@@ -128,7 +128,7 @@ Sometimes you may want to modify the response from your api, or set default
 values for parameters, or do something special if the user is authenticated.
 This is all possible with MongoFB Hooks.
 
-You can define your hooks in your server configuration. The current hooks
+You can define your hooks in your index configuration. The current hooks
 available are...
 
 new_query = collection.before.find(query)
@@ -186,12 +186,12 @@ mongofb.Database
 ```
 # This is the equivalent to a MongoDB Database
 
-# Connect to our MongoFB server
+# Connect to our MongoFB index
 db = new mongofb.Database 'http://localhost:3000/API-ROOT'
 
 # Get a collection
 posts = db.collection 'posts'
-posts = db.get 'posts' 
+posts = db.get 'posts'
 
 # Get a document directly
 post = db.collection('posts').get('510b56c221168da296f27bd5')
@@ -304,7 +304,7 @@ ref.val()
 ### Server
 ```
 express = require 'express'
-mongofb = require '../lib/server'
+mongofb = require '../lib/index'
 
 app = express()
 app.use mongofb {

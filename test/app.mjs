@@ -1,8 +1,11 @@
-const bodyParser = require('body-parser');
-const config = require('/u/config/test-config.js');
-const express = require('express');
-const fs = require('fs');
-const mongofb = require('../lib/server.js');
+import bodyParser from 'body-parser';
+import config from '/u/config/test-config.js';
+import express from 'express';
+import fs from 'fs';
+import path from 'path';
+import mongofb from '../lib/server';
+
+const __dirname = path.dirname(new URL(import.meta.url).pathname);
 
 // helpers
 const log = (...args) => console.log(args);
@@ -13,7 +16,7 @@ const fail = (msg) => {
 
 // copy file over
 const copyFile = (next) => {
-  const read = fs.createReadStream(`${__dirname}/../lib/client.js`);
+  const read = fs.createReadStream(`${__dirname}/../dist/client.js`);
   read.on('error', fail);
   const wr = fs.createWriteStream(`${__dirname}/assets/js/client.js`);
   wr.on('error', fail);

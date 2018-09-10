@@ -4,29 +4,43 @@
     "email": "ari@maestro.io"
   },
   "scripts": {
-    "test": "node test/app.js"
+    "build": "NODE_ENV=production webpack",
+    "prepublish": "NODE_ENV=production npm run build",
+    "test": "npm run build; node --experimental-modules test/app.mjs"
   },
   "devDependencies": {
+    "@babel/cli": "7.0.0",
+    "@babel/core": "7.0.0",
+    "@babel/plugin-transform-runtime": "7.0.0",
+    "@babel/polyfill": "^7.0.0",
+    "@babel/preset-env": "7.0.0",
+    "@babel/runtime": "^7.0.0",
+    "babel-core": "7.0.0-bridge.0",
+    "babel-loader": "8.0.2",
+    "babel-plugin-module-resolver": "3.1.1",
     "body-parser": "1.6.x",
+    "clean-webpack-plugin": "^0.1.19",
     "eslint": "^5.3.0",
     "eslint-config-airbnb-base": "^13.1.0",
-    "eslint-plugin-import": "^2.14.0"
+    "eslint-plugin-import": "^2.14.0",
+    "uglifyjs-webpack-plugin": "^1.2.5",
+    "unminified-webpack-plugin": "^2.0.0",
+    "webpack": "^4.10.1",
+    "webpack-cli": "^2.1.4"
   },
   "dependencies": {
+    "axios": "^0.18.0",
     "deepmerge": "2.0.1",
-    "dobi-asset-wrap": "^4.0.0",
     "express": "4.16.x",
     "firebase": "2.2.9",
     "firebase-token-generator": "2.0.0",
     "jwt-simple": "0.5.x",
     "lru-cache": "2.5.x",
-    "mongodb": "3.1.4",
-    "node.extend": "2.0.0",
-    "request": "^2.88.0"
+    "mongodb": "3.1.4"
   },
   "description": "Dobi Mongo Firebase",
   "license": "MIT",
-  "main": "./lib/server",
+  "main": "lib/server",
   "name": "dobi-mongofb",
   "repository": {
     "type": "git",
@@ -35,5 +49,5 @@
   "engines": {
     "node": ">= 10"
   },
-  "version": "2.0.1"
+  "version": "2.0.2"
 }
