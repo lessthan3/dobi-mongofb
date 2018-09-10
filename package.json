@@ -5,16 +5,14 @@
   },
   "scripts": {
     "build": "NODE_ENV=production webpack; babel src -d lib",
-    "prepublish": "NODE_ENV=production npm run build",
+    "prepublishOnly": "NODE_ENV=production npm run build",
     "test": "npm run build; node --experimental-modules test/app.mjs"
   },
   "devDependencies": {
     "@babel/cli": "7.0.0",
     "@babel/core": "7.0.0",
-    "@babel/plugin-transform-runtime": "7.0.0",
     "@babel/polyfill": "^7.0.0",
     "@babel/preset-env": "7.0.0",
-    "@babel/runtime": "^7.0.0",
     "babel-core": "7.0.0-bridge.0",
     "babel-loader": "8.0.2",
     "babel-plugin-module-resolver": "3.1.1",
@@ -29,6 +27,8 @@
     "webpack-cli": "^2.1.4"
   },
   "dependencies": {
+    "@babel/plugin-transform-runtime": "7.0.0",
+    "@babel/runtime": "^7.0.0",
     "axios": "^0.18.0",
     "deepmerge": "2.0.1",
     "express": "4.16.x",
@@ -49,5 +49,5 @@
   "engines": {
     "node": ">= 10"
   },
-  "version": "3.0.1"
+  "version": "3.0.2"
 }
