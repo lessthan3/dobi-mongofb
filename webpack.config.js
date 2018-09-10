@@ -58,7 +58,7 @@ module.exports = {
   resolve: {
     extensions: ['.js', '.mjs'],
     modules: [
-      path.resolve('lib/client'),
+      path.resolve('lib/mongoFbClient'),
       'node_modules',
     ],
   },

@@ -4,7 +4,7 @@
     "email": "ari@maestro.io"
   },
   "scripts": {
-    "build": "NODE_ENV=production webpack",
+    "build": "NODE_ENV=production webpack; babel src -d lib",
     "prepublish": "NODE_ENV=production npm run build",
     "test": "npm run build; node --experimental-modules test/app.mjs"
   },
@@ -40,7 +40,7 @@
   },
   "description": "Dobi Mongo Firebase",
   "license": "MIT",
-  "main": "lib/server",
+  "main": "src/server",
   "name": "dobi-mongofb",
   "repository": {
     "type": "git",
@@ -49,5 +49,5 @@
   "engines": {
     "node": ">= 10"
   },
-  "version": "2.0.2"
+  "version": "3.0.0"
 }

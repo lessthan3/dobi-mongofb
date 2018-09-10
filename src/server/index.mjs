@@ -10,15 +10,15 @@ import jwt from 'jwt-simple';
 import LRU from 'lru-cache';
 import merge from 'deepmerge';
 import mongodb from 'mongodb';
-import path from 'path';
-import * as client from './../client';
+import * as mongoFbClient from '../client';
+import { dirname } from './dirname';
 
-const __dirname = path.dirname(new URL(import.meta.url).pathname);
+export const client = mongoFbClient;
 
-const { ObjectID } = mongodb;
+export const { ObjectID } = mongodb;
 
 // exports
-const index = (_cfg) => {
+export const server = (_cfg) => {
   let cfg = _cfg;
   // configuration
   cfg = merge({
@@ -115,7 +115,7 @@ const index = (_cfg) => {
     // databases
     parentReq.db = db;
     parentReq.fb = fb;
-    parentReq.mongofb = new client.Database({
+    parentReq.mongofb = new mongoFbClient.Database({
       firebase: cfg.firebase.url,
       server: `http://${parentReq.get('host')}${cfg.root}`,
     });
@@ -218,28 +218,28 @@ const index = (_cfg) => {
       return callback();
     });
 
-    // client javascript
+    // mongoFbClient javascript
     router.get(`${cfg.root}/mongofb.js`, () => {
       contentType('text/javascript');
       return cache((callback) => {
         try {
-          const script = fs.readFileSync(`${__dirname}/../../dist/client.js`, 'utf-8');
+          const script = fs.readFileSync(`${dirname}/../../dist/client.js`, 'utf-8');
           return callback(script);
-        } catch (err) {
-          handleError(err);
+        } catch (readErr) {
+          return handleError(readErr);
         }
       });
     });
 
-    // client javascript minified
+    // mongoFbClient javascript minified
     router.get(`${cfg.root}/mongofb.min.js`, () => {
       contentType('text/javascript');
       return cache((callback) => {
         try {
-          const script = fs.readFileSync(`${__dirname}/../../dist/client.min.js`, 'utf-8');
+          const script = fs.readFileSync(`${dirname}/../../dist/client.min.js`, 'utf-8');
           return callback(script);
-        } catch (err) {
-          handleError(err);
+        } catch (readErr) {
+          return handleError(readErr);
         }
       });
     });
@@ -510,10 +510,4 @@ const index = (_cfg) => {
     // execute routes
     return router.handle(parentReq, parentRes, next);
   });
-};
-
-export default {
-  client,
-  ObjectID,
-  server: index,
 };

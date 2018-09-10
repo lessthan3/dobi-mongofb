@@ -10,12 +10,12 @@
   - [Server API](#index-api)
   - [Server Hooks](#index-hooks)
   - [Authentication](#authentication)
-  - [Client SDK](#client-sdk)
+  - [Client SDK](#mongoFbClient-sdk)
  - [Examples](#examples)
   - [Server](#index)
-  - [Javascript Client](#javascript-client)
-  - [iOS Client](#ios-client)
-  - [Android Client](#android-client)
+  - [Javascript Client](#javascript-mongoFbClient)
+  - [iOS Client](#ios-mongoFbClient)
+  - [Android Client](#android-mongoFbClient)
 
 ## General Information
 
@@ -71,22 +71,22 @@ app.use mongofb {
 
 /API-ROOT/mongofb.js
 ```
-Serves the javascript client
+Serves the javascript mongoFbClient
 ```
 
 /API-ROOT/Firebase
 ```
-Let's the client look up the public url of your Firebase
+Let's the mongoFbClient look up the public url of your Firebase
 ```
 
 /API-ROOT/ObjectId
 ```
-The client calls here to get a new ObjectID before writing to Firebase
+The mongoFbClient calls here to get a new ObjectID before writing to Firebase
 ```
 
 /API-ROOT/sync/:collection/:id
 ```
-After an insert, update, or remove, a client will tell the index it needs to
+After an insert, update, or remove, a mongoFbClient will tell the index it needs to
 update data in Firebase. The index will then pull the most up-to-date data
 directly from Firebase and write it to MongoDB for querying.
 ```

@@ -44,7 +44,7 @@
 
 **v0.9.5** (2014-07-13)
 
- -  add minified client js route
+ -  add minified mongoFbClient js route
 
 **v0.9.4** (2014-07-07)
 
@@ -202,8 +202,8 @@
 
 **v0.3.12** (2013-11-04)
 
- - setToken function for client
- - check for statusCode on index-side client.coffee fetch
+ - setToken function for mongoFbClient
+ - check for statusCode on index-side mongoFbClient.coffee fetch
  - check for admin property in authentication
  - add mongofb reference to incoming requests
 
@@ -227,7 +227,7 @@
 
 **v0.3.7** (2013-10-29)
 
- - pass json to fetch (needed for index-side mongofb client)
+ - pass json to fetch (needed for index-side mongofb mongoFbClient)
  - set correct limit parameter for finds
 
 **v0.3.6** (2013-10-26)

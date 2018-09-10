@@ -91,7 +91,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 9);
+/******/ 	return __webpack_require__(__webpack_require__.s = 23);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -101,8 +101,8 @@ return /******/ (function(modules) { // webpackBootstrap
 "use strict";
 
 
-var bind = __webpack_require__(3);
-var isBuffer = __webpack_require__(11);
+var bind = __webpack_require__(18);
+var isBuffer = __webpack_require__(45);
 
 /*global toString:true*/
 
@@ -406,13 +406,783 @@ module.exports = {
 
 /***/ }),
 /* 1 */
+/***/ (function(module, exports) {
+
+function _interopRequireDefault(obj) {
+  return obj && obj.__esModule ? obj : {
+    default: obj
+  };
+}
+
+module.exports = _interopRequireDefault;
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports) {
+
+function _classCallCheck(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+}
+
+module.exports = _classCallCheck;
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports) {
+
+function _defineProperties(target, props) {
+  for (var i = 0; i < props.length; i++) {
+    var descriptor = props[i];
+    descriptor.enumerable = descriptor.enumerable || false;
+    descriptor.configurable = true;
+    if ("value" in descriptor) descriptor.writable = true;
+    Object.defineProperty(target, descriptor.key, descriptor);
+  }
+}
+
+function _createClass(Constructor, protoProps, staticProps) {
+  if (protoProps) _defineProperties(Constructor.prototype, protoProps);
+  if (staticProps) _defineProperties(Constructor, staticProps);
+  return Constructor;
+}
+
+module.exports = _createClass;
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _interopRequireDefault = __webpack_require__(1);
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.startsWith = exports.prepareFind = exports.jsonify = exports.log = exports.isEquals = void 0;
+
+var _slicedToArray2 = _interopRequireDefault(__webpack_require__(7));
+
+var _typeof2 = _interopRequireDefault(__webpack_require__(5));
+
+var isEquals = function isEquals(a, b) {
+  if (a && !b) {
+    return false;
+  }
+
+  if (b && !a) {
+    return false;
+  }
+
+  if ((0, _typeof2.default)(a) !== (0, _typeof2.default)(b)) {
+    return false;
+  }
+
+  if (a === null && b === null) {
+    return true;
+  }
+
+  switch ((0, _typeof2.default)(a)) {
+    case 'function':
+      if (a.toString() !== b.toString()) {
+        return false;
+      }
+
+      break;
+
+    case 'object':
+      if (Object.keys(a).length !== Object.keys(b).length) {
+        return false;
+      }
+
+      for (var k in a) {
+        if (!isEquals(a[k], b[k])) {
+          return false;
+        }
+      }
+
+      break;
+
+    default:
+      if (a !== b) {
+        return false;
+      }
+
+  }
+
+  return true;
+}; // logging utility
+
+
+exports.isEquals = isEquals;
+
+var log = function log(msg) {
+  return console.log("[monogfb] ".concat(msg));
+}; // stringify json params
+
+
+exports.log = log;
+
+var jsonify = function jsonify(q) {
+  var o = {};
+
+  var _arr = Object.keys(q);
+
+  for (var _i = 0; _i < _arr.length; _i++) {
+    var k = _arr[_i];
+    var v = q[k];
+
+    if (v) {
+      o[k] = JSON.stringify(v);
+    }
+  }
+
+  return o;
+}; // prepare query parameters for a find
+
+
+exports.jsonify = jsonify;
+
+var prepareFind = function prepareFind() {
+  var fields;
+  var next;
+  var options;
+  var special;
+
+  for (var _len = arguments.length, _args = new Array(_len), _key = 0; _key < _len; _key++) {
+    _args[_key] = arguments[_key];
+  }
+
+  var args = _args.filter(function (arg) {
+    return arg != null;
+  }); // callback
+
+
+  var hasCallback = typeof args[args.length - 1] === 'function';
+
+  if (hasCallback) {
+    next = args[args.length - 1];
+  } // defaults
+
+
+  var criteria = {}; // query objects
+
+  if ((0, _typeof2.default)(args[0]) === 'object') {
+    var _args2 = (0, _slicedToArray2.default)(args, 1);
+
+    criteria = _args2[0];
+  }
+
+  if ((0, _typeof2.default)(args[1]) === 'object') {
+    var _args3 = (0, _slicedToArray2.default)(args, 2);
+
+    fields = _args3[1];
+  }
+
+  if ((0, _typeof2.default)(args[2]) === 'object') {
+    var _args4 = (0, _slicedToArray2.default)(args, 3);
+
+    options = _args4[2];
+  }
+
+  if ((0, _typeof2.default)(args[3]) === 'object') {
+    var _args5 = (0, _slicedToArray2.default)(args, 4);
+
+    special = _args5[3];
+  } // args[1] can be either fields or options or special
+  // args[2] can be either options or special
+  // case: special was in args[2]
+
+
+  if (options && !special && (options.token || options._)) {
+    var _ref = [options, null];
+    special = _ref[0];
+    options = _ref[1];
+  } // case: options was in args[1]
+
+
+  if (fields && !options && (fields.limit || fields.skip || fields.sort)) {
+    var _ref2 = [fields, null];
+    options = _ref2[0];
+    fields = _ref2[1];
+  } // case: special was in args[1]
+
+
+  if (fields && !special && (fields.token || fields._)) {
+    var _ref3 = [fields, null];
+    special = _ref3[0];
+    fields = _ref3[1];
+  } // format query objects and prepare to send
+
+
+  var query = {
+    criteria: criteria,
+    fields: fields,
+    options: options
+  };
+  var params = jsonify(query);
+
+  if (special != null ? special.token : undefined) {
+    params.token = special.token;
+  }
+
+  if (special != null ? special._ : undefined) {
+    params._ = special._;
+  }
+
+  return [query, params, next];
+};
+
+exports.prepareFind = prepareFind;
+
+var startsWith = function startsWith(str, target) {
+  return str.slice(0, target.length) === target;
+};
+
+exports.startsWith = startsWith;
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports) {
+
+function _typeof2(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof2 = function _typeof2(obj) { return typeof obj; }; } else { _typeof2 = function _typeof2(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof2(obj); }
+
+function _typeof(obj) {
+  if (typeof Symbol === "function" && _typeof2(Symbol.iterator) === "symbol") {
+    module.exports = _typeof = function _typeof(obj) {
+      return _typeof2(obj);
+    };
+  } else {
+    module.exports = _typeof = function _typeof(obj) {
+      return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : _typeof2(obj);
+    };
+  }
+
+  return _typeof(obj);
+}
+
+module.exports = _typeof;
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports) {
+
+function _getPrototypeOf(o) {
+  module.exports = _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) {
+    return o.__proto__ || Object.getPrototypeOf(o);
+  };
+  return _getPrototypeOf(o);
+}
+
+module.exports = _getPrototypeOf;
+
+/***/ }),
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var arrayWithHoles = __webpack_require__(25);
+
+var iterableToArrayLimit = __webpack_require__(26);
+
+var nonIterableRest = __webpack_require__(27);
+
+function _slicedToArray(arr, i) {
+  return arrayWithHoles(arr) || iterableToArrayLimit(arr, i) || nonIterableRest();
+}
+
+module.exports = _slicedToArray;
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _interopRequireDefault = __webpack_require__(1);
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _slicedToArray2 = _interopRequireDefault(__webpack_require__(7));
+
+var _classCallCheck2 = _interopRequireDefault(__webpack_require__(2));
+
+var _createClass2 = _interopRequireDefault(__webpack_require__(3));
+
+var _CollectionRef = _interopRequireDefault(__webpack_require__(14));
+
+var _Document = _interopRequireDefault(__webpack_require__(16));
+
+var _utils = __webpack_require__(4);
+
+var Collection =
+/*#__PURE__*/
+function () {
+  function Collection(database, name) {
+    (0, _classCallCheck2.default)(this, Collection);
+    this.database = database;
+    this.name = name;
+    this.ref = new _CollectionRef.default(this);
+  }
+
+  (0, _createClass2.default)(Collection, [{
+    key: "insert",
+    value: function insert(_doc, _priority, _next) {
+      var _this = this;
+
+      var doc = _doc;
+      var next = _next;
+      var priority = _priority;
+
+      if (typeof priority === 'function') {
+        var _ref = [priority, null];
+        next = _ref[0];
+        priority = _ref[1];
+      }
+
+      if (typeof next !== 'function') {
+        next = function next() {};
+      }
+
+      return this.database.request('ObjectID', false, {
+        _: "".concat(Date.now(), "-").concat(Math.random())
+      }, function (requestErr, id) {
+        if (requestErr) {
+          return next(requestErr);
+        }
+
+        doc._id = id;
+
+        var ref = _this.database.firebase.child("".concat(_this.name, "/").concat(id));
+
+        return ref.set(doc, function (setErr) {
+          if (setErr) {
+            return next(setErr);
+          }
+
+          if (priority) {
+            ref.setPriority(priority);
+          }
+
+          return _this.database.request("sync/".concat(_this.name, "/").concat(id), {
+            _: Date.now()
+          }, function (err, data) {
+            if (err) {
+              return next(err);
+            }
+
+            return next(null, new _Document.default(_this, data));
+          });
+        });
+      });
+    } // find()
+    // find(criteria)
+    // find(criteria, fields)
+    // find(criteria, options)
+    // find(criteria, fields, options)
+    //
+    // find(next)
+    // find(criteria, next)
+    // find(criteria, fields, next)
+    // find(criteria, options, next)
+    // find(criteria, fields, options, next)
+
+  }, {
+    key: "find",
+    value: function find() {
+      var _this2 = this;
+
+      var criteria = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+      var fields = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+      var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+
+      var _next = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
+
+      var _prepareFind = (0, _utils.prepareFind)(criteria, fields, options, _next),
+          _prepareFind2 = (0, _slicedToArray2.default)(_prepareFind, 3),
+          query = _prepareFind2[0],
+          params = _prepareFind2[1],
+          next = _prepareFind2[2];
+
+      if (next) {
+        return this.database.request("".concat(this.name, "/find"), params, function (err, datas) {
+          if (err) {
+            return next(err);
+          }
+
+          var output = [];
+          var _iteratorNormalCompletion = true;
+          var _didIteratorError = false;
+          var _iteratorError = undefined;
+
+          try {
+            for (var _iterator = datas[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+              var data = _step.value;
+              output.push(new _Document.default(_this2, data, query));
+            }
+          } catch (err) {
+            _didIteratorError = true;
+            _iteratorError = err;
+          } finally {
+            try {
+              if (!_iteratorNormalCompletion && _iterator.return != null) {
+                _iterator.return();
+              }
+            } finally {
+              if (_didIteratorError) {
+                throw _iteratorError;
+              }
+            }
+          }
+
+          return next(null, output);
+        });
+      }
+
+      var datas = this.database.request("".concat(this.name, "/find"), params) || [];
+      var result = [];
+      var _iteratorNormalCompletion2 = true;
+      var _didIteratorError2 = false;
+      var _iteratorError2 = undefined;
+
+      try {
+        for (var _iterator2 = datas[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+          var data = _step2.value;
+          result.push(new _Document.default(this, data, query));
+        }
+      } catch (err) {
+        _didIteratorError2 = true;
+        _iteratorError2 = err;
+      } finally {
+        try {
+          if (!_iteratorNormalCompletion2 && _iterator2.return != null) {
+            _iterator2.return();
+          }
+        } finally {
+          if (_didIteratorError2) {
+            throw _iteratorError2;
+          }
+        }
+      }
+
+      return result;
+    }
+  }, {
+    key: "findById",
+    value: function findById() {
+      var _this3 = this;
+
+      var id = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+      var fields = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+      var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+
+      var _next = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
+
+      var _prepareFind3 = (0, _utils.prepareFind)(id, fields, options, _next),
+          _prepareFind4 = (0, _slicedToArray2.default)(_prepareFind3, 3),
+          params = _prepareFind4[1],
+          next = _prepareFind4[2];
+
+      if (next) {
+        return this.database.request("".concat(this.name, "/").concat(id), params, function (err, data) {
+          if (err) {
+            return next(err);
+          }
+
+          if (!data) {
+            return next(null, null);
+          }
+
+          return next(null, new _Document.default(_this3, data));
+        });
+      }
+
+      var data = this.database.request("".concat(this.name, "/").concat(id), params);
+
+      if (!data) {
+        return null;
+      }
+
+      return new _Document.default(this, data);
+    } // findOne()
+    // findOne(criteria)
+    // findOne(criteria, fields)
+    // findOne(criteria, fields, options)
+    //
+    // findOne(next)
+    // findOne(criteria, next)
+    // findOne(criteria, fields, next)
+    // findOne(criteria, fields, options, next)
+
+  }, {
+    key: "findOne",
+    value: function findOne() {
+      var _this4 = this;
+
+      var criteria = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+      var fields = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+      var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+
+      var _next = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
+
+      var _prepareFind5 = (0, _utils.prepareFind)(criteria, fields, options, _next),
+          _prepareFind6 = (0, _slicedToArray2.default)(_prepareFind5, 3),
+          query = _prepareFind6[0],
+          params = _prepareFind6[1],
+          next = _prepareFind6[2];
+
+      if (next) {
+        return this.database.request("".concat(this.name, "/findOne"), params, function (err, data) {
+          if (err) {
+            return next(err);
+          }
+
+          if (!data) {
+            return next(null, null);
+          }
+
+          return next(null, new _Document.default(_this4, data, query));
+        });
+      }
+
+      var data = this.database.request("".concat(this.name, "/findOne"), params);
+
+      if (!data) {
+        return null;
+      }
+
+      return new _Document.default(this, data, query);
+    }
+  }, {
+    key: "list",
+    value: function list(priority, _limit) {
+      var limit = _limit == null ? 1 : _limit;
+      this.ref.endAt(priority);
+      this.ref.limit(limit);
+      return this.ref;
+    }
+  }, {
+    key: "removeById",
+    value: function removeById(_id, _next) {
+      var _this5 = this;
+
+      var next = _next;
+
+      if (typeof next !== 'function') {
+        next = function next() {};
+      }
+
+      var ref = this.database.firebase.child("".concat(this.name, "/").concat(_id)); // store current value
+
+      return ref.once('value', function (snapshot) {
+        var oldData = snapshot.val(); // remove value from firebase
+
+        return ref.set(null, function (refSetErr) {
+          if (refSetErr) {
+            return next(refSetErr);
+          } // sync result to mongodb
+
+
+          return _this5.database.request("sync/".concat(_this5.name, "/").concat(_id), function (syncErr) {
+            // if sync failed, rollback data
+            if (syncErr) {
+              return ref.set(oldData, function (err) {
+                if (err) {
+                  return next('sync failed, and rollback failed');
+                }
+
+                return next('sync failed, data rollback successful');
+              }); // sync successful
+            }
+
+            return typeof next === 'function' ? next(null) : undefined;
+          });
+        });
+      });
+    }
+  }]);
+  return Collection;
+}();
+
+var _default = Collection;
+exports.default = _default;
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var _typeof = __webpack_require__(5);
+
+var assertThisInitialized = __webpack_require__(28);
+
+function _possibleConstructorReturn(self, call) {
+  if (call && (_typeof(call) === "object" || typeof call === "function")) {
+    return call;
+  }
+
+  return assertThisInitialized(self);
+}
+
+module.exports = _possibleConstructorReturn;
+
+/***/ }),
+/* 10 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var getPrototypeOf = __webpack_require__(6);
+
+var superPropBase = __webpack_require__(29);
+
+function _get(target, property, receiver) {
+  if (typeof Reflect !== "undefined" && Reflect.get) {
+    module.exports = _get = Reflect.get;
+  } else {
+    module.exports = _get = function _get(target, property, receiver) {
+      var base = superPropBase(target, property);
+      if (!base) return;
+      var desc = Object.getOwnPropertyDescriptor(base, property);
+
+      if (desc.get) {
+        return desc.get.call(receiver);
+      }
+
+      return desc.value;
+    };
+  }
+
+  return _get(target, property, receiver || target);
+}
+
+module.exports = _get;
+
+/***/ }),
+/* 11 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var setPrototypeOf = __webpack_require__(30);
+
+function _inherits(subClass, superClass) {
+  if (typeof superClass !== "function" && superClass !== null) {
+    throw new TypeError("Super expression must either be null or a function");
+  }
+
+  subClass.prototype = Object.create(superClass && superClass.prototype, {
+    constructor: {
+      value: subClass,
+      writable: true,
+      configurable: true
+    }
+  });
+  if (superClass) setPrototypeOf(subClass, superClass);
+}
+
+module.exports = _inherits;
+
+/***/ }),
+/* 12 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _interopRequireDefault = __webpack_require__(1);
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _toConsumableArray2 = _interopRequireDefault(__webpack_require__(15));
+
+var _classCallCheck2 = _interopRequireDefault(__webpack_require__(2));
+
+var _createClass2 = _interopRequireDefault(__webpack_require__(3));
+
+var EventEmitter =
+/*#__PURE__*/
+function () {
+  function EventEmitter() {
+    (0, _classCallCheck2.default)(this, EventEmitter);
+    this.events = {};
+  }
+
+  (0, _createClass2.default)(EventEmitter, [{
+    key: "emit",
+    value: function emit(event) {
+      if (this.events[event]) {
+        for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+          args[_key - 1] = arguments[_key];
+        }
+
+        var _iteratorNormalCompletion = true;
+        var _didIteratorError = false;
+        var _iteratorError = undefined;
+
+        try {
+          for (var _iterator = this.events[event][Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            var handler = _step.value;
+            handler.apply(void 0, (0, _toConsumableArray2.default)(args || []));
+          }
+        } catch (err) {
+          _didIteratorError = true;
+          _iteratorError = err;
+        } finally {
+          try {
+            if (!_iteratorNormalCompletion && _iterator.return != null) {
+              _iterator.return();
+            }
+          } finally {
+            if (_didIteratorError) {
+              throw _iteratorError;
+            }
+          }
+        }
+      }
+    }
+  }, {
+    key: "on",
+    value: function on(event, handler) {
+      if (this.events[event] == null) {
+        this.events[event] = [];
+      }
+
+      this.events[event].push(handler);
+    } // handler=null will remove all events of that type
+
+  }, {
+    key: "off",
+    value: function off(event) {
+      var handler = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+
+      if (this.events[event] == null) {
+        this.events[event] = [];
+      }
+
+      this.events[event] = this.events[event].filter(function (fn) {
+        return handler !== null && fn !== handler;
+      });
+    }
+  }]);
+  return EventEmitter;
+}();
+
+exports.default = EventEmitter;
+
+/***/ }),
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 /* WEBPACK VAR INJECTION */(function(process) {
 
 var utils = __webpack_require__(0);
-var normalizeHeaderName = __webpack_require__(14);
+var normalizeHeaderName = __webpack_require__(48);
 
 var DEFAULT_CONTENT_TYPE = {
   'Content-Type': 'application/x-www-form-urlencoded'
@@ -428,10 +1198,10 @@ function getDefaultAdapter() {
   var adapter;
   if (typeof XMLHttpRequest !== 'undefined') {
     // For browsers use XHR adapter
-    adapter = __webpack_require__(4);
+    adapter = __webpack_require__(19);
   } else if (typeof process !== 'undefined') {
     // For node use HTTP adapter
-    adapter = __webpack_require__(4);
+    adapter = __webpack_require__(19);
   }
   return adapter;
 }
@@ -506,10 +1276,1277 @@ utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
 
 module.exports = defaults;
 
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(13)))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(47)))
 
 /***/ }),
-/* 2 */
+/* 14 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _interopRequireDefault = __webpack_require__(1);
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _classCallCheck2 = _interopRequireDefault(__webpack_require__(2));
+
+var _createClass2 = _interopRequireDefault(__webpack_require__(3));
+
+var _possibleConstructorReturn2 = _interopRequireDefault(__webpack_require__(9));
+
+var _getPrototypeOf2 = _interopRequireDefault(__webpack_require__(6));
+
+var _get2 = _interopRequireDefault(__webpack_require__(10));
+
+var _inherits2 = _interopRequireDefault(__webpack_require__(11));
+
+var _EventEmitter2 = _interopRequireDefault(__webpack_require__(12));
+
+var CollectionRef =
+/*#__PURE__*/
+function (_EventEmitter) {
+  (0, _inherits2.default)(CollectionRef, _EventEmitter);
+
+  function CollectionRef(collection) {
+    var _this;
+
+    (0, _classCallCheck2.default)(this, CollectionRef);
+    _this = (0, _possibleConstructorReturn2.default)(this, (0, _getPrototypeOf2.default)(CollectionRef).call(this));
+    _this.collection = collection;
+    _this.database = _this.collection.database;
+    _this.ref = _this.database.firebase.child(_this.collection.name);
+    return _this;
+  }
+
+  (0, _createClass2.default)(CollectionRef, [{
+    key: "endAt",
+    value: function endAt(priority) {
+      this.ref = this.ref.endAt(priority);
+    }
+  }, {
+    key: "limit",
+    value: function limit(num) {
+      this.ref = this.ref.limit(num);
+    }
+  }, {
+    key: "startAt",
+    value: function startAt(priority) {
+      this.ref = this.ref.startAt(priority);
+    }
+  }, {
+    key: "on",
+    value: function on(event, handler) {
+      var _this2 = this;
+
+      (0, _get2.default)((0, _getPrototypeOf2.default)(CollectionRef.prototype), "on", this).call(this, event, handler);
+
+      if ((this.events.insert != null ? this.events.insert.length : undefined) > 0) {
+        this.ref.off('child_added');
+        this.ref.on('child_added', function (snapshot) {
+          return _this2.emit('insert', snapshot.val());
+        });
+      }
+
+      if ((this.events.remove != null ? this.events.remove.length : undefined) > 0) {
+        this.ref.off('child_removed');
+        this.ref.on('child_removed', function (snapshot) {
+          return _this2.emit('remove', snapshot.val());
+        });
+      }
+    }
+  }, {
+    key: "off",
+    value: function off(event) {
+      var handler = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+      (0, _get2.default)((0, _getPrototypeOf2.default)(CollectionRef.prototype), "off", this).call(this, event, handler);
+
+      if ((this.events.insert != null ? this.events.insert.length : undefined) === 0) {
+        this.ref.off('child_added');
+      }
+
+      if ((this.events.remove != null ? this.events.remove.length : undefined) === 0) {
+        this.ref.off('child_removed');
+      }
+    }
+  }]);
+  return CollectionRef;
+}(_EventEmitter2.default);
+
+var _default = CollectionRef;
+exports.default = _default;
+
+/***/ }),
+/* 15 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var arrayWithoutHoles = __webpack_require__(31);
+
+var iterableToArray = __webpack_require__(32);
+
+var nonIterableSpread = __webpack_require__(33);
+
+function _toConsumableArray(arr) {
+  return arrayWithoutHoles(arr) || iterableToArray(arr) || nonIterableSpread();
+}
+
+module.exports = _toConsumableArray;
+
+/***/ }),
+/* 16 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _interopRequireDefault = __webpack_require__(1);
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _typeof2 = _interopRequireDefault(__webpack_require__(5));
+
+var _classCallCheck2 = _interopRequireDefault(__webpack_require__(2));
+
+var _createClass2 = _interopRequireDefault(__webpack_require__(3));
+
+var _DocumentRef = _interopRequireDefault(__webpack_require__(17));
+
+var _utils = __webpack_require__(4);
+
+var Document =
+/*#__PURE__*/
+function () {
+  function Document(collection, data, query) {
+    (0, _classCallCheck2.default)(this, Document);
+    this.collection = collection;
+    this.data = data;
+    this.query = query;
+    this.database = this.collection.database;
+    this.key = "".concat(this.collection.name, "/").concat(this.data._id);
+
+    if (this.query == null) {
+      this.query = {
+        criteria: null,
+        fields: null,
+        options: null
+      };
+    }
+
+    this.ref = new _DocumentRef.default(this);
+  }
+
+  (0, _createClass2.default)(Document, [{
+    key: "emit",
+    value: function emit(event) {
+      for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+        args[_key - 1] = arguments[_key];
+      }
+
+      return this.ref.emit(event, args);
+    }
+  }, {
+    key: "get",
+    value: function get(path) {
+      return this.ref.get(path);
+    }
+  }, {
+    key: "name",
+    value: function name() {
+      return this.ref.name();
+    }
+  }, {
+    key: "on",
+    value: function on(event, handler) {
+      return this.ref.on(event, handler);
+    }
+  }, {
+    key: "off",
+    value: function off(event, handler) {
+      return this.ref.off(event, handler);
+    }
+  }, {
+    key: "refresh",
+    value: function refresh(next) {
+      return this.ref.refresh(next);
+    }
+  }, {
+    key: "remove",
+    value: function remove(next) {
+      if (!['function', 'undefined'].includes((0, _typeof2.default)(next))) {
+        return (0, _utils.log)('invalid callback function to remove');
+      }
+
+      return this.collection.removeById(this.data._id, next);
+    }
+  }, {
+    key: "save",
+    value: function save(next) {
+      return this.ref.set(this.data, next);
+    }
+  }, {
+    key: "set",
+    value: function set(value) {
+      var next = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+      return this.ref.set(value, next);
+    }
+  }, {
+    key: "val",
+    value: function val() {
+      return this.ref.val();
+    }
+  }]);
+  return Document;
+}();
+
+exports.default = Document;
+
+/***/ }),
+/* 17 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _interopRequireDefault = __webpack_require__(1);
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _objectSpread2 = _interopRequireDefault(__webpack_require__(34));
+
+var _toConsumableArray2 = _interopRequireDefault(__webpack_require__(15));
+
+var _typeof2 = _interopRequireDefault(__webpack_require__(5));
+
+var _classCallCheck2 = _interopRequireDefault(__webpack_require__(2));
+
+var _createClass2 = _interopRequireDefault(__webpack_require__(3));
+
+var _possibleConstructorReturn2 = _interopRequireDefault(__webpack_require__(9));
+
+var _getPrototypeOf2 = _interopRequireDefault(__webpack_require__(6));
+
+var _get2 = _interopRequireDefault(__webpack_require__(10));
+
+var _inherits2 = _interopRequireDefault(__webpack_require__(11));
+
+var _EventEmitter2 = _interopRequireDefault(__webpack_require__(12));
+
+var _utils = __webpack_require__(4);
+
+var DocumentRef =
+/*#__PURE__*/
+function (_EventEmitter) {
+  (0, _inherits2.default)(DocumentRef, _EventEmitter);
+
+  function DocumentRef(document, path) {
+    var _this;
+
+    (0, _classCallCheck2.default)(this, DocumentRef);
+    _this = (0, _possibleConstructorReturn2.default)(this, (0, _getPrototypeOf2.default)(DocumentRef).call(this));
+    _this.document = document;
+    _this.path = path == null ? '' : path;
+    _this.counter = ++DocumentRef._counter;
+    _this.collection = _this.document.collection;
+    _this.database = _this.collection.database; // @path[0] doesn't work in ie6, must use @path[0..0]
+
+    if (typeof _this.path === 'string') {
+      if (_this.path.slice(0, 1) === '/') {
+        _this.path = _this.path.slice(1);
+      }
+
+      if (typeof _this.path === 'string') {
+        _this.path = _this.path.split(/[/.]/g);
+      }
+    }
+
+    _this.key = "".concat(_this.document.key, "/").concat(_this.path.join('/')).replace(/\/$/, '');
+    _this.data = _this.document.data;
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
+
+    try {
+      for (var _iterator = _this.path[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+        var k = _step.value;
+
+        if (k !== '') {
+          _this.data = _this.data != null ? _this.data[k] : undefined;
+        }
+      }
+    } catch (err) {
+      _didIteratorError = true;
+      _iteratorError = err;
+    } finally {
+      try {
+        if (!_iteratorNormalCompletion && _iterator.return != null) {
+          _iterator.return();
+        }
+      } finally {
+        if (_didIteratorError) {
+          throw _iteratorError;
+        }
+      }
+    }
+
+    if (_this.data == null) {
+      _this.data = null;
+    }
+
+    _this.ref = _this.database.firebase.child(_this.key);
+    return _this;
+  }
+
+  (0, _createClass2.default)(DocumentRef, [{
+    key: "log",
+    value: function log() {
+      for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+        args[_key] = arguments[_key];
+      } // eslint-disable-next-line no-console
+
+
+      return console.log("ref_".concat(this.counter), args);
+    }
+  }, {
+    key: "get",
+    value: function get(_path) {
+      var path = _path;
+      var temp = this.path.slice(0);
+
+      while ((0, _utils.startsWith)(path, '..')) {
+        temp.pop();
+        path = path.slice(2);
+
+        if ((0, _utils.startsWith)(path, '/')) {
+          path = path.slice(1);
+        }
+      }
+
+      return new DocumentRef(this.document, "".concat(temp.join('/'), "/").concat(path));
+    }
+  }, {
+    key: "name",
+    value: function name() {
+      if (this.path.length === 1 && this.path[0] === '') {
+        return this.data._id;
+      }
+
+      return this.path[this.path.length - 1];
+    } // value: emit now and when updated
+    // update: emit only when updated
+
+  }, {
+    key: "on",
+    value: function on(event, handler) {
+      var _this2 = this;
+
+      (0, _get2.default)((0, _getPrototypeOf2.default)(DocumentRef.prototype), "on", this).call(this, event, handler);
+
+      if ((this.events.update != null ? this.events.update.length : undefined) > 0 || (this.events.value != null ? this.events.value.length : undefined) > 0) {
+        this.emit('value', this.val());
+        this.ref.on('value', function (snapshot) {
+          return _this2.updateData(snapshot.val());
+        });
+      }
+    }
+  }, {
+    key: "off",
+    value: function off(event) {
+      var handler = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+      (0, _get2.default)((0, _getPrototypeOf2.default)(DocumentRef.prototype), "off", this).call(this, event, handler);
+
+      if (!(this.events.update != null ? this.events.update.length : undefined) || !(this.events.value != null ? this.events.value.length : undefined)) {
+        this.ref.off('value');
+      }
+    }
+  }, {
+    key: "parent",
+    value: function parent() {
+      return new DocumentRef(this.document, this.path.slice(0, this.path.length - 1));
+    }
+  }, {
+    key: "refresh",
+    value: function refresh(next) {
+      var _this3 = this;
+
+      var completed = false;
+
+      var done = function done() {
+        if (!completed) {
+          if (typeof next === 'function') {
+            next();
+          }
+        }
+
+        completed = true;
+      };
+
+      return this.ref.once('value', function (snapshot) {
+        return _this3.updateData(snapshot.val(), function () {
+          return done();
+        });
+      });
+    }
+  }, {
+    key: "remove",
+    value: function remove(next) {
+      if (!['function', 'undefined'].includes((0, _typeof2.default)(next))) {
+        return (0, _utils.log)('invalid callback function to remove');
+      }
+
+      return this.set(null, next);
+    }
+  }, {
+    key: "set",
+    value: function set(value, next) {
+      var _this4 = this; // if specific fields were queried for, only allow those to be updated
+
+
+      if (this.database.safe_writes) {
+        var allow = true;
+
+        if (this.document.query.fields) {
+          allow = false;
+
+          for (var k in this.document.query.fields) {
+            if (k) {
+              var dst = "".concat(this.document.key, "/").concat(k.replace(/\./g, '/'));
+              allow = allow || this.key.indexOf(dst) === 0;
+            }
+          }
+        }
+
+        if (!allow) {
+          return typeof next === 'function' ? next('cannot set a field that was not queried for') : undefined;
+        }
+      }
+
+      var ref = this.database.firebase.child(this.key);
+      return ref.set(value, function (err) {
+        if (err) {
+          return typeof next === 'function' ? next(err) : undefined;
+        }
+
+        return _this4.database.request("sync/".concat(_this4.key), function (syncErr) {
+          if (syncErr) {
+            return typeof next === 'function' ? next(syncErr) : undefined;
+          }
+
+          return _this4.updateData(value, function () {
+            return typeof next === 'function' ? next(null) : undefined;
+          });
+        });
+      });
+    } // @data = what we got from mongodb or what was already updated here
+    // data = new data from firebase
+
+  }, {
+    key: "updateData",
+    value: function updateData(_data, next) {
+      var _this5 = this;
+
+      var data = _data; // ignore special 'created' and 'last_modified' fields on documents
+
+      if (this.key === this.document.key) {
+        if (this.data != null ? this.data.created : undefined) {
+          data.created = this.data.created;
+        }
+
+        if (this.data != null ? this.data.last_modified : undefined) {
+          data.last_modified = this.data.last_modified;
+        }
+      } // no updates to send if data isn't changing
+
+
+      if ((0, _utils.isEquals)(this.data, data)) {
+        return typeof next === 'function' ? next() : undefined;
+      } // here, we need to set a brief timeout so all firebase listeners can
+      // fire before we update any data. if we ran this code synchonously
+      // a DocumentRef may update the Document data before the Document
+      // listener had a chance to update. In that case, the isEquals call a few
+      // lines above would return true, and the listener for the Document would
+      // never be fired. With this setTimeout, all listeners have a chance to
+      // compare against past data before anything is updated.
+      //
+      // example
+      // ```
+      //   cookie = db.cookies.findOne()
+      //   type = cookie.get 'type'
+      //   cookie.on 'update', (val) ->
+      //     console.log 'cookie was updated'
+      //   type.on 'update', (val) ->
+      //     console.log 'type was updated'
+      //   type.set 'new type'
+      // ```
+      //
+      // this works because setTimeout() re-queues the new javascript at the end
+      // of the execution queue.
+
+
+      return setTimeout(function () {
+        // update DocumentRef data
+        _this5.data = data; // update document data. this will allow handlers to use
+        // ref.get and have access to new data
+
+        if (_this5.path.length === 1 && _this5.path[0] === '') {
+          _this5.document.data = data;
+        } else {
+          var adjustedLength = Math.max(_this5.path.length, 1);
+
+          var keys = _this5.path.slice(0, adjustedLength - 1);
+
+          var key = _this5.path[adjustedLength - 1];
+          var target = _this5.document.data;
+          var _iteratorNormalCompletion2 = true;
+          var _didIteratorError2 = false;
+          var _iteratorError2 = undefined;
+
+          try {
+            for (var _iterator2 = keys[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+              var k = _step2.value;
+
+              if (target[k] == null) {
+                target[k] = {};
+              }
+
+              target = target[k];
+            }
+          } catch (err) {
+            _didIteratorError2 = true;
+            _iteratorError2 = err;
+          } finally {
+            try {
+              if (!_iteratorNormalCompletion2 && _iterator2.return != null) {
+                _iterator2.return();
+              }
+            } finally {
+              if (_didIteratorError2) {
+                throw _iteratorError2;
+              }
+            }
+          }
+
+          target[key] = data;
+        } // emit the updates
+
+
+        _this5.emit('update', _this5.val());
+
+        _this5.emit('value', _this5.val());
+
+        return typeof next === 'function' ? next() : undefined;
+      }, 1);
+    }
+  }, {
+    key: "val",
+    value: function val() {
+      if (this.data === null) {
+        return null;
+      }
+
+      if (Array.isArray(this.data)) {
+        return (0, _toConsumableArray2.default)(this.data);
+      }
+
+      if ((0, _typeof2.default)(this.data) === 'object') {
+        return (0, _objectSpread2.default)({}, this.data);
+      }
+
+      return this.data;
+    }
+  }]);
+  return DocumentRef;
+}(_EventEmitter2.default);
+
+DocumentRef._counter = 0;
+var _default = DocumentRef;
+exports.default = _default;
+
+/***/ }),
+/* 18 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+module.exports = function bind(fn, thisArg) {
+  return function wrap() {
+    var args = new Array(arguments.length);
+    for (var i = 0; i < args.length; i++) {
+      args[i] = arguments[i];
+    }
+    return fn.apply(thisArg, args);
+  };
+};
+
+
+/***/ }),
+/* 19 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var utils = __webpack_require__(0);
+var settle = __webpack_require__(49);
+var buildURL = __webpack_require__(51);
+var parseHeaders = __webpack_require__(52);
+var isURLSameOrigin = __webpack_require__(53);
+var createError = __webpack_require__(20);
+var btoa = (typeof window !== 'undefined' && window.btoa && window.btoa.bind(window)) || __webpack_require__(54);
+
+module.exports = function xhrAdapter(config) {
+  return new Promise(function dispatchXhrRequest(resolve, reject) {
+    var requestData = config.data;
+    var requestHeaders = config.headers;
+
+    if (utils.isFormData(requestData)) {
+      delete requestHeaders['Content-Type']; // Let the browser set it
+    }
+
+    var request = new XMLHttpRequest();
+    var loadEvent = 'onreadystatechange';
+    var xDomain = false;
+
+    // For IE 8/9 CORS support
+    // Only supports POST and GET calls and doesn't returns the response headers.
+    // DON'T do this for testing b/c XMLHttpRequest is mocked, not XDomainRequest.
+    if ("production" !== 'test' &&
+        typeof window !== 'undefined' &&
+        window.XDomainRequest && !('withCredentials' in request) &&
+        !isURLSameOrigin(config.url)) {
+      request = new window.XDomainRequest();
+      loadEvent = 'onload';
+      xDomain = true;
+      request.onprogress = function handleProgress() {};
+      request.ontimeout = function handleTimeout() {};
+    }
+
+    // HTTP basic authentication
+    if (config.auth) {
+      var username = config.auth.username || '';
+      var password = config.auth.password || '';
+      requestHeaders.Authorization = 'Basic ' + btoa(username + ':' + password);
+    }
+
+    request.open(config.method.toUpperCase(), buildURL(config.url, config.params, config.paramsSerializer), true);
+
+    // Set the request timeout in MS
+    request.timeout = config.timeout;
+
+    // Listen for ready state
+    request[loadEvent] = function handleLoad() {
+      if (!request || (request.readyState !== 4 && !xDomain)) {
+        return;
+      }
+
+      // The request errored out and we didn't get a response, this will be
+      // handled by onerror instead
+      // With one exception: request that using file: protocol, most browsers
+      // will return status as 0 even though it's a successful request
+      if (request.status === 0 && !(request.responseURL && request.responseURL.indexOf('file:') === 0)) {
+        return;
+      }
+
+      // Prepare the response
+      var responseHeaders = 'getAllResponseHeaders' in request ? parseHeaders(request.getAllResponseHeaders()) : null;
+      var responseData = !config.responseType || config.responseType === 'text' ? request.responseText : request.response;
+      var response = {
+        data: responseData,
+        // IE sends 1223 instead of 204 (https://github.com/axios/axios/issues/201)
+        status: request.status === 1223 ? 204 : request.status,
+        statusText: request.status === 1223 ? 'No Content' : request.statusText,
+        headers: responseHeaders,
+        config: config,
+        request: request
+      };
+
+      settle(resolve, reject, response);
+
+      // Clean up request
+      request = null;
+    };
+
+    // Handle low level network errors
+    request.onerror = function handleError() {
+      // Real errors are hidden from us by the browser
+      // onerror should only fire if it's a network error
+      reject(createError('Network Error', config, null, request));
+
+      // Clean up request
+      request = null;
+    };
+
+    // Handle timeout
+    request.ontimeout = function handleTimeout() {
+      reject(createError('timeout of ' + config.timeout + 'ms exceeded', config, 'ECONNABORTED',
+        request));
+
+      // Clean up request
+      request = null;
+    };
+
+    // Add xsrf header
+    // This is only done if running in a standard browser environment.
+    // Specifically not if we're in a web worker, or react-native.
+    if (utils.isStandardBrowserEnv()) {
+      var cookies = __webpack_require__(55);
+
+      // Add xsrf header
+      var xsrfValue = (config.withCredentials || isURLSameOrigin(config.url)) && config.xsrfCookieName ?
+          cookies.read(config.xsrfCookieName) :
+          undefined;
+
+      if (xsrfValue) {
+        requestHeaders[config.xsrfHeaderName] = xsrfValue;
+      }
+    }
+
+    // Add headers to the request
+    if ('setRequestHeader' in request) {
+      utils.forEach(requestHeaders, function setRequestHeader(val, key) {
+        if (typeof requestData === 'undefined' && key.toLowerCase() === 'content-type') {
+          // Remove Content-Type if data is undefined
+          delete requestHeaders[key];
+        } else {
+          // Otherwise add header to the request
+          request.setRequestHeader(key, val);
+        }
+      });
+    }
+
+    // Add withCredentials to request if needed
+    if (config.withCredentials) {
+      request.withCredentials = true;
+    }
+
+    // Add responseType to request if needed
+    if (config.responseType) {
+      try {
+        request.responseType = config.responseType;
+      } catch (e) {
+        // Expected DOMException thrown by browsers not compatible XMLHttpRequest Level 2.
+        // But, this can be suppressed for 'json' type as it can be parsed by default 'transformResponse' function.
+        if (config.responseType !== 'json') {
+          throw e;
+        }
+      }
+    }
+
+    // Handle progress if needed
+    if (typeof config.onDownloadProgress === 'function') {
+      request.addEventListener('progress', config.onDownloadProgress);
+    }
+
+    // Not all browsers support upload events
+    if (typeof config.onUploadProgress === 'function' && request.upload) {
+      request.upload.addEventListener('progress', config.onUploadProgress);
+    }
+
+    if (config.cancelToken) {
+      // Handle cancellation
+      config.cancelToken.promise.then(function onCanceled(cancel) {
+        if (!request) {
+          return;
+        }
+
+        request.abort();
+        reject(cancel);
+        // Clean up request
+        request = null;
+      });
+    }
+
+    if (requestData === undefined) {
+      requestData = null;
+    }
+
+    // Send the request
+    request.send(requestData);
+  });
+};
+
+
+/***/ }),
+/* 20 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var enhanceError = __webpack_require__(50);
+
+/**
+ * Create an Error with the specified message, config, error code, request and response.
+ *
+ * @param {string} message The error message.
+ * @param {Object} config The config.
+ * @param {string} [code] The error code (for example, 'ECONNABORTED').
+ * @param {Object} [request] The request.
+ * @param {Object} [response] The response.
+ * @returns {Error} The created error.
+ */
+module.exports = function createError(message, config, code, request, response) {
+  var error = new Error(message);
+  return enhanceError(error, config, code, request, response);
+};
+
+
+/***/ }),
+/* 21 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+module.exports = function isCancel(value) {
+  return !!(value && value.__CANCEL__);
+};
+
+
+/***/ }),
+/* 22 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+/**
+ * A `Cancel` is an object that is thrown when an operation is canceled.
+ *
+ * @class
+ * @param {string=} message The message.
+ */
+function Cancel(message) {
+  this.message = message;
+}
+
+Cancel.prototype.toString = function toString() {
+  return 'Cancel' + (this.message ? ': ' + this.message : '');
+};
+
+Cancel.prototype.__CANCEL__ = true;
+
+module.exports = Cancel;
+
+
+/***/ }),
+/* 23 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__(24);
+
+
+/***/ }),
+/* 24 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _interopRequireDefault = __webpack_require__(1);
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+Object.defineProperty(exports, "Collection", {
+  enumerable: true,
+  get: function get() {
+    return _Collection.default;
+  }
+});
+Object.defineProperty(exports, "CollectionRef", {
+  enumerable: true,
+  get: function get() {
+    return _CollectionRef.default;
+  }
+});
+Object.defineProperty(exports, "Database", {
+  enumerable: true,
+  get: function get() {
+    return _Database.default;
+  }
+});
+Object.defineProperty(exports, "Document", {
+  enumerable: true,
+  get: function get() {
+    return _Document.default;
+  }
+});
+Object.defineProperty(exports, "DocumentRef", {
+  enumerable: true,
+  get: function get() {
+    return _DocumentRef.default;
+  }
+});
+Object.defineProperty(exports, "EventEmitter", {
+  enumerable: true,
+  get: function get() {
+    return _EventEmitter.default;
+  }
+});
+Object.defineProperty(exports, "PseudoCollection", {
+  enumerable: true,
+  get: function get() {
+    return _PseudoCollection.default;
+  }
+});
+exports.utils = void 0;
+
+var _utils = _interopRequireDefault(__webpack_require__(4));
+
+var _Collection = _interopRequireDefault(__webpack_require__(8));
+
+var _CollectionRef = _interopRequireDefault(__webpack_require__(14));
+
+var _Database = _interopRequireDefault(__webpack_require__(36));
+
+var _Document = _interopRequireDefault(__webpack_require__(16));
+
+var _DocumentRef = _interopRequireDefault(__webpack_require__(17));
+
+var _EventEmitter = _interopRequireDefault(__webpack_require__(12));
+
+var _PseudoCollection = _interopRequireDefault(__webpack_require__(63));
+
+var utils = _utils;
+exports.utils = utils;
+
+/***/ }),
+/* 25 */
+/***/ (function(module, exports) {
+
+function _arrayWithHoles(arr) {
+  if (Array.isArray(arr)) return arr;
+}
+
+module.exports = _arrayWithHoles;
+
+/***/ }),
+/* 26 */
+/***/ (function(module, exports) {
+
+function _iterableToArrayLimit(arr, i) {
+  var _arr = [];
+  var _n = true;
+  var _d = false;
+  var _e = undefined;
+
+  try {
+    for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
+      _arr.push(_s.value);
+
+      if (i && _arr.length === i) break;
+    }
+  } catch (err) {
+    _d = true;
+    _e = err;
+  } finally {
+    try {
+      if (!_n && _i["return"] != null) _i["return"]();
+    } finally {
+      if (_d) throw _e;
+    }
+  }
+
+  return _arr;
+}
+
+module.exports = _iterableToArrayLimit;
+
+/***/ }),
+/* 27 */
+/***/ (function(module, exports) {
+
+function _nonIterableRest() {
+  throw new TypeError("Invalid attempt to destructure non-iterable instance");
+}
+
+module.exports = _nonIterableRest;
+
+/***/ }),
+/* 28 */
+/***/ (function(module, exports) {
+
+function _assertThisInitialized(self) {
+  if (self === void 0) {
+    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+  }
+
+  return self;
+}
+
+module.exports = _assertThisInitialized;
+
+/***/ }),
+/* 29 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var getPrototypeOf = __webpack_require__(6);
+
+function _superPropBase(object, property) {
+  while (!Object.prototype.hasOwnProperty.call(object, property)) {
+    object = getPrototypeOf(object);
+    if (object === null) break;
+  }
+
+  return object;
+}
+
+module.exports = _superPropBase;
+
+/***/ }),
+/* 30 */
+/***/ (function(module, exports) {
+
+function _setPrototypeOf(o, p) {
+  module.exports = _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
+    o.__proto__ = p;
+    return o;
+  };
+
+  return _setPrototypeOf(o, p);
+}
+
+module.exports = _setPrototypeOf;
+
+/***/ }),
+/* 31 */
+/***/ (function(module, exports) {
+
+function _arrayWithoutHoles(arr) {
+  if (Array.isArray(arr)) {
+    for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) {
+      arr2[i] = arr[i];
+    }
+
+    return arr2;
+  }
+}
+
+module.exports = _arrayWithoutHoles;
+
+/***/ }),
+/* 32 */
+/***/ (function(module, exports) {
+
+function _iterableToArray(iter) {
+  if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter);
+}
+
+module.exports = _iterableToArray;
+
+/***/ }),
+/* 33 */
+/***/ (function(module, exports) {
+
+function _nonIterableSpread() {
+  throw new TypeError("Invalid attempt to spread non-iterable instance");
+}
+
+module.exports = _nonIterableSpread;
+
+/***/ }),
+/* 34 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var defineProperty = __webpack_require__(35);
+
+function _objectSpread(target) {
+  for (var i = 1; i < arguments.length; i++) {
+    var source = arguments[i] != null ? arguments[i] : {};
+    var ownKeys = Object.keys(source);
+
+    if (typeof Object.getOwnPropertySymbols === 'function') {
+      ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) {
+        return Object.getOwnPropertyDescriptor(source, sym).enumerable;
+      }));
+    }
+
+    ownKeys.forEach(function (key) {
+      defineProperty(target, key, source[key]);
+    });
+  }
+
+  return target;
+}
+
+module.exports = _objectSpread;
+
+/***/ }),
+/* 35 */
+/***/ (function(module, exports) {
+
+function _defineProperty(obj, key, value) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value: value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
+  }
+
+  return obj;
+}
+
+module.exports = _defineProperty;
+
+/***/ }),
+/* 36 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _interopRequireDefault = __webpack_require__(1);
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _typeof2 = _interopRequireDefault(__webpack_require__(5));
+
+var _classCallCheck2 = _interopRequireDefault(__webpack_require__(2));
+
+var _createClass2 = _interopRequireDefault(__webpack_require__(3));
+
+var _firebase = _interopRequireDefault(__webpack_require__(37));
+
+var _Collection = _interopRequireDefault(__webpack_require__(8));
+
+var _fetch = _interopRequireDefault(__webpack_require__(38));
+
+var Database =
+/*#__PURE__*/
+function () {
+  function Database(cfg) {
+    var _this = this;
+
+    (0, _classCallCheck2.default)(this, Database);
+    this.cache = true;
+    this.safe_writes = true;
+
+    if (typeof cfg === 'string') {
+      this.api = cfg;
+      this.request('Firebase', false, function (url) {
+        _this.firebase = new _firebase.default(url);
+      });
+    } else {
+      this.api = cfg.server;
+      this.firebase = new _firebase.default(cfg.firebase);
+    }
+  }
+
+  (0, _createClass2.default)(Database, [{
+    key: "collection",
+    value: function collection(name) {
+      return new _Collection.default(this, name);
+    }
+  }, {
+    key: "get",
+    value: function get(_path) {
+      var path = _path.split(/[/.]/g);
+
+      var collection = this.collection(path[0]);
+
+      if (path.length === 1) {
+        return collection;
+      }
+
+      return collection.get(path.slice(1).join('/'));
+    }
+  }, {
+    key: "request",
+    value: function request() {
+      var json = true;
+      var resource = '';
+
+      var next = function next() {};
+
+      var params = {};
+
+      for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+        args[_key] = arguments[_key];
+      }
+
+      for (var _i = 0; _i < args.length; _i++) {
+        var arg = args[_i];
+
+        switch ((0, _typeof2.default)(arg)) {
+          case 'boolean':
+            json = arg;
+            break;
+
+          case 'string':
+            resource = arg;
+            break;
+
+          case 'function':
+            next = arg;
+            break;
+
+          case 'object':
+            params = arg;
+            break;
+
+          default:
+            break;
+        }
+      }
+
+      var url = "".concat(this.api, "/").concat(resource);
+
+      if (this.token) {
+        params.token = this.token;
+      }
+
+      return (0, _fetch.default)({
+        cache: this.cache,
+        json: json,
+        params: params,
+        resource: resource,
+        url: url
+      }).then(function (data) {
+        return next(null, data);
+      }).catch(function (err) {
+        return next(err);
+      });
+    }
+  }, {
+    key: "auth",
+    value: function auth(token, next) {
+      var _this2 = this;
+
+      return this.firebase.authWithCustomToken(token, function () {
+        _this2.token = token;
+        return next();
+      });
+    }
+  }, {
+    key: "setToken",
+    value: function setToken(token) {
+      this.token = token;
+    }
+  }]);
+  return Database;
+}();
+
+exports.default = Database;
+
+/***/ }),
+/* 37 */
 /***/ (function(module, exports) {
 
 /*! @license Firebase v2.2.9
@@ -780,297 +2817,920 @@ module.exports = Firebase;
 
 
 /***/ }),
-/* 3 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-module.exports = function bind(fn, thisArg) {
-  return function wrap() {
-    var args = new Array(arguments.length);
-    for (var i = 0; i < args.length; i++) {
-      args[i] = arguments[i];
-    }
-    return fn.apply(thisArg, args);
+var _interopRequireDefault = __webpack_require__(1);
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _regenerator = _interopRequireDefault(__webpack_require__(39));
+
+var _asyncToGenerator2 = _interopRequireDefault(__webpack_require__(42));
+
+var _axios = _interopRequireDefault(__webpack_require__(43));
+
+var _default =
+/*#__PURE__*/
+function () {
+  var _ref = (0, _asyncToGenerator2.default)(
+  /*#__PURE__*/
+  _regenerator.default.mark(function _callee(options) {
+    var _options$params, _params, cache, json, url, params, _ref2, data;
+
+    return _regenerator.default.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            _options$params = options.params, _params = _options$params === void 0 ? {} : _options$params;
+            cache = options.cache, json = options.json, url = options.url;
+            params = _params;
+
+            if (!cache) {
+              if (params._ == null) {
+                params._ = Date.now();
+              }
+            }
+
+            _context.next = 6;
+            return (0, _axios.default)({
+              method: 'get',
+              params: params,
+              responseType: json ? 'json' : 'text',
+              url: url
+            });
+
+          case 6:
+            _ref2 = _context.sent;
+            data = _ref2.data;
+
+            if (data) {
+              _context.next = 10;
+              break;
+            }
+
+            throw new Error('missing data');
+
+          case 10:
+            return _context.abrupt("return", data);
+
+          case 11:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee, this);
+  }));
+
+  return function (_x) {
+    return _ref.apply(this, arguments);
   };
-};
+}();
+
+exports.default = _default;
+
+/***/ }),
+/* 39 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports = __webpack_require__(40);
 
 
 /***/ }),
-/* 4 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var utils = __webpack_require__(0);
-var settle = __webpack_require__(15);
-var buildURL = __webpack_require__(17);
-var parseHeaders = __webpack_require__(18);
-var isURLSameOrigin = __webpack_require__(19);
-var createError = __webpack_require__(5);
-var btoa = (typeof window !== 'undefined' && window.btoa && window.btoa.bind(window)) || __webpack_require__(20);
-
-module.exports = function xhrAdapter(config) {
-  return new Promise(function dispatchXhrRequest(resolve, reject) {
-    var requestData = config.data;
-    var requestHeaders = config.headers;
-
-    if (utils.isFormData(requestData)) {
-      delete requestHeaders['Content-Type']; // Let the browser set it
-    }
-
-    var request = new XMLHttpRequest();
-    var loadEvent = 'onreadystatechange';
-    var xDomain = false;
-
-    // For IE 8/9 CORS support
-    // Only supports POST and GET calls and doesn't returns the response headers.
-    // DON'T do this for testing b/c XMLHttpRequest is mocked, not XDomainRequest.
-    if ("production" !== 'test' &&
-        typeof window !== 'undefined' &&
-        window.XDomainRequest && !('withCredentials' in request) &&
-        !isURLSameOrigin(config.url)) {
-      request = new window.XDomainRequest();
-      loadEvent = 'onload';
-      xDomain = true;
-      request.onprogress = function handleProgress() {};
-      request.ontimeout = function handleTimeout() {};
-    }
-
-    // HTTP basic authentication
-    if (config.auth) {
-      var username = config.auth.username || '';
-      var password = config.auth.password || '';
-      requestHeaders.Authorization = 'Basic ' + btoa(username + ':' + password);
-    }
-
-    request.open(config.method.toUpperCase(), buildURL(config.url, config.params, config.paramsSerializer), true);
-
-    // Set the request timeout in MS
-    request.timeout = config.timeout;
-
-    // Listen for ready state
-    request[loadEvent] = function handleLoad() {
-      if (!request || (request.readyState !== 4 && !xDomain)) {
-        return;
-      }
-
-      // The request errored out and we didn't get a response, this will be
-      // handled by onerror instead
-      // With one exception: request that using file: protocol, most browsers
-      // will return status as 0 even though it's a successful request
-      if (request.status === 0 && !(request.responseURL && request.responseURL.indexOf('file:') === 0)) {
-        return;
-      }
-
-      // Prepare the response
-      var responseHeaders = 'getAllResponseHeaders' in request ? parseHeaders(request.getAllResponseHeaders()) : null;
-      var responseData = !config.responseType || config.responseType === 'text' ? request.responseText : request.response;
-      var response = {
-        data: responseData,
-        // IE sends 1223 instead of 204 (https://github.com/axios/axios/issues/201)
-        status: request.status === 1223 ? 204 : request.status,
-        statusText: request.status === 1223 ? 'No Content' : request.statusText,
-        headers: responseHeaders,
-        config: config,
-        request: request
-      };
-
-      settle(resolve, reject, response);
-
-      // Clean up request
-      request = null;
-    };
-
-    // Handle low level network errors
-    request.onerror = function handleError() {
-      // Real errors are hidden from us by the browser
-      // onerror should only fire if it's a network error
-      reject(createError('Network Error', config, null, request));
-
-      // Clean up request
-      request = null;
-    };
-
-    // Handle timeout
-    request.ontimeout = function handleTimeout() {
-      reject(createError('timeout of ' + config.timeout + 'ms exceeded', config, 'ECONNABORTED',
-        request));
-
-      // Clean up request
-      request = null;
-    };
-
-    // Add xsrf header
-    // This is only done if running in a standard browser environment.
-    // Specifically not if we're in a web worker, or react-native.
-    if (utils.isStandardBrowserEnv()) {
-      var cookies = __webpack_require__(21);
-
-      // Add xsrf header
-      var xsrfValue = (config.withCredentials || isURLSameOrigin(config.url)) && config.xsrfCookieName ?
-          cookies.read(config.xsrfCookieName) :
-          undefined;
-
-      if (xsrfValue) {
-        requestHeaders[config.xsrfHeaderName] = xsrfValue;
-      }
-    }
-
-    // Add headers to the request
-    if ('setRequestHeader' in request) {
-      utils.forEach(requestHeaders, function setRequestHeader(val, key) {
-        if (typeof requestData === 'undefined' && key.toLowerCase() === 'content-type') {
-          // Remove Content-Type if data is undefined
-          delete requestHeaders[key];
-        } else {
-          // Otherwise add header to the request
-          request.setRequestHeader(key, val);
-        }
-      });
-    }
-
-    // Add withCredentials to request if needed
-    if (config.withCredentials) {
-      request.withCredentials = true;
-    }
-
-    // Add responseType to request if needed
-    if (config.responseType) {
-      try {
-        request.responseType = config.responseType;
-      } catch (e) {
-        // Expected DOMException thrown by browsers not compatible XMLHttpRequest Level 2.
-        // But, this can be suppressed for 'json' type as it can be parsed by default 'transformResponse' function.
-        if (config.responseType !== 'json') {
-          throw e;
-        }
-      }
-    }
-
-    // Handle progress if needed
-    if (typeof config.onDownloadProgress === 'function') {
-      request.addEventListener('progress', config.onDownloadProgress);
-    }
-
-    // Not all browsers support upload events
-    if (typeof config.onUploadProgress === 'function' && request.upload) {
-      request.upload.addEventListener('progress', config.onUploadProgress);
-    }
-
-    if (config.cancelToken) {
-      // Handle cancellation
-      config.cancelToken.promise.then(function onCanceled(cancel) {
-        if (!request) {
-          return;
-        }
-
-        request.abort();
-        reject(cancel);
-        // Clean up request
-        request = null;
-      });
-    }
-
-    if (requestData === undefined) {
-      requestData = null;
-    }
-
-    // Send the request
-    request.send(requestData);
-  });
-};
-
-
-/***/ }),
-/* 5 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var enhanceError = __webpack_require__(16);
 
 /**
- * Create an Error with the specified message, config, error code, request and response.
+ * Copyright (c) 2014-present, Facebook, Inc.
  *
- * @param {string} message The error message.
- * @param {Object} config The config.
- * @param {string} [code] The error code (for example, 'ECONNABORTED').
- * @param {Object} [request] The request.
- * @param {Object} [response] The response.
- * @returns {Error} The created error.
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
  */
-module.exports = function createError(message, config, code, request, response) {
-  var error = new Error(message);
-  return enhanceError(error, config, code, request, response);
-};
 
+// This method of obtaining a reference to the global object needs to be
+// kept identical to the way it is obtained in runtime.js
+var g = (function() {
+  return this || (typeof self === "object" && self);
+})() || Function("return this")();
 
-/***/ }),
-/* 6 */
-/***/ (function(module, exports, __webpack_require__) {
+// Use `getOwnPropertyNames` because not all browsers support calling
+// `hasOwnProperty` on the global `self` object in a worker. See #183.
+var hadRuntime = g.regeneratorRuntime &&
+  Object.getOwnPropertyNames(g).indexOf("regeneratorRuntime") >= 0;
 
-"use strict";
+// Save the old regeneratorRuntime in case it needs to be restored later.
+var oldRuntime = hadRuntime && g.regeneratorRuntime;
 
+// Force reevalutation of runtime.js.
+g.regeneratorRuntime = undefined;
 
-module.exports = function isCancel(value) {
-  return !!(value && value.__CANCEL__);
-};
+module.exports = __webpack_require__(41);
 
-
-/***/ }),
-/* 7 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-/**
- * A `Cancel` is an object that is thrown when an operation is canceled.
- *
- * @class
- * @param {string=} message The message.
- */
-function Cancel(message) {
-  this.message = message;
+if (hadRuntime) {
+  // Restore the original runtime.
+  g.regeneratorRuntime = oldRuntime;
+} else {
+  // Remove the global property added by runtime.js.
+  try {
+    delete g.regeneratorRuntime;
+  } catch(e) {
+    g.regeneratorRuntime = undefined;
+  }
 }
 
-Cancel.prototype.toString = function toString() {
-  return 'Cancel' + (this.message ? ': ' + this.message : '');
-};
 
-Cancel.prototype.__CANCEL__ = true;
+/***/ }),
+/* 41 */
+/***/ (function(module, exports) {
 
-module.exports = Cancel;
+/**
+ * Copyright (c) 2014-present, Facebook, Inc.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+!(function(global) {
+  "use strict";
+
+  var Op = Object.prototype;
+  var hasOwn = Op.hasOwnProperty;
+  var undefined; // More compressible than void 0.
+  var $Symbol = typeof Symbol === "function" ? Symbol : {};
+  var iteratorSymbol = $Symbol.iterator || "@@iterator";
+  var asyncIteratorSymbol = $Symbol.asyncIterator || "@@asyncIterator";
+  var toStringTagSymbol = $Symbol.toStringTag || "@@toStringTag";
+
+  var inModule = typeof module === "object";
+  var runtime = global.regeneratorRuntime;
+  if (runtime) {
+    if (inModule) {
+      // If regeneratorRuntime is defined globally and we're in a module,
+      // make the exports object identical to regeneratorRuntime.
+      module.exports = runtime;
+    }
+    // Don't bother evaluating the rest of this file if the runtime was
+    // already defined globally.
+    return;
+  }
+
+  // Define the runtime globally (as expected by generated code) as either
+  // module.exports (if we're in a module) or a new, empty object.
+  runtime = global.regeneratorRuntime = inModule ? module.exports : {};
+
+  function wrap(innerFn, outerFn, self, tryLocsList) {
+    // If outerFn provided and outerFn.prototype is a Generator, then outerFn.prototype instanceof Generator.
+    var protoGenerator = outerFn && outerFn.prototype instanceof Generator ? outerFn : Generator;
+    var generator = Object.create(protoGenerator.prototype);
+    var context = new Context(tryLocsList || []);
+
+    // The ._invoke method unifies the implementations of the .next,
+    // .throw, and .return methods.
+    generator._invoke = makeInvokeMethod(innerFn, self, context);
+
+    return generator;
+  }
+  runtime.wrap = wrap;
+
+  // Try/catch helper to minimize deoptimizations. Returns a completion
+  // record like context.tryEntries[i].completion. This interface could
+  // have been (and was previously) designed to take a closure to be
+  // invoked without arguments, but in all the cases we care about we
+  // already have an existing method we want to call, so there's no need
+  // to create a new function object. We can even get away with assuming
+  // the method takes exactly one argument, since that happens to be true
+  // in every case, so we don't have to touch the arguments object. The
+  // only additional allocation required is the completion record, which
+  // has a stable shape and so hopefully should be cheap to allocate.
+  function tryCatch(fn, obj, arg) {
+    try {
+      return { type: "normal", arg: fn.call(obj, arg) };
+    } catch (err) {
+      return { type: "throw", arg: err };
+    }
+  }
+
+  var GenStateSuspendedStart = "suspendedStart";
+  var GenStateSuspendedYield = "suspendedYield";
+  var GenStateExecuting = "executing";
+  var GenStateCompleted = "completed";
+
+  // Returning this object from the innerFn has the same effect as
+  // breaking out of the dispatch switch statement.
+  var ContinueSentinel = {};
+
+  // Dummy constructor functions that we use as the .constructor and
+  // .constructor.prototype properties for functions that return Generator
+  // objects. For full spec compliance, you may wish to configure your
+  // minifier not to mangle the names of these two functions.
+  function Generator() {}
+  function GeneratorFunction() {}
+  function GeneratorFunctionPrototype() {}
+
+  // This is a polyfill for %IteratorPrototype% for environments that
+  // don't natively support it.
+  var IteratorPrototype = {};
+  IteratorPrototype[iteratorSymbol] = function () {
+    return this;
+  };
+
+  var getProto = Object.getPrototypeOf;
+  var NativeIteratorPrototype = getProto && getProto(getProto(values([])));
+  if (NativeIteratorPrototype &&
+      NativeIteratorPrototype !== Op &&
+      hasOwn.call(NativeIteratorPrototype, iteratorSymbol)) {
+    // This environment has a native %IteratorPrototype%; use it instead
+    // of the polyfill.
+    IteratorPrototype = NativeIteratorPrototype;
+  }
+
+  var Gp = GeneratorFunctionPrototype.prototype =
+    Generator.prototype = Object.create(IteratorPrototype);
+  GeneratorFunction.prototype = Gp.constructor = GeneratorFunctionPrototype;
+  GeneratorFunctionPrototype.constructor = GeneratorFunction;
+  GeneratorFunctionPrototype[toStringTagSymbol] =
+    GeneratorFunction.displayName = "GeneratorFunction";
+
+  // Helper for defining the .next, .throw, and .return methods of the
+  // Iterator interface in terms of a single ._invoke method.
+  function defineIteratorMethods(prototype) {
+    ["next", "throw", "return"].forEach(function(method) {
+      prototype[method] = function(arg) {
+        return this._invoke(method, arg);
+      };
+    });
+  }
+
+  runtime.isGeneratorFunction = function(genFun) {
+    var ctor = typeof genFun === "function" && genFun.constructor;
+    return ctor
+      ? ctor === GeneratorFunction ||
+        // For the native GeneratorFunction constructor, the best we can
+        // do is to check its .name property.
+        (ctor.displayName || ctor.name) === "GeneratorFunction"
+      : false;
+  };
+
+  runtime.mark = function(genFun) {
+    if (Object.setPrototypeOf) {
+      Object.setPrototypeOf(genFun, GeneratorFunctionPrototype);
+    } else {
+      genFun.__proto__ = GeneratorFunctionPrototype;
+      if (!(toStringTagSymbol in genFun)) {
+        genFun[toStringTagSymbol] = "GeneratorFunction";
+      }
+    }
+    genFun.prototype = Object.create(Gp);
+    return genFun;
+  };
+
+  // Within the body of any async function, `await x` is transformed to
+  // `yield regeneratorRuntime.awrap(x)`, so that the runtime can test
+  // `hasOwn.call(value, "__await")` to determine if the yielded value is
+  // meant to be awaited.
+  runtime.awrap = function(arg) {
+    return { __await: arg };
+  };
+
+  function AsyncIterator(generator) {
+    function invoke(method, arg, resolve, reject) {
+      var record = tryCatch(generator[method], generator, arg);
+      if (record.type === "throw") {
+        reject(record.arg);
+      } else {
+        var result = record.arg;
+        var value = result.value;
+        if (value &&
+            typeof value === "object" &&
+            hasOwn.call(value, "__await")) {
+          return Promise.resolve(value.__await).then(function(value) {
+            invoke("next", value, resolve, reject);
+          }, function(err) {
+            invoke("throw", err, resolve, reject);
+          });
+        }
+
+        return Promise.resolve(value).then(function(unwrapped) {
+          // When a yielded Promise is resolved, its final value becomes
+          // the .value of the Promise<{value,done}> result for the
+          // current iteration.
+          result.value = unwrapped;
+          resolve(result);
+        }, function(error) {
+          // If a rejected Promise was yielded, throw the rejection back
+          // into the async generator function so it can be handled there.
+          return invoke("throw", error, resolve, reject);
+        });
+      }
+    }
+
+    var previousPromise;
+
+    function enqueue(method, arg) {
+      function callInvokeWithMethodAndArg() {
+        return new Promise(function(resolve, reject) {
+          invoke(method, arg, resolve, reject);
+        });
+      }
+
+      return previousPromise =
+        // If enqueue has been called before, then we want to wait until
+        // all previous Promises have been resolved before calling invoke,
+        // so that results are always delivered in the correct order. If
+        // enqueue has not been called before, then it is important to
+        // call invoke immediately, without waiting on a callback to fire,
+        // so that the async generator function has the opportunity to do
+        // any necessary setup in a predictable way. This predictability
+        // is why the Promise constructor synchronously invokes its
+        // executor callback, and why async functions synchronously
+        // execute code before the first await. Since we implement simple
+        // async functions in terms of async generators, it is especially
+        // important to get this right, even though it requires care.
+        previousPromise ? previousPromise.then(
+          callInvokeWithMethodAndArg,
+          // Avoid propagating failures to Promises returned by later
+          // invocations of the iterator.
+          callInvokeWithMethodAndArg
+        ) : callInvokeWithMethodAndArg();
+    }
+
+    // Define the unified helper method that is used to implement .next,
+    // .throw, and .return (see defineIteratorMethods).
+    this._invoke = enqueue;
+  }
+
+  defineIteratorMethods(AsyncIterator.prototype);
+  AsyncIterator.prototype[asyncIteratorSymbol] = function () {
+    return this;
+  };
+  runtime.AsyncIterator = AsyncIterator;
+
+  // Note that simple async functions are implemented on top of
+  // AsyncIterator objects; they just return a Promise for the value of
+  // the final result produced by the iterator.
+  runtime.async = function(innerFn, outerFn, self, tryLocsList) {
+    var iter = new AsyncIterator(
+      wrap(innerFn, outerFn, self, tryLocsList)
+    );
+
+    return runtime.isGeneratorFunction(outerFn)
+      ? iter // If outerFn is a generator, return the full iterator.
+      : iter.next().then(function(result) {
+          return result.done ? result.value : iter.next();
+        });
+  };
+
+  function makeInvokeMethod(innerFn, self, context) {
+    var state = GenStateSuspendedStart;
+
+    return function invoke(method, arg) {
+      if (state === GenStateExecuting) {
+        throw new Error("Generator is already running");
+      }
+
+      if (state === GenStateCompleted) {
+        if (method === "throw") {
+          throw arg;
+        }
+
+        // Be forgiving, per 25.3.3.3.3 of the spec:
+        // https://people.mozilla.org/~jorendorff/es6-draft.html#sec-generatorresume
+        return doneResult();
+      }
+
+      context.method = method;
+      context.arg = arg;
+
+      while (true) {
+        var delegate = context.delegate;
+        if (delegate) {
+          var delegateResult = maybeInvokeDelegate(delegate, context);
+          if (delegateResult) {
+            if (delegateResult === ContinueSentinel) continue;
+            return delegateResult;
+          }
+        }
+
+        if (context.method === "next") {
+          // Setting context._sent for legacy support of Babel's
+          // function.sent implementation.
+          context.sent = context._sent = context.arg;
+
+        } else if (context.method === "throw") {
+          if (state === GenStateSuspendedStart) {
+            state = GenStateCompleted;
+            throw context.arg;
+          }
+
+          context.dispatchException(context.arg);
+
+        } else if (context.method === "return") {
+          context.abrupt("return", context.arg);
+        }
+
+        state = GenStateExecuting;
+
+        var record = tryCatch(innerFn, self, context);
+        if (record.type === "normal") {
+          // If an exception is thrown from innerFn, we leave state ===
+          // GenStateExecuting and loop back for another invocation.
+          state = context.done
+            ? GenStateCompleted
+            : GenStateSuspendedYield;
+
+          if (record.arg === ContinueSentinel) {
+            continue;
+          }
+
+          return {
+            value: record.arg,
+            done: context.done
+          };
+
+        } else if (record.type === "throw") {
+          state = GenStateCompleted;
+          // Dispatch the exception by looping back around to the
+          // context.dispatchException(context.arg) call above.
+          context.method = "throw";
+          context.arg = record.arg;
+        }
+      }
+    };
+  }
+
+  // Call delegate.iterator[context.method](context.arg) and handle the
+  // result, either by returning a { value, done } result from the
+  // delegate iterator, or by modifying context.method and context.arg,
+  // setting context.delegate to null, and returning the ContinueSentinel.
+  function maybeInvokeDelegate(delegate, context) {
+    var method = delegate.iterator[context.method];
+    if (method === undefined) {
+      // A .throw or .return when the delegate iterator has no .throw
+      // method always terminates the yield* loop.
+      context.delegate = null;
+
+      if (context.method === "throw") {
+        if (delegate.iterator.return) {
+          // If the delegate iterator has a return method, give it a
+          // chance to clean up.
+          context.method = "return";
+          context.arg = undefined;
+          maybeInvokeDelegate(delegate, context);
+
+          if (context.method === "throw") {
+            // If maybeInvokeDelegate(context) changed context.method from
+            // "return" to "throw", let that override the TypeError below.
+            return ContinueSentinel;
+          }
+        }
+
+        context.method = "throw";
+        context.arg = new TypeError(
+          "The iterator does not provide a 'throw' method");
+      }
+
+      return ContinueSentinel;
+    }
+
+    var record = tryCatch(method, delegate.iterator, context.arg);
+
+    if (record.type === "throw") {
+      context.method = "throw";
+      context.arg = record.arg;
+      context.delegate = null;
+      return ContinueSentinel;
+    }
+
+    var info = record.arg;
+
+    if (! info) {
+      context.method = "throw";
+      context.arg = new TypeError("iterator result is not an object");
+      context.delegate = null;
+      return ContinueSentinel;
+    }
+
+    if (info.done) {
+      // Assign the result of the finished delegate to the temporary
+      // variable specified by delegate.resultName (see delegateYield).
+      context[delegate.resultName] = info.value;
+
+      // Resume execution at the desired location (see delegateYield).
+      context.next = delegate.nextLoc;
+
+      // If context.method was "throw" but the delegate handled the
+      // exception, let the outer generator proceed normally. If
+      // context.method was "next", forget context.arg since it has been
+      // "consumed" by the delegate iterator. If context.method was
+      // "return", allow the original .return call to continue in the
+      // outer generator.
+      if (context.method !== "return") {
+        context.method = "next";
+        context.arg = undefined;
+      }
+
+    } else {
+      // Re-yield the result returned by the delegate method.
+      return info;
+    }
+
+    // The delegate iterator is finished, so forget it and continue with
+    // the outer generator.
+    context.delegate = null;
+    return ContinueSentinel;
+  }
+
+  // Define Generator.prototype.{next,throw,return} in terms of the
+  // unified ._invoke helper method.
+  defineIteratorMethods(Gp);
+
+  Gp[toStringTagSymbol] = "Generator";
+
+  // A Generator should always return itself as the iterator object when the
+  // @@iterator function is called on it. Some browsers' implementations of the
+  // iterator prototype chain incorrectly implement this, causing the Generator
+  // object to not be returned from this call. This ensures that doesn't happen.
+  // See https://github.com/facebook/regenerator/issues/274 for more details.
+  Gp[iteratorSymbol] = function() {
+    return this;
+  };
+
+  Gp.toString = function() {
+    return "[object Generator]";
+  };
+
+  function pushTryEntry(locs) {
+    var entry = { tryLoc: locs[0] };
+
+    if (1 in locs) {
+      entry.catchLoc = locs[1];
+    }
+
+    if (2 in locs) {
+      entry.finallyLoc = locs[2];
+      entry.afterLoc = locs[3];
+    }
+
+    this.tryEntries.push(entry);
+  }
+
+  function resetTryEntry(entry) {
+    var record = entry.completion || {};
+    record.type = "normal";
+    delete record.arg;
+    entry.completion = record;
+  }
+
+  function Context(tryLocsList) {
+    // The root entry object (effectively a try statement without a catch
+    // or a finally block) gives us a place to store values thrown from
+    // locations where there is no enclosing try statement.
+    this.tryEntries = [{ tryLoc: "root" }];
+    tryLocsList.forEach(pushTryEntry, this);
+    this.reset(true);
+  }
+
+  runtime.keys = function(object) {
+    var keys = [];
+    for (var key in object) {
+      keys.push(key);
+    }
+    keys.reverse();
+
+    // Rather than returning an object with a next method, we keep
+    // things simple and return the next function itself.
+    return function next() {
+      while (keys.length) {
+        var key = keys.pop();
+        if (key in object) {
+          next.value = key;
+          next.done = false;
+          return next;
+        }
+      }
+
+      // To avoid creating an additional object, we just hang the .value
+      // and .done properties off the next function object itself. This
+      // also ensures that the minifier will not anonymize the function.
+      next.done = true;
+      return next;
+    };
+  };
+
+  function values(iterable) {
+    if (iterable) {
+      var iteratorMethod = iterable[iteratorSymbol];
+      if (iteratorMethod) {
+        return iteratorMethod.call(iterable);
+      }
+
+      if (typeof iterable.next === "function") {
+        return iterable;
+      }
+
+      if (!isNaN(iterable.length)) {
+        var i = -1, next = function next() {
+          while (++i < iterable.length) {
+            if (hasOwn.call(iterable, i)) {
+              next.value = iterable[i];
+              next.done = false;
+              return next;
+            }
+          }
+
+          next.value = undefined;
+          next.done = true;
+
+          return next;
+        };
+
+        return next.next = next;
+      }
+    }
+
+    // Return an iterator with no values.
+    return { next: doneResult };
+  }
+  runtime.values = values;
+
+  function doneResult() {
+    return { value: undefined, done: true };
+  }
+
+  Context.prototype = {
+    constructor: Context,
+
+    reset: function(skipTempReset) {
+      this.prev = 0;
+      this.next = 0;
+      // Resetting context._sent for legacy support of Babel's
+      // function.sent implementation.
+      this.sent = this._sent = undefined;
+      this.done = false;
+      this.delegate = null;
+
+      this.method = "next";
+      this.arg = undefined;
+
+      this.tryEntries.forEach(resetTryEntry);
+
+      if (!skipTempReset) {
+        for (var name in this) {
+          // Not sure about the optimal order of these conditions:
+          if (name.charAt(0) === "t" &&
+              hasOwn.call(this, name) &&
+              !isNaN(+name.slice(1))) {
+            this[name] = undefined;
+          }
+        }
+      }
+    },
+
+    stop: function() {
+      this.done = true;
+
+      var rootEntry = this.tryEntries[0];
+      var rootRecord = rootEntry.completion;
+      if (rootRecord.type === "throw") {
+        throw rootRecord.arg;
+      }
+
+      return this.rval;
+    },
+
+    dispatchException: function(exception) {
+      if (this.done) {
+        throw exception;
+      }
+
+      var context = this;
+      function handle(loc, caught) {
+        record.type = "throw";
+        record.arg = exception;
+        context.next = loc;
+
+        if (caught) {
+          // If the dispatched exception was caught by a catch block,
+          // then let that catch block handle the exception normally.
+          context.method = "next";
+          context.arg = undefined;
+        }
+
+        return !! caught;
+      }
+
+      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+        var entry = this.tryEntries[i];
+        var record = entry.completion;
+
+        if (entry.tryLoc === "root") {
+          // Exception thrown outside of any try block that could handle
+          // it, so set the completion value of the entire function to
+          // throw the exception.
+          return handle("end");
+        }
+
+        if (entry.tryLoc <= this.prev) {
+          var hasCatch = hasOwn.call(entry, "catchLoc");
+          var hasFinally = hasOwn.call(entry, "finallyLoc");
+
+          if (hasCatch && hasFinally) {
+            if (this.prev < entry.catchLoc) {
+              return handle(entry.catchLoc, true);
+            } else if (this.prev < entry.finallyLoc) {
+              return handle(entry.finallyLoc);
+            }
+
+          } else if (hasCatch) {
+            if (this.prev < entry.catchLoc) {
+              return handle(entry.catchLoc, true);
+            }
+
+          } else if (hasFinally) {
+            if (this.prev < entry.finallyLoc) {
+              return handle(entry.finallyLoc);
+            }
+
+          } else {
+            throw new Error("try statement without catch or finally");
+          }
+        }
+      }
+    },
+
+    abrupt: function(type, arg) {
+      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+        var entry = this.tryEntries[i];
+        if (entry.tryLoc <= this.prev &&
+            hasOwn.call(entry, "finallyLoc") &&
+            this.prev < entry.finallyLoc) {
+          var finallyEntry = entry;
+          break;
+        }
+      }
+
+      if (finallyEntry &&
+          (type === "break" ||
+           type === "continue") &&
+          finallyEntry.tryLoc <= arg &&
+          arg <= finallyEntry.finallyLoc) {
+        // Ignore the finally entry if control is not jumping to a
+        // location outside the try/catch block.
+        finallyEntry = null;
+      }
+
+      var record = finallyEntry ? finallyEntry.completion : {};
+      record.type = type;
+      record.arg = arg;
+
+      if (finallyEntry) {
+        this.method = "next";
+        this.next = finallyEntry.finallyLoc;
+        return ContinueSentinel;
+      }
+
+      return this.complete(record);
+    },
+
+    complete: function(record, afterLoc) {
+      if (record.type === "throw") {
+        throw record.arg;
+      }
+
+      if (record.type === "break" ||
+          record.type === "continue") {
+        this.next = record.arg;
+      } else if (record.type === "return") {
+        this.rval = this.arg = record.arg;
+        this.method = "return";
+        this.next = "end";
+      } else if (record.type === "normal" && afterLoc) {
+        this.next = afterLoc;
+      }
+
+      return ContinueSentinel;
+    },
+
+    finish: function(finallyLoc) {
+      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+        var entry = this.tryEntries[i];
+        if (entry.finallyLoc === finallyLoc) {
+          this.complete(entry.completion, entry.afterLoc);
+          resetTryEntry(entry);
+          return ContinueSentinel;
+        }
+      }
+    },
+
+    "catch": function(tryLoc) {
+      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+        var entry = this.tryEntries[i];
+        if (entry.tryLoc === tryLoc) {
+          var record = entry.completion;
+          if (record.type === "throw") {
+            var thrown = record.arg;
+            resetTryEntry(entry);
+          }
+          return thrown;
+        }
+      }
+
+      // The context.catch method must only be called with a location
+      // argument that corresponds to a known catch block.
+      throw new Error("illegal catch attempt");
+    },
+
+    delegateYield: function(iterable, resultName, nextLoc) {
+      this.delegate = {
+        iterator: values(iterable),
+        resultName: resultName,
+        nextLoc: nextLoc
+      };
+
+      if (this.method === "next") {
+        // Deliberately forget the last sent value so that we don't
+        // accidentally pass it on to the delegate.
+        this.arg = undefined;
+      }
+
+      return ContinueSentinel;
+    }
+  };
+})(
+  // In sloppy mode, unbound `this` refers to the global object, fallback to
+  // Function constructor if we're in global strict mode. That is sadly a form
+  // of indirect eval which violates Content Security Policy.
+  (function() {
+    return this || (typeof self === "object" && self);
+  })() || Function("return this")()
+);
 
 
 /***/ }),
-/* 8 */
+/* 42 */
+/***/ (function(module, exports) {
+
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
+  try {
+    var info = gen[key](arg);
+    var value = info.value;
+  } catch (error) {
+    reject(error);
+    return;
+  }
+
+  if (info.done) {
+    resolve(value);
+  } else {
+    Promise.resolve(value).then(_next, _throw);
+  }
+}
+
+function _asyncToGenerator(fn) {
+  return function () {
+    var self = this,
+        args = arguments;
+    return new Promise(function (resolve, reject) {
+      var gen = fn.apply(self, args);
+
+      function _next(value) {
+        asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value);
+      }
+
+      function _throw(err) {
+        asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err);
+      }
+
+      _next(undefined);
+    });
+  };
+}
+
+module.exports = _asyncToGenerator;
+
+/***/ }),
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(10);
+module.exports = __webpack_require__(44);
 
 /***/ }),
-/* 9 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = __webpack_require__(29);
-
-
-/***/ }),
-/* 10 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 var utils = __webpack_require__(0);
-var bind = __webpack_require__(3);
-var Axios = __webpack_require__(12);
-var defaults = __webpack_require__(1);
+var bind = __webpack_require__(18);
+var Axios = __webpack_require__(46);
+var defaults = __webpack_require__(13);
 
 /**
  * Create an instance of Axios
@@ -1103,15 +3763,15 @@ axios.create = function create(instanceConfig) {
 };
 
 // Expose Cancel & CancelToken
-axios.Cancel = __webpack_require__(7);
-axios.CancelToken = __webpack_require__(27);
-axios.isCancel = __webpack_require__(6);
+axios.Cancel = __webpack_require__(22);
+axios.CancelToken = __webpack_require__(61);
+axios.isCancel = __webpack_require__(21);
 
 // Expose all/spread
 axios.all = function all(promises) {
   return Promise.all(promises);
 };
-axios.spread = __webpack_require__(28);
+axios.spread = __webpack_require__(62);
 
 module.exports = axios;
 
@@ -1120,7 +3780,7 @@ module.exports.default = axios;
 
 
 /***/ }),
-/* 11 */
+/* 45 */
 /***/ (function(module, exports) {
 
 /*!
@@ -1147,16 +3807,16 @@ function isSlowBuffer (obj) {
 
 
 /***/ }),
-/* 12 */
+/* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var defaults = __webpack_require__(1);
+var defaults = __webpack_require__(13);
 var utils = __webpack_require__(0);
-var InterceptorManager = __webpack_require__(22);
-var dispatchRequest = __webpack_require__(23);
+var InterceptorManager = __webpack_require__(56);
+var dispatchRequest = __webpack_require__(57);
 
 /**
  * Create a new instance of Axios
@@ -1233,7 +3893,7 @@ module.exports = Axios;
 
 
 /***/ }),
-/* 13 */
+/* 47 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -1423,7 +4083,7 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 14 */
+/* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1442,13 +4102,13 @@ module.exports = function normalizeHeaderName(headers, normalizedName) {
 
 
 /***/ }),
-/* 15 */
+/* 49 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var createError = __webpack_require__(5);
+var createError = __webpack_require__(20);
 
 /**
  * Resolve or reject a Promise based on response status.
@@ -1475,7 +4135,7 @@ module.exports = function settle(resolve, reject, response) {
 
 
 /***/ }),
-/* 16 */
+/* 50 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1503,7 +4163,7 @@ module.exports = function enhanceError(error, config, code, request, response) {
 
 
 /***/ }),
-/* 17 */
+/* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1576,7 +4236,7 @@ module.exports = function buildURL(url, params, paramsSerializer) {
 
 
 /***/ }),
-/* 18 */
+/* 52 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1636,7 +4296,7 @@ module.exports = function parseHeaders(headers) {
 
 
 /***/ }),
-/* 19 */
+/* 53 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1711,7 +4371,7 @@ module.exports = (
 
 
 /***/ }),
-/* 20 */
+/* 54 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1754,7 +4414,7 @@ module.exports = btoa;
 
 
 /***/ }),
-/* 21 */
+/* 55 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1814,7 +4474,7 @@ module.exports = (
 
 
 /***/ }),
-/* 22 */
+/* 56 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1873,18 +4533,18 @@ module.exports = InterceptorManager;
 
 
 /***/ }),
-/* 23 */
+/* 57 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 var utils = __webpack_require__(0);
-var transformData = __webpack_require__(24);
-var isCancel = __webpack_require__(6);
-var defaults = __webpack_require__(1);
-var isAbsoluteURL = __webpack_require__(25);
-var combineURLs = __webpack_require__(26);
+var transformData = __webpack_require__(58);
+var isCancel = __webpack_require__(21);
+var defaults = __webpack_require__(13);
+var isAbsoluteURL = __webpack_require__(59);
+var combineURLs = __webpack_require__(60);
 
 /**
  * Throws a `Cancel` if cancellation has been requested.
@@ -1966,7 +4626,7 @@ module.exports = function dispatchRequest(config) {
 
 
 /***/ }),
-/* 24 */
+/* 58 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1993,7 +4653,7 @@ module.exports = function transformData(data, headers, fns) {
 
 
 /***/ }),
-/* 25 */
+/* 59 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2014,7 +4674,7 @@ module.exports = function isAbsoluteURL(url) {
 
 
 /***/ }),
-/* 26 */
+/* 60 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2035,13 +4695,13 @@ module.exports = function combineURLs(baseURL, relativeURL) {
 
 
 /***/ }),
-/* 27 */
+/* 61 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var Cancel = __webpack_require__(7);
+var Cancel = __webpack_require__(22);
 
 /**
  * A `CancelToken` is an object that can be used to request cancellation of an operation.
@@ -2099,7 +4759,7 @@ module.exports = CancelToken;
 
 
 /***/ }),
-/* 28 */
+/* 62 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2133,944 +4793,121 @@ module.exports = function spread(callback) {
 
 
 /***/ }),
-/* 29 */
-/***/ (function(__webpack_module__, __webpack_exports__, __webpack_require__) {
+/* 63 */
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-__webpack_require__.r(__webpack_exports__);
-var utils_namespaceObject = {};
-__webpack_require__.r(utils_namespaceObject);
-__webpack_require__.d(utils_namespaceObject, "isEquals", function() { return isEquals; });
-__webpack_require__.d(utils_namespaceObject, "log", function() { return log; });
-__webpack_require__.d(utils_namespaceObject, "jsonify", function() { return jsonify; });
-__webpack_require__.d(utils_namespaceObject, "prepareFind", function() { return prepareFind; });
-__webpack_require__.d(utils_namespaceObject, "startsWith", function() { return startsWith; });
 
-// CONCATENATED MODULE: ./lib/client/utils.mjs
-const isEquals = (a, b) => {
-  if (a && !b) {
-    return false;
-  }
-  if (b && !a) {
-    return false;
-  }
-  if (typeof (
-    a
-  ) !== typeof (
-    b
-  )) {
-    return false;
-  }
-  if ((
-    a === null
-  ) && (
-    b === null
-  )) {
-    return true;
-  }
 
-  switch (typeof a) {
-    case 'function':
-      if (a.toString() !== b.toString()) {
-        return false;
-      }
-      break;
-    case 'object':
-      if (Object.keys(a).length !== Object.keys(b).length) {
-        return false;
-      }
-      for (const k in a) {
-        if (!isEquals(a[k], b[k])) {
-          return false;
-        }
-      }
-      break;
-    default:
-      if (a !== b) {
-        return false;
-      }
-  }
-  return true;
-};
+var _interopRequireDefault = __webpack_require__(1);
 
-// logging utility
-const log = msg => console.log(`[monogfb] ${msg}`);
-
-// stringify json params
-const jsonify = (q) => {
-  const o = {};
-  for (const k of Object.keys(q)) {
-    const v = q[k];
-    if (v) {
-      o[k] = JSON.stringify(v);
-    }
-  }
-  return o;
-};
-
-// prepare query parameters for a find
-const prepareFind = (..._args) => {
-  let fields;
-  let next;
-  let options;
-  let special;
-
-  const args = _args.filter(arg => arg != null);
-
-  // callback
-  const hasCallback = typeof args[args.length - 1] === 'function';
-  if (hasCallback) {
-    next = args[args.length - 1];
-  }
-
-  // defaults
-  let criteria = {};
-
-  // query objects
-  if (typeof args[0] === 'object') {
-    [criteria] = args;
-  }
-  if (typeof args[1] === 'object') {
-    [, fields] = args;
-  }
-  if (typeof args[2] === 'object') {
-    [, , options] = args;
-  }
-  if (typeof args[3] === 'object') {
-    [, , , special] = args;
-  }
-
-  // args[1] can be either fields or options or special
-  // args[2] can be either options or special
-
-  // case: special was in args[2]
-  if (options && !special && (
-    options.token || options._
-  )) {
-    [special, options] = [options, null];
-  }
-
-  // case: options was in args[1]
-  if (fields && !options && (
-    fields.limit || fields.skip || fields.sort
-  )) {
-    [options, fields] = [fields, null];
-  }
-
-  // case: special was in args[1]
-  if (fields && !special && (
-    fields.token || fields._
-  )) {
-    [special, fields] = [fields, null];
-  }
-
-  // format query objects and prepare to send
-  const query = { criteria, fields, options };
-  const params = jsonify(query);
-
-  if (special != null ? special.token : undefined) {
-    params.token = special.token;
-  }
-  if (special != null ? special._ : undefined) {
-    params._ = special._;
-  }
-
-  return [query, params, next];
-};
-
-const startsWith = (str, target) => str.slice(0, target.length) === target;
-
-// CONCATENATED MODULE: ./lib/client/EventEmitter.mjs
-class EventEmitter {
-  constructor() {
-    this.events = {};
-  }
-
-  emit(event, ...args) {
-    if (this.events[event]) {
-      for (const handler of this.events[event]) {
-        handler(...args || []);
-      }
-    }
-  }
-
-  on(event, handler) {
-    if (this.events[event] == null) {
-      this.events[event] = [];
-    }
-    this.events[event].push(handler);
-  }
-
-  // handler=null will remove all events of that type
-  off(event, handler = null) {
-    if (this.events[event] == null) {
-      this.events[event] = [];
-    }
-    this.events[event] = this.events[event].filter(fn => (
-      handler !== null
-    ) && (
-      fn !== handler
-    ));
-  }
-}
-
-// CONCATENATED MODULE: ./lib/client/CollectionRef.mjs
-
-
-const CollectionRef_CollectionRef = class CollectionRef extends EventEmitter {
-  constructor(collection) {
-    super();
-    this.collection = collection;
-    this.database = this.collection.database;
-    this.ref = this.database.firebase.child(this.collection.name);
-  }
-
-  endAt(priority) {
-    this.ref = this.ref.endAt(priority);
-  }
-
-  limit(num) {
-    this.ref = this.ref.limit(num);
-  }
-
-  startAt(priority) {
-    this.ref = this.ref.startAt(priority);
-  }
-
-  on(event, handler) {
-    super.on(event, handler);
-
-    if ((
-      this.events.insert != null ? this.events.insert.length : undefined
-    ) > 0) {
-      this.ref.off('child_added');
-      this.ref.on('child_added', snapshot => this.emit('insert', snapshot.val()));
-    }
-
-    if ((
-      this.events.remove != null ? this.events.remove.length : undefined
-    ) > 0) {
-      this.ref.off('child_removed');
-      this.ref.on('child_removed', snapshot => this.emit('remove', snapshot.val()));
-    }
-  }
-
-  off(event, handler = null) {
-    super.off(event, handler);
-
-    if ((
-      this.events.insert != null ? this.events.insert.length : undefined
-    ) === 0) {
-      this.ref.off('child_added');
-    }
-
-    if ((
-      this.events.remove != null ? this.events.remove.length : undefined
-    ) === 0) {
-      this.ref.off('child_removed');
-    }
-  }
-};
-
-/* harmony default export */ var client_CollectionRef = (CollectionRef_CollectionRef);
-
-// CONCATENATED MODULE: ./lib/client/DocumentRef.mjs
-
-
-
-
-
-const DocumentRef_DocumentRef = class DocumentRef extends EventEmitter {
-  constructor(document, path) {
-    super();
-    this.document = document;
-    this.path = path == null ? '' : path;
-    this.counter = ++DocumentRef._counter;
-    this.collection = this.document.collection;
-    this.database = this.collection.database;
-
-    // @path[0] doesn't work in ie6, must use @path[0..0]
-    if (typeof this.path === 'string') {
-      if (this.path.slice(0, 1) === '/') {
-        this.path = this.path.slice(1);
-      }
-      if (typeof this.path === 'string') {
-        this.path = this.path.split(/[/.]/g);
-      }
-    }
-    this.key = `${this.document.key}/${this.path.join('/')}`.replace(/\/$/, '');
-    this.data = this.document.data;
-    for (const k of this.path) {
-      if (k !== '') {
-        this.data = this.data != null ? this.data[k] : undefined;
-      }
-    }
-    if (this.data == null) {
-      this.data = null;
-    }
-    this.ref = this.database.firebase.child(this.key);
-  }
-
-  log(...args) {
-    // eslint-disable-next-line no-console
-    return console.log(`ref_${this.counter}`, args);
-  }
-
-  get(_path) {
-    let path = _path;
-    const temp = this.path.slice(0);
-    while (startsWith(path, '..')) {
-      temp.pop();
-      path = path.slice(2);
-      if (startsWith(path, '/')) {
-        path = path.slice(1);
-      }
-    }
-    return new DocumentRef(this.document, `${temp.join('/')}/${path}`);
-  }
-
-  name() {
-    if ((
-      this.path.length === 1
-    ) && (
-      this.path[0] === ''
-    )) {
-      return this.data._id;
-    }
-    return this.path[this.path.length - 1];
-  }
-
-  // value: emit now and when updated
-  // update: emit only when updated
-  on(event, handler) {
-    super.on(event, handler);
-
-    if (
-      (
-        (
-          this.events.update != null ? this.events.update.length : undefined
-        ) > 0
-      )
-      || (
-        (
-          this.events.value != null ? this.events.value.length : undefined
-        ) > 0
-      )
-    ) {
-      this.emit('value', this.val());
-      this.ref.on('value', snapshot => this.updateData(snapshot.val()));
-    }
-  }
-
-  off(event, handler = null) {
-    super.off(event, handler);
-
-    if (
-      !(
-        this.events.update != null ? this.events.update.length : undefined
-      )
-      || !(
-        this.events.value != null ? this.events.value.length : undefined
-      )
-    ) {
-      this.ref.off('value');
-    }
-  }
-
-  parent() {
-    return new DocumentRef(this.document, this.path.slice(0, this.path.length - 1));
-  }
-
-  refresh(next) {
-    let completed = false;
-    const done = () => {
-      if (!completed) {
-        if (typeof next === 'function') {
-          next();
-        }
-      }
-      completed = true;
-    };
-    return this.ref.once('value', snapshot => this.updateData(snapshot.val(), () => done()));
-  }
-
-  remove(next) {
-    if (!['function', 'undefined'].includes(typeof next)) {
-      return log('invalid callback function to remove');
-    }
-    return this.set(null, next);
-  }
-
-  set(value, next) {
-    // if specific fields were queried for, only allow those to be updated
-    if (this.database.safe_writes) {
-      let allow = true;
-      if (this.document.query.fields) {
-        allow = false;
-        for (const k in this.document.query.fields) {
-          if (k) {
-            const dst = `${this.document.key}/${k.replace(/\./g, '/')}`;
-            allow = allow || (
-              this.key.indexOf(dst) === 0
-            );
-          }
-        }
-      }
-      if (!allow) {
-        return (
-          typeof next === 'function' ? next(
-            'cannot set a field that was not queried for',
-          ) : undefined
-        );
-      }
-    }
-
-    const ref = this.database.firebase.child(this.key);
-    return ref.set(value, (err) => {
-      if (err) {
-        return (
-          typeof next === 'function' ? next(err) : undefined
-        );
-      }
-      return this.database.request(`sync/${this.key}`, (syncErr) => {
-        if (syncErr) {
-          return (
-            typeof next === 'function' ? next(syncErr) : undefined
-          );
-        }
-        return this.updateData(value, () => (
-          typeof next === 'function' ? next(null) : undefined
-        ));
-      });
-    });
-  }
-
-  // @data = what we got from mongodb or what was already updated here
-  // data = new data from firebase
-  updateData(_data, next) {
-    const data = _data;
-    // ignore special 'created' and 'last_modified' fields on documents
-    if (this.key === this.document.key) {
-      if (this.data != null ? this.data.created : undefined) {
-        data.created = this.data.created;
-      }
-      if (this.data != null ? this.data.last_modified : undefined) {
-        data.last_modified = this.data.last_modified;
-      }
-    }
-
-    // no updates to send if data isn't changing
-    if (isEquals(this.data, data)) {
-      return (
-        typeof next === 'function' ? next() : undefined
-      );
-    }
-
-
-    // here, we need to set a brief timeout so all firebase listeners can
-    // fire before we update any data. if we ran this code synchonously
-    // a DocumentRef may update the Document data before the Document
-    // listener had a chance to update. In that case, the isEquals call a few
-    // lines above would return true, and the listener for the Document would
-    // never be fired. With this setTimeout, all listeners have a chance to
-    // compare against past data before anything is updated.
-    //
-    // example
-    // ```
-    //   cookie = db.cookies.findOne()
-    //   type = cookie.get 'type'
-    //   cookie.on 'update', (val) ->
-    //     console.log 'cookie was updated'
-    //   type.on 'update', (val) ->
-    //     console.log 'type was updated'
-    //   type.set 'new type'
-    // ```
-    //
-    // this works because setTimeout() re-queues the new javascript at the end
-    // of the execution queue.
-    return setTimeout((
-      () => {
-        // update DocumentRef data
-        this.data = data;
-
-        // update document data. this will allow handlers to use
-        // ref.get and have access to new data
-        if ((
-          this.path.length === 1
-        ) && (
-          this.path[0] === ''
-        )) {
-          this.document.data = data;
-        } else {
-          const adjustedLength = Math.max(this.path.length, 1);
-          const keys = this.path.slice(0, adjustedLength - 1);
-          const key = this.path[adjustedLength - 1];
-          let target = this.document.data;
-          for (const k of keys) {
-            if (target[k] == null) {
-              target[k] = {};
-            }
-            target = target[k];
-          }
-          target[key] = data;
-        }
-
-        // emit the updates
-        this.emit('update', this.val());
-        this.emit('value', this.val());
-        return (
-          typeof next === 'function' ? next() : undefined
-        );
-      }
-
-    ), 1);
-  }
-
-  val() {
-    if (this.data === null) {
-      return null;
-    }
-    if (Array.isArray(this.data)) {
-      return [...this.data];
-    }
-    if (typeof this.data === 'object') {
-      return { ...this.data };
-    }
-    return this.data;
-  }
-};
-
-DocumentRef_DocumentRef._counter = 0;
-
-/* harmony default export */ var client_DocumentRef = (DocumentRef_DocumentRef);
-
-// CONCATENATED MODULE: ./lib/client/Document.mjs
-
-
-
-class Document_Document {
-  constructor(collection, data, query) {
-    this.collection = collection;
-    this.data = data;
-    this.query = query;
-    this.database = this.collection.database;
-    this.key = `${this.collection.name}/${this.data._id}`;
-    if (this.query == null) {
-      this.query = { criteria: null, fields: null, options: null };
-    }
-    this.ref = new client_DocumentRef(this);
-  }
-
-  emit(event, ...args) {
-    return this.ref.emit(event, args);
-  }
-
-  get(path) {
-    return this.ref.get(path);
-  }
-
-  name() {
-    return this.ref.name();
-  }
-
-  on(event, handler) {
-    return this.ref.on(event, handler);
-  }
-
-  off(event, handler) {
-    return this.ref.off(event, handler);
-  }
-
-  refresh(next) {
-    return this.ref.refresh(next);
-  }
-
-  remove(next) {
-    if (!['function', 'undefined'].includes(typeof next)) {
-      return log('invalid callback function to remove');
-    }
-    return this.collection.removeById(this.data._id, next);
-  }
-
-  save(next) {
-    return this.ref.set(this.data, next);
-  }
-
-  set(value, next = null) {
-    return this.ref.set(value, next);
-  }
-
-  val() {
-    return this.ref.val();
-  }
-}
-
-// CONCATENATED MODULE: ./lib/client/Collection.mjs
-
-
-
-
-const Collection_Collection = class Collection {
-  constructor(database, name) {
-    this.database = database;
-    this.name = name;
-    this.ref = new client_CollectionRef(this);
-  }
-
-  insert(_doc, _priority, _next) {
-    const doc = _doc;
-    let next = _next;
-    let priority = _priority;
-    if (typeof priority === 'function') {
-      [next, priority] = [priority, null];
-    }
-    if (typeof next !== 'function') {
-      next = () => {
-      };
-    }
-    return this.database.request('ObjectID', false, {
-      _: `${Date.now()}-${Math.random()}`,
-    }, (requestErr, id) => {
-      if (requestErr) {
-        return next(requestErr);
-      }
-      doc._id = id;
-      const ref = this.database.firebase.child(`${this.name}/${id}`);
-      return ref.set(doc, (setErr) => {
-        if (setErr) {
-          return next(setErr);
-        }
-        if (priority) {
-          ref.setPriority(priority);
-        }
-        return this.database.request(`sync/${this.name}/${id}`, {
-          _: Date.now(),
-        }, (err, data) => {
-          if (err) {
-            return next(err);
-          }
-          return next(null, new Document_Document(this, data));
-        });
-      });
-    });
-  }
-
-  // find()
-  // find(criteria)
-  // find(criteria, fields)
-  // find(criteria, options)
-  // find(criteria, fields, options)
-  //
-  // find(next)
-  // find(criteria, next)
-  // find(criteria, fields, next)
-  // find(criteria, options, next)
-  // find(criteria, fields, options, next)
-  find(criteria = null, fields = null, options = null, _next = null) {
-    const [query, params, next] = prepareFind(criteria, fields, options, _next);
-
-    if (next) {
-      return this.database.request(`${this.name}/find`, params, (err, datas) => {
-        if (err) {
-          return next(err);
-        }
-        const output = [];
-        for (const data of datas) {
-          output.push(new Document_Document(this, data, query));
-        }
-        return next(null, output);
-      });
-    }
-    const datas = this.database.request(`${this.name}/find`, params) || [];
-    const result = [];
-    for (const data of datas) {
-      result.push(new Document_Document(this, data, query));
-    }
-    return result;
-  }
-
-  findById(id = null, fields = null, options = null, _next = null) {
-    const [, params, next] = prepareFind(id, fields, options, _next);
-
-    if (next) {
-      return this.database.request(`${this.name}/${id}`, params, (err, data) => {
-        if (err) {
-          return next(err);
-        }
-        if (!data) {
-          return next(null, null);
-        }
-        return next(null, new Document_Document(this, data));
-      });
-    }
-    const data = this.database.request(`${this.name}/${id}`, params);
-    if (!data) {
-      return null;
-    }
-    return new Document_Document(this, data);
-  }
-
-  // findOne()
-  // findOne(criteria)
-  // findOne(criteria, fields)
-  // findOne(criteria, fields, options)
-  //
-  // findOne(next)
-  // findOne(criteria, next)
-  // findOne(criteria, fields, next)
-  // findOne(criteria, fields, options, next)
-  findOne(criteria = null, fields = null, options = null, _next = null) {
-    const [query, params, next] = prepareFind(criteria, fields, options, _next);
-
-    if (next) {
-      return this.database.request(`${this.name}/findOne`, params, (err, data) => {
-        if (err) {
-          return next(err);
-        }
-        if (!data) {
-          return next(null, null);
-        }
-        return next(null, new Document_Document(this, data, query));
-      });
-    }
-    const data = this.database.request(`${this.name}/findOne`, params);
-    if (!data) {
-      return null;
-    }
-    return new Document_Document(this, data, query);
-  }
-
-  list(priority, _limit) {
-    const limit = _limit == null ? 1 : _limit;
-    this.ref.endAt(priority);
-    this.ref.limit(limit);
-    return this.ref;
-  }
-
-  removeById(_id, _next) {
-    let next = _next;
-    if (typeof next !== 'function') {
-      next = () => {
-      };
-    }
-    const ref = this.database.firebase.child(`${this.name}/${_id}`);
-
-    // store current value
-    return ref.once('value', (snapshot) => {
-      const oldData = snapshot.val();
-
-      // remove value from firebase
-      return ref.set(null, (refSetErr) => {
-        if (refSetErr) {
-          return next(refSetErr);
-        }
-
-        // sync result to mongodb
-        return this.database.request(`sync/${this.name}/${_id}`, (syncErr) => {
-          // if sync failed, rollback data
-          if (syncErr) {
-            return ref.set(oldData, (err) => {
-              if (err) {
-                return next('sync failed, and rollback failed');
-              }
-              return next('sync failed, data rollback successful');
-            });
-
-            // sync successful
-          }
-          return (
-            typeof next === 'function' ? next(null) : undefined
-          );
-        });
-      });
-    });
-  }
-};
-
-/* harmony default export */ var client_Collection = (Collection_Collection);
-
-// EXTERNAL MODULE: ./node_modules/firebase/lib/firebase-web.js
-var firebase_web = __webpack_require__(2);
-
-// EXTERNAL MODULE: ./node_modules/axios/index.js
-var axios = __webpack_require__(8);
-
-// CONCATENATED MODULE: ./lib/client/fetch.mjs
-
-
-/* harmony default export */ var fetch = (async (options) => {
-  const { params: _params = {} } = options;
-  const { cache, json, url } = options;
-
-  const params = _params;
-
-  if (!cache) {
-    if (params._ == null) {
-      params._ = Date.now();
-    }
-  }
-
-  const { data } = await axios({
-    method: 'get',
-    params,
-    responseType: json ? 'json' : 'text',
-    url,
-  });
-
-  if (!data) {
-    throw new Error('missing data');
-  }
-
-  return data;
+Object.defineProperty(exports, "__esModule", {
+  value: true
 });
+exports.default = void 0;
 
-// CONCATENATED MODULE: ./lib/client/Database.mjs
+var _slicedToArray2 = _interopRequireDefault(__webpack_require__(7));
 
+var _classCallCheck2 = _interopRequireDefault(__webpack_require__(2));
 
+var _createClass2 = _interopRequireDefault(__webpack_require__(3));
 
+var _possibleConstructorReturn2 = _interopRequireDefault(__webpack_require__(9));
 
+var _getPrototypeOf2 = _interopRequireDefault(__webpack_require__(6));
 
+var _get2 = _interopRequireDefault(__webpack_require__(10));
 
-class Database_Database {
-  constructor(cfg) {
-    this.cache = true;
-    this.safe_writes = true;
-    if (typeof cfg === 'string') {
-      this.api = cfg;
-      this.request('Firebase', false, (url) => {
-        this.firebase = new firebase_web(url);
-      });
-    } else {
-      this.api = cfg.server;
-      this.firebase = new firebase_web(cfg.firebase);
-    }
+var _inherits2 = _interopRequireDefault(__webpack_require__(11));
+
+var _Collection2 = _interopRequireDefault(__webpack_require__(8));
+
+var _utils = __webpack_require__(4);
+
+var PseudoCollection =
+/*#__PURE__*/
+function (_Collection) {
+  (0, _inherits2.default)(PseudoCollection, _Collection);
+
+  function PseudoCollection(database, name, defaults) {
+    var _this;
+
+    (0, _classCallCheck2.default)(this, PseudoCollection);
+    _this = (0, _possibleConstructorReturn2.default)(this, (0, _getPrototypeOf2.default)(PseudoCollection).call(this, database, name));
+    _this.database = database;
+    _this.name = name;
+    _this.defaults = defaults == null ? {} : defaults;
+    return _this;
   }
 
-  collection(name) {
-    return new client_Collection(this, name);
-  }
+  (0, _createClass2.default)(PseudoCollection, [{
+    key: "insert",
+    value: function insert(_doc, priority, next) {
+      var doc = _doc;
 
-  get(_path) {
-    const path = _path.split(/[/.]/g);
-    const collection = this.collection(path[0]);
-    if (path.length === 1) {
-      return collection;
-    }
-    return collection.get(path.slice(1).join('/'));
-  }
+      var _arr = Object.keys(this.defaults);
 
-  request(...args) {
-    let json = true;
-    let resource = '';
-    let next = () => {};
-    let params = {};
-
-    for (const arg of args) {
-      switch (typeof arg) {
-        case 'boolean':
-          json = arg;
-          break;
-        case 'string':
-          resource = arg;
-          break;
-        case 'function':
-          next = arg;
-          break;
-        case 'object':
-          params = arg;
-          break;
-        default:
-          break;
+      for (var _i = 0; _i < _arr.length; _i++) {
+        var k = _arr[_i];
+        var v = this.defaults[k];
+        doc[k] = v;
       }
+
+      return (0, _get2.default)((0, _getPrototypeOf2.default)(PseudoCollection.prototype), "insert", this).call(this, doc, priority, next);
     }
+  }, {
+    key: "find",
+    value: function find() {
+      var criteria = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+      var fields = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+      var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
 
-    const url = `${this.api}/${resource}`;
-    if (this.token) {
-      params.token = this.token;
+      var _next = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
+
+      var _prepareFind = (0, _utils.prepareFind)(criteria, fields, options, _next),
+          _prepareFind2 = (0, _slicedToArray2.default)(_prepareFind, 3),
+          query = _prepareFind2[0],
+          next = _prepareFind2[2];
+
+      var _arr2 = Object.keys(this.defaults);
+
+      for (var _i2 = 0; _i2 < _arr2.length; _i2++) {
+        var k = _arr2[_i2];
+        var v = this.defaults[k];
+        query.criteria[k] = v;
+      }
+
+      return (0, _get2.default)((0, _getPrototypeOf2.default)(PseudoCollection.prototype), "find", this).call(this, query.criteria, query.fields, query.options, next);
     }
-    return fetch({
-      cache: this.cache,
-      json,
-      params,
-      resource,
-      url,
-    })
-      .then(data => next(null, data))
-      .catch(err => next(err));
-  }
+  }, {
+    key: "findOne",
+    value: function findOne() {
+      var criteria = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+      var fields = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+      var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
 
-  auth(token, next) {
-    return this.firebase.authWithCustomToken(token, () => {
-      this.token = token;
-      return next();
-    });
-  }
+      var _next = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
 
-  setToken(token) {
-    this.token = token;
-  }
-}
+      var _prepareFind3 = (0, _utils.prepareFind)(criteria, fields, options, _next),
+          _prepareFind4 = (0, _slicedToArray2.default)(_prepareFind3, 3),
+          query = _prepareFind4[0],
+          next = _prepareFind4[2];
 
-// CONCATENATED MODULE: ./lib/client/PseudoCollection.mjs
+      var _arr3 = Object.keys(this.defaults);
 
+      for (var _i3 = 0; _i3 < _arr3.length; _i3++) {
+        var k = _arr3[_i3];
+        var v = this.defaults[k];
+        query.criteria[k] = v;
+      }
 
-
-class PseudoCollection_PseudoCollection extends client_Collection {
-  constructor(database, name, defaults) {
-    super(database, name);
-    this.database = database;
-    this.name = name;
-    this.defaults = defaults == null ? {} : defaults;
-  }
-
-  insert(_doc, priority, next) {
-    const doc = _doc;
-    for (const k of Object.keys(this.defaults)) {
-      const v = this.defaults[k];
-      doc[k] = v;
+      return (0, _get2.default)((0, _getPrototypeOf2.default)(PseudoCollection.prototype), "findOne", this).call(this, query.criteria, query.fields, query.options, next);
     }
-    return super.insert(doc, priority, next);
-  }
+  }]);
+  return PseudoCollection;
+}(_Collection2.default);
 
-  find(criteria = null, fields = null, options = null, _next = null) {
-    const [query, , next] = prepareFind(criteria, fields, options, _next);
-    for (const k of Object.keys(this.defaults)) {
-      const v = this.defaults[k];
-      query.criteria[k] = v;
-    }
-    return super.find(query.criteria, query.fields, query.options, next);
-  }
-
-  findOne(criteria = null, fields = null, options = null, _next = null) {
-    const [query, , next] = prepareFind(criteria, fields, options, _next);
-    for (const k of Object.keys(this.defaults)) {
-      const v = this.defaults[k];
-      query.criteria[k] = v;
-    }
-    return super.findOne(query.criteria, query.fields, query.options, next);
-  }
-}
-
-// CONCATENATED MODULE: ./lib/client/index.mjs
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "utils", function() { return utils; });
-/* concated harmony reexport Collection */__webpack_require__.d(__webpack_exports__, "Collection", function() { return client_Collection; });
-/* concated harmony reexport CollectionRef */__webpack_require__.d(__webpack_exports__, "CollectionRef", function() { return client_CollectionRef; });
-/* concated harmony reexport Database */__webpack_require__.d(__webpack_exports__, "Database", function() { return Database_Database; });
-/* concated harmony reexport Document */__webpack_require__.d(__webpack_exports__, "Document", function() { return Document_Document; });
-/* concated harmony reexport DocumentRef */__webpack_require__.d(__webpack_exports__, "DocumentRef", function() { return client_DocumentRef; });
-/* concated harmony reexport EventEmitter */__webpack_require__.d(__webpack_exports__, "EventEmitter", function() { return EventEmitter; });
-/* concated harmony reexport PseudoCollection */__webpack_require__.d(__webpack_exports__, "PseudoCollection", function() { return PseudoCollection_PseudoCollection; });
-
-
-const utils = utils_namespaceObject;
-
-
-
-
-
-
-
-
+exports.default = PseudoCollection;
 
 /***/ })
 /******/ ]);
