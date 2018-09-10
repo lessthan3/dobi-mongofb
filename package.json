@@ -7,18 +7,14 @@
     "test": "node test/app.js"
   },
   "devDependencies": {
-    "async": "2.0.1",
     "body-parser": "1.6.x",
-    "coffee-script": "1.10.0",
-    "coffeescript": "^2.3.1",
     "eslint": "^5.3.0",
     "eslint-config-airbnb-base": "^13.1.0",
-    "eslint-plugin-import": "^2.14.0",
-    "teacup": "^2.0.0"
+    "eslint-plugin-import": "^2.14.0"
   },
   "dependencies": {
     "deepmerge": "2.0.1",
-    "dobi-asset-wrap": "^3.0.1",
+    "dobi-asset-wrap": "^4.0.0",
     "express": "4.16.x",
     "firebase": "2.2.9",
     "firebase-token-generator": "2.0.0",

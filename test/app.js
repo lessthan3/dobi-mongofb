@@ -1,11 +1,7 @@
-const async = require('async');
 const bodyParser = require('body-parser');
-const coffee = require('coffeescript');
 const config = require('/u/config/test-config.js');
-const connectAssets = require('teacup/lib/connect-assets');
 const express = require('express');
 const fs = require('fs');
-const teacup = require('teacup/lib/express');
 const mongofb = require('../lib/server.js');
 
 // helpers
@@ -25,32 +21,13 @@ const copyFile = (next) => {
   return read.pipe(wr);
 };
 
-const compile = function (next) {
-  let files = fs.readdirSync(`${__dirname}/assets/js`);
-  files = files.filter(file => /\.coffee/.test(file));
-  return async.each(files, ((file, next) => {
-    const [name] = file.split('.');
-    const contents = fs.readFileSync(`${__dirname}/assets/js/${file}`, 'utf-8');
-    const output = coffee.compile(contents);
-    fs.writeFileSync(`${__dirname}/assets/js/${name}.js`, output);
-    return next();
-  }), (err) => {
-    if (err) { return fail(err); }
-    return next();
-  });
-};
-
-copyFile(() => compile(() => {
+copyFile(() => {
   const endpoints = {
-    '/': (req, res) => res.render('index'),
+    '/': (req, res) => res.sendFile(`${__dirname}/views/index.html`),
   };
 
   const middleware = [
     bodyParser.json(),
-    connectAssets({
-      jsDir: `${__dirname}/assets/js`,
-      src: `${__dirname}/assets/js`,
-    }),
     mongofb.server({
       cache: {
         max: 100,
@@ -83,9 +60,7 @@ copyFile(() => compile(() => {
   ];
 
   const app = express();
-  app.set('views', `${__dirname}/views`);
-  app.set('view engine', 'coffee');
-  app.engine('coffee', teacup.renderFile);
+  app.use(express.static(`${__dirname}/assets`));
   for (const ware of middleware) {
     app.use(ware);
   }
@@ -95,4 +70,4 @@ copyFile(() => compile(() => {
   }
   app.listen(8080);
   return log('server running..., connect to localhost:8080');
-}));
+});
