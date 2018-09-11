@@ -1,5 +1,5 @@
 import Collection from './Collection';
-import { prepareFind } from './utils';
+import { log, prepareFind } from './utils';
 
 export default class PseudoCollection extends Collection {
   constructor(database, name, defaults) {
@@ -10,6 +10,9 @@ export default class PseudoCollection extends Collection {
   }
 
   insert(_doc, priority, next) {
+    if (!['function', 'undefined'].includes(typeof next)) {
+      return log('invalid callback function');
+    }
     const doc = _doc;
     for (const k of Object.keys(this.defaults)) {
       const v = this.defaults[k];

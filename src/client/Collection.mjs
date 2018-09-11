@@ -17,7 +17,10 @@ const Collection = class Collection {
       [next, priority] = [priority, null];
     }
     if (typeof next !== 'function') {
-      next = () => {
+      next = (err) => {
+        if (err) {
+          console.error(err);
+        }
       };
     }
     return this.database.request('ObjectID', false, {
@@ -61,45 +64,30 @@ const Collection = class Collection {
   find(criteria = null, fields = null, options = null, _next = null) {
     const [query, params, next] = prepareFind(criteria, fields, options, _next);
 
-    if (next) {
-      return this.database.request(`${this.name}/find`, params, (err, datas) => {
-        if (err) {
-          return next(err);
-        }
-        const output = [];
-        for (const data of datas) {
-          output.push(new Document(this, data, query));
-        }
-        return next(null, output);
-      });
-    }
-    const datas = this.database.request(`${this.name}/find`, params) || [];
-    const result = [];
-    for (const data of datas) {
-      result.push(new Document(this, data, query));
-    }
-    return result;
+    return this.database.request(`${this.name}/find`, params, (err, datas) => {
+      if (err) {
+        return next(err);
+      }
+      const output = [];
+      for (const data of datas) {
+        output.push(new Document(this, data, query));
+      }
+      return next(null, output);
+    });
   }
 
   findById(id = null, fields = null, options = null, _next = null) {
     const [, params, next] = prepareFind(id, fields, options, _next);
 
-    if (next) {
-      return this.database.request(`${this.name}/${id}`, params, (err, data) => {
-        if (err) {
-          return next(err);
-        }
-        if (!data) {
-          return next(null, null);
-        }
-        return next(null, new Document(this, data));
-      });
-    }
-    const data = this.database.request(`${this.name}/${id}`, params);
-    if (!data) {
-      return null;
-    }
-    return new Document(this, data);
+    return this.database.request(`${this.name}/${id}`, params, (err, data) => {
+      if (err) {
+        return next(err);
+      }
+      if (!data) {
+        return next(null, null);
+      }
+      return next(null, new Document(this, data));
+    });
   }
 
   // findOne()
@@ -114,22 +102,15 @@ const Collection = class Collection {
   findOne(criteria = null, fields = null, options = null, _next = null) {
     const [query, params, next] = prepareFind(criteria, fields, options, _next);
 
-    if (next) {
-      return this.database.request(`${this.name}/findOne`, params, (err, data) => {
-        if (err) {
-          return next(err);
-        }
-        if (!data) {
-          return next(null, null);
-        }
-        return next(null, new Document(this, data, query));
-      });
-    }
-    const data = this.database.request(`${this.name}/findOne`, params);
-    if (!data) {
-      return null;
-    }
-    return new Document(this, data, query);
+    return this.database.request(`${this.name}/findOne`, params, (err, data) => {
+      if (err) {
+        return next(err);
+      }
+      if (!data) {
+        return next(null, null);
+      }
+      return next(null, new Document(this, data, query));
+    });
   }
 
   list(priority, _limit) {
@@ -142,7 +123,10 @@ const Collection = class Collection {
   removeById(_id, _next) {
     let next = _next;
     if (typeof next !== 'function') {
-      next = () => {
+      next = (err) => {
+        if (err) {
+          console.error(err);
+        }
       };
     }
     const ref = this.database.firebase.child(`${this.name}/${_id}`);

@@ -35,12 +35,15 @@ export default class Document {
   }
 
   refresh(next) {
+    if (!['function', 'undefined'].includes(typeof next)) {
+      return log('invalid callback function');
+    }
     return this.ref.refresh(next);
   }
 
   remove(next) {
     if (!['function', 'undefined'].includes(typeof next)) {
-      return log('invalid callback function to remove');
+      return log('invalid callback function');
     }
     return this.collection.removeById(this.data._id, next);
   }
@@ -49,7 +52,10 @@ export default class Document {
     return this.ref.set(this.data, next);
   }
 
-  set(value, next = null) {
+  set(value, next) {
+    if (!['function', 'undefined'].includes(typeof next)) {
+      return log('invalid callback function');
+    }
     return this.ref.set(value, next);
   }
 

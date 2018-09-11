@@ -126,6 +126,14 @@ export const prepareFind = (..._args) => {
     params._ = special._;
   }
 
+  if (!next) {
+    next = (err) => {
+      if (err) {
+        console.error(err);
+      }
+    };
+  }
+
   return [query, params, next];
 };
 

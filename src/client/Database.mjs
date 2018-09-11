@@ -35,7 +35,11 @@ export default class Database {
   request(...args) {
     let json = true;
     let resource = '';
-    let next = () => {};
+    let next = (err) => {
+      if (err) {
+        console.error(err);
+      }
+    };
     let params = {};
 
     for (const arg of args) {
@@ -73,6 +77,9 @@ export default class Database {
   }
 
   auth(token, next) {
+    if (typeof next !== 'function') {
+      console.warn('callback required');
+    }
     return this.firebase.authWithCustomToken(token, () => {
       this.token = token;
       return next();
