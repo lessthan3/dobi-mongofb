@@ -19,9 +19,5 @@ export default async (options) => {
     url,
   });
 
-  if (!data) {
-    throw new Error('missing data');
-  }
-
   return data;
 };

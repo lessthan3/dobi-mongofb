@@ -39,6 +39,7 @@ export const server = (_cfg) => {
         keepAlive: 120,
         native_parser: false,
         poolSize: 1,
+        useNewUrlParser: true,
       },
       pass: 'testPassword',
       port: 27017,
@@ -300,9 +301,11 @@ export const server = (_cfg) => {
           }
 
           doc._id = qry._id;
-          const opt = { safe: true, upsert: true };
-          return collection.update(qry, doc, opt, (updateErr) => {
+          const opt = { upsert: true };
+          console.log(qry, doc, opt);
+          return collection.updateOne(qry, { $set: doc }, opt, (updateErr) => {
             if (updateErr) {
+              console.error(updateErr);
               return handleError(updateErr);
             }
             hook('after', 'find', doc);
@@ -311,11 +314,12 @@ export const server = (_cfg) => {
 
           // remove
         }
-        return collection.remove(qry, (removeErr) => {
+        return collection.removeOne(qry, (removeErr) => {
           if (removeErr) {
+            console.error(removeErr);
             return handleError(removeErr);
           }
-          return res.send(null);
+          return res.sendStatus(200);
         });
       });
     });

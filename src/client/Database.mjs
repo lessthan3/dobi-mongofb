@@ -1,5 +1,3 @@
-
-
 import Firebase from 'firebase';
 import Collection from './Collection';
 import fetch from './fetch';

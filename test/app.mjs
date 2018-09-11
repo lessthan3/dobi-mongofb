@@ -4,7 +4,7 @@ import express from 'express';
 import fs from 'fs';
 import path from 'path';
 import mongofb from '../lib/server';
-console.log(mongofb)
+import morgan from 'morgan';
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
 
@@ -31,6 +31,7 @@ copyFile(() => {
   };
 
   const middleware = [
+    morgan('combined'),
     bodyParser.json(),
     mongofb.server({
       cache: {

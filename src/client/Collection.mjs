@@ -147,9 +147,9 @@ const Collection = class Collection {
           if (syncErr) {
             return ref.set(oldData, (err) => {
               if (err) {
-                return next('sync failed, and rollback failed');
+                return next(`sync failed, and rollback failed: ${syncErr.toString()}`);
               }
-              return next('sync failed, data rollback successful');
+              return next(`sync failed, data rollback successful: ${syncErr.toString()}`);
             });
 
             // sync successful

@@ -452,6 +452,28 @@ module.exports = _createClass;
 
 /***/ }),
 /* 4 */
+/***/ (function(module, exports) {
+
+function _typeof2(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof2 = function _typeof2(obj) { return typeof obj; }; } else { _typeof2 = function _typeof2(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof2(obj); }
+
+function _typeof(obj) {
+  if (typeof Symbol === "function" && _typeof2(Symbol.iterator) === "symbol") {
+    module.exports = _typeof = function _typeof(obj) {
+      return _typeof2(obj);
+    };
+  } else {
+    module.exports = _typeof = function _typeof(obj) {
+      return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : _typeof2(obj);
+    };
+  }
+
+  return _typeof(obj);
+}
+
+module.exports = _typeof;
+
+/***/ }),
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -466,7 +488,7 @@ exports.startsWith = exports.prepareFind = exports.jsonify = exports.log = expor
 
 var _slicedToArray2 = _interopRequireDefault(__webpack_require__(7));
 
-var _typeof2 = _interopRequireDefault(__webpack_require__(5));
+var _typeof2 = _interopRequireDefault(__webpack_require__(4));
 
 var isEquals = function isEquals(a, b) {
   if (a && !b) {
@@ -633,6 +655,14 @@ var prepareFind = function prepareFind() {
     params._ = special._;
   }
 
+  if (!next) {
+    next = function next(err) {
+      if (err) {
+        console.error(err);
+      }
+    };
+  }
+
   return [query, params, next];
 };
 
@@ -643,28 +673,6 @@ var startsWith = function startsWith(str, target) {
 };
 
 exports.startsWith = startsWith;
-
-/***/ }),
-/* 5 */
-/***/ (function(module, exports) {
-
-function _typeof2(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof2 = function _typeof2(obj) { return typeof obj; }; } else { _typeof2 = function _typeof2(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof2(obj); }
-
-function _typeof(obj) {
-  if (typeof Symbol === "function" && _typeof2(Symbol.iterator) === "symbol") {
-    module.exports = _typeof = function _typeof(obj) {
-      return _typeof2(obj);
-    };
-  } else {
-    module.exports = _typeof = function _typeof(obj) {
-      return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : _typeof2(obj);
-    };
-  }
-
-  return _typeof(obj);
-}
-
-module.exports = _typeof;
 
 /***/ }),
 /* 6 */
@@ -719,7 +727,7 @@ var _CollectionRef = _interopRequireDefault(__webpack_require__(14));
 
 var _Document = _interopRequireDefault(__webpack_require__(16));
 
-var _utils = __webpack_require__(4);
+var _utils = __webpack_require__(5);
 
 var Collection =
 /*#__PURE__*/
@@ -747,7 +755,11 @@ function () {
       }
 
       if (typeof next !== 'function') {
-        next = function next() {};
+        next = function next(err) {
+          if (err) {
+            console.error(err);
+          }
+        };
       }
 
       return this.database.request('ObjectID', false, {
@@ -810,68 +822,38 @@ function () {
           params = _prepareFind2[1],
           next = _prepareFind2[2];
 
-      if (next) {
-        return this.database.request("".concat(this.name, "/find"), params, function (err, datas) {
-          if (err) {
-            return next(err);
-          }
-
-          var output = [];
-          var _iteratorNormalCompletion = true;
-          var _didIteratorError = false;
-          var _iteratorError = undefined;
-
-          try {
-            for (var _iterator = datas[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-              var data = _step.value;
-              output.push(new _Document.default(_this2, data, query));
-            }
-          } catch (err) {
-            _didIteratorError = true;
-            _iteratorError = err;
-          } finally {
-            try {
-              if (!_iteratorNormalCompletion && _iterator.return != null) {
-                _iterator.return();
-              }
-            } finally {
-              if (_didIteratorError) {
-                throw _iteratorError;
-              }
-            }
-          }
-
-          return next(null, output);
-        });
-      }
-
-      var datas = this.database.request("".concat(this.name, "/find"), params) || [];
-      var result = [];
-      var _iteratorNormalCompletion2 = true;
-      var _didIteratorError2 = false;
-      var _iteratorError2 = undefined;
-
-      try {
-        for (var _iterator2 = datas[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-          var data = _step2.value;
-          result.push(new _Document.default(this, data, query));
+      return this.database.request("".concat(this.name, "/find"), params, function (err, datas) {
+        if (err) {
+          return next(err);
         }
-      } catch (err) {
-        _didIteratorError2 = true;
-        _iteratorError2 = err;
-      } finally {
+
+        var output = [];
+        var _iteratorNormalCompletion = true;
+        var _didIteratorError = false;
+        var _iteratorError = undefined;
+
         try {
-          if (!_iteratorNormalCompletion2 && _iterator2.return != null) {
-            _iterator2.return();
+          for (var _iterator = datas[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+            var data = _step.value;
+            output.push(new _Document.default(_this2, data, query));
           }
+        } catch (err) {
+          _didIteratorError = true;
+          _iteratorError = err;
         } finally {
-          if (_didIteratorError2) {
-            throw _iteratorError2;
+          try {
+            if (!_iteratorNormalCompletion && _iterator.return != null) {
+              _iterator.return();
+            }
+          } finally {
+            if (_didIteratorError) {
+              throw _iteratorError;
+            }
           }
         }
-      }
 
-      return result;
+        return next(null, output);
+      });
     }
   }, {
     key: "findById",
@@ -889,27 +871,17 @@ function () {
           params = _prepareFind4[1],
           next = _prepareFind4[2];
 
-      if (next) {
-        return this.database.request("".concat(this.name, "/").concat(id), params, function (err, data) {
-          if (err) {
-            return next(err);
-          }
+      return this.database.request("".concat(this.name, "/").concat(id), params, function (err, data) {
+        if (err) {
+          return next(err);
+        }
 
-          if (!data) {
-            return next(null, null);
-          }
+        if (!data) {
+          return next(null, null);
+        }
 
-          return next(null, new _Document.default(_this3, data));
-        });
-      }
-
-      var data = this.database.request("".concat(this.name, "/").concat(id), params);
-
-      if (!data) {
-        return null;
-      }
-
-      return new _Document.default(this, data);
+        return next(null, new _Document.default(_this3, data));
+      });
     } // findOne()
     // findOne(criteria)
     // findOne(criteria, fields)
@@ -937,27 +909,17 @@ function () {
           params = _prepareFind6[1],
           next = _prepareFind6[2];
 
-      if (next) {
-        return this.database.request("".concat(this.name, "/findOne"), params, function (err, data) {
-          if (err) {
-            return next(err);
-          }
+      return this.database.request("".concat(this.name, "/findOne"), params, function (err, data) {
+        if (err) {
+          return next(err);
+        }
 
-          if (!data) {
-            return next(null, null);
-          }
+        if (!data) {
+          return next(null, null);
+        }
 
-          return next(null, new _Document.default(_this4, data, query));
-        });
-      }
-
-      var data = this.database.request("".concat(this.name, "/findOne"), params);
-
-      if (!data) {
-        return null;
-      }
-
-      return new _Document.default(this, data, query);
+        return next(null, new _Document.default(_this4, data, query));
+      });
     }
   }, {
     key: "list",
@@ -975,7 +937,11 @@ function () {
       var next = _next;
 
       if (typeof next !== 'function') {
-        next = function next() {};
+        next = function next(err) {
+          if (err) {
+            console.error(err);
+          }
+        };
       }
 
       var ref = this.database.firebase.child("".concat(this.name, "/").concat(_id)); // store current value
@@ -992,6 +958,7 @@ function () {
           return _this5.database.request("sync/".concat(_this5.name, "/").concat(_id), function (syncErr) {
             // if sync failed, rollback data
             if (syncErr) {
+              console.warn(syncErr);
               return ref.set(oldData, function (err) {
                 if (err) {
                   return next('sync failed, and rollback failed');
@@ -1017,7 +984,7 @@ exports.default = _default;
 /* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var _typeof = __webpack_require__(5);
+var _typeof = __webpack_require__(4);
 
 var assertThisInitialized = __webpack_require__(28);
 
@@ -1409,7 +1376,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = void 0;
 
-var _typeof2 = _interopRequireDefault(__webpack_require__(5));
+var _typeof2 = _interopRequireDefault(__webpack_require__(4));
 
 var _classCallCheck2 = _interopRequireDefault(__webpack_require__(2));
 
@@ -1417,7 +1384,7 @@ var _createClass2 = _interopRequireDefault(__webpack_require__(3));
 
 var _DocumentRef = _interopRequireDefault(__webpack_require__(17));
 
-var _utils = __webpack_require__(4);
+var _utils = __webpack_require__(5);
 
 var Document =
 /*#__PURE__*/
@@ -1473,13 +1440,17 @@ function () {
   }, {
     key: "refresh",
     value: function refresh(next) {
+      if (!['function', 'undefined'].includes((0, _typeof2.default)(next))) {
+        return (0, _utils.log)('invalid callback function');
+      }
+
       return this.ref.refresh(next);
     }
   }, {
     key: "remove",
     value: function remove(next) {
       if (!['function', 'undefined'].includes((0, _typeof2.default)(next))) {
-        return (0, _utils.log)('invalid callback function to remove');
+        return (0, _utils.log)('invalid callback function');
       }
 
       return this.collection.removeById(this.data._id, next);
@@ -1491,8 +1462,11 @@ function () {
     }
   }, {
     key: "set",
-    value: function set(value) {
-      var next = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+    value: function set(value, next) {
+      if (!['function', 'undefined'].includes((0, _typeof2.default)(next))) {
+        return (0, _utils.log)('invalid callback function');
+      }
+
       return this.ref.set(value, next);
     }
   }, {
@@ -1524,7 +1498,7 @@ var _objectSpread2 = _interopRequireDefault(__webpack_require__(34));
 
 var _toConsumableArray2 = _interopRequireDefault(__webpack_require__(15));
 
-var _typeof2 = _interopRequireDefault(__webpack_require__(5));
+var _typeof2 = _interopRequireDefault(__webpack_require__(4));
 
 var _classCallCheck2 = _interopRequireDefault(__webpack_require__(2));
 
@@ -1540,7 +1514,7 @@ var _inherits2 = _interopRequireDefault(__webpack_require__(11));
 
 var _EventEmitter2 = _interopRequireDefault(__webpack_require__(12));
 
-var _utils = __webpack_require__(4);
+var _utils = __webpack_require__(5);
 
 var DocumentRef =
 /*#__PURE__*/
@@ -2201,7 +2175,7 @@ Object.defineProperty(exports, "PseudoCollection", {
 });
 exports.utils = void 0;
 
-var _utils = _interopRequireDefault(__webpack_require__(4));
+var _utils = _interopRequireDefault(__webpack_require__(5));
 
 var _Collection = _interopRequireDefault(__webpack_require__(8));
 
@@ -2416,7 +2390,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = void 0;
 
-var _typeof2 = _interopRequireDefault(__webpack_require__(5));
+var _typeof2 = _interopRequireDefault(__webpack_require__(4));
 
 var _classCallCheck2 = _interopRequireDefault(__webpack_require__(2));
 
@@ -2473,7 +2447,11 @@ function () {
       var json = true;
       var resource = '';
 
-      var next = function next() {};
+      var next = function next(err) {
+        if (err) {
+          console.error(err);
+        }
+      };
 
       var params = {};
 
@@ -2528,6 +2506,10 @@ function () {
     key: "auth",
     value: function auth(token, next) {
       var _this2 = this;
+
+      if (typeof next !== 'function') {
+        console.warn('callback required');
+      }
 
       return this.firebase.authWithCustomToken(token, function () {
         _this2.token = token;
@@ -2869,18 +2851,9 @@ function () {
           case 6:
             _ref2 = _context.sent;
             data = _ref2.data;
-
-            if (data) {
-              _context.next = 10;
-              break;
-            }
-
-            throw new Error('missing data');
-
-          case 10:
             return _context.abrupt("return", data);
 
-          case 11:
+          case 9:
           case "end":
             return _context.stop();
         }
@@ -4808,6 +4781,8 @@ exports.default = void 0;
 
 var _slicedToArray2 = _interopRequireDefault(__webpack_require__(7));
 
+var _typeof2 = _interopRequireDefault(__webpack_require__(4));
+
 var _classCallCheck2 = _interopRequireDefault(__webpack_require__(2));
 
 var _createClass2 = _interopRequireDefault(__webpack_require__(3));
@@ -4822,7 +4797,7 @@ var _inherits2 = _interopRequireDefault(__webpack_require__(11));
 
 var _Collection2 = _interopRequireDefault(__webpack_require__(8));
 
-var _utils = __webpack_require__(4);
+var _utils = __webpack_require__(5);
 
 var PseudoCollection =
 /*#__PURE__*/
@@ -4843,6 +4818,10 @@ function (_Collection) {
   (0, _createClass2.default)(PseudoCollection, [{
     key: "insert",
     value: function insert(_doc, priority, next) {
+      if (!['function', 'undefined'].includes((0, _typeof2.default)(next))) {
+        return (0, _utils.log)('invalid callback function');
+      }
+
       var doc = _doc;
 
       var _arr = Object.keys(this.defaults);

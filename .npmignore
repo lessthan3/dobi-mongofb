@@ -1,4 +1,9 @@
+/*
 .DS_Store
-.idea
-test
-src/
+!/dist
+!/lib
+!/package.json
+!/package-lock.json
+!/README.md
+!/LICENSE
+!/CHANGELOG.md
