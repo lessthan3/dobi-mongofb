@@ -179,7 +179,7 @@ export const server = (_cfg) => {
       return parentRes.status(400).send(handleErr.toString());
     };
 
-    const hook = (time, method, _args) => {
+    const hook = (time, method, args) => {
       let args = _args;
       let fn;
       const { collection } = parentReq.params;
@@ -191,7 +191,7 @@ export const server = (_cfg) => {
         && cfg.hooks[collection][time][method]
       ) {
         fn = cfg.hooks[collection][time][method];
-        if (Array.isArray(args)) {
+        if (!Array.isArray(args)) {
           args = [args];
         }
         return fn.apply(parentReq, args);
