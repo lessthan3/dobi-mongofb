@@ -179,7 +179,7 @@ export const server = (_cfg) => {
       return parentRes.status(400).send(handleErr.toString());
     };
 
-    const hook = (time, method, args) => {
+    const hook = (time, method, _args) => {
       let args = _args;
       let fn;
       const { collection } = parentReq.params;
@@ -302,7 +302,6 @@ export const server = (_cfg) => {
 
           doc._id = qry._id;
           const opt = { upsert: true };
-          console.log(qry, doc, opt);
           return collection.updateOne(qry, { $set: doc }, opt, (updateErr) => {
             if (updateErr) {
               console.error(updateErr);
