@@ -1,57 +1,20 @@
-export const isEquals = (a, b) => {
-  if (a && !b) {
-    return false;
-  }
-  if (b && !a) {
-    return false;
-  }
-  if (typeof (
-    a
-  ) !== typeof (
-    b
-  )) {
-    return false;
-  }
-  if ((
-    a === null
-  ) && (
-    b === null
-  )) {
-    return true;
-  }
+import isEqualWith from 'lodash/isEqualWith';
 
-  switch (typeof a) {
-    case 'function':
-      if (a.toString() !== b.toString()) {
-        return false;
-      }
-      break;
-    case 'object':
-      if (Object.keys(a).length !== Object.keys(b).length) {
-        return false;
-      }
-      for (const k in a) {
-        if (!isEquals(a[k], b[k])) {
-          return false;
-        }
-      }
-      break;
-    default:
-      if (a !== b) {
-        return false;
-      }
+const customIsEqual = (a, b) => {
+  if (typeof a === 'function' && typeof b === 'function') {
+    return a.toString() === b.toString();
   }
-  return true;
+  return undefined;
 };
 
-// logging utility
-export const log = msg => console.log(`[monogfb] ${msg}`);
+export const isEqual = (a, b) => (
+  isEqualWith(a, b, customIsEqual)
+);
 
 // stringify json params
 export const jsonify = (q) => {
   const o = {};
-  for (const k of Object.keys(q)) {
-    const v = q[k];
+  for (const [k, v] of Object.entries(q)) {
     if (v) {
       o[k] = JSON.stringify(v);
     }
@@ -124,14 +87,6 @@ export const prepareFind = (..._args) => {
   }
   if (special != null ? special._ : undefined) {
     params._ = special._;
-  }
-
-  if (!next) {
-    next = (err) => {
-      if (err) {
-        console.error(err);
-      }
-    };
   }
 
   return [query, params, next];

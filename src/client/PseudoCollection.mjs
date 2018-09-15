@@ -1,7 +1,8 @@
+import { promisifyAll } from '@google-cloud/promisify';
 import Collection from './Collection';
-import { log, prepareFind } from './utils';
+import { prepareFind } from './utils';
 
-export default class PseudoCollection extends Collection {
+class PseudoCollection extends Collection {
   constructor(database, name, defaults) {
     super(database, name);
     this.database = database;
@@ -10,9 +11,6 @@ export default class PseudoCollection extends Collection {
   }
 
   insert(_doc, priority, next) {
-    if (!['function', 'undefined'].includes(typeof next)) {
-      return log('invalid callback function');
-    }
     const doc = _doc;
     for (const k of Object.keys(this.defaults)) {
       const v = this.defaults[k];
@@ -39,3 +37,7 @@ export default class PseudoCollection extends Collection {
     return super.findOne(query.criteria, query.fields, query.options, next);
   }
 }
+
+promisifyAll(PseudoCollection);
+
+export default PseudoCollection;

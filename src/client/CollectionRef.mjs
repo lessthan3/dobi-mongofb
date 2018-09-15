@@ -1,6 +1,6 @@
 import EventEmitter from './EventEmitter';
 
-const CollectionRef = class CollectionRef extends EventEmitter {
+class CollectionRef extends EventEmitter {
   constructor(collection) {
     super();
     this.collection = collection;
@@ -23,16 +23,12 @@ const CollectionRef = class CollectionRef extends EventEmitter {
   on(event, handler) {
     super.on(event, handler);
 
-    if ((
-      this.events.insert != null ? this.events.insert.length : undefined
-    ) > 0) {
+    if (this.events.insert && this.events.insert.length) {
       this.ref.off('child_added');
       this.ref.on('child_added', snapshot => this.emit('insert', snapshot.val()));
     }
 
-    if ((
-      this.events.remove != null ? this.events.remove.length : undefined
-    ) > 0) {
+    if (this.events.remove && this.events.remove.length) {
       this.ref.off('child_removed');
       this.ref.on('child_removed', snapshot => this.emit('remove', snapshot.val()));
     }
@@ -53,6 +49,6 @@ const CollectionRef = class CollectionRef extends EventEmitter {
       this.ref.off('child_removed');
     }
   }
-};
+}
 
 export default CollectionRef;

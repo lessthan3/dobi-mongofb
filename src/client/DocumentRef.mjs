@@ -1,9 +1,11 @@
-
-
+import { promisifyAll } from '@google-cloud/promisify';
+import set from 'lodash/set';
+import cloneDeep from 'lodash/cloneDeep';
+import some from 'lodash/some';
 import EventEmitter from './EventEmitter';
-import { isEquals, log, startsWith } from './utils';
+import { isEqual, startsWith } from './utils';
 
-const DocumentRef = class DocumentRef extends EventEmitter {
+class DocumentRef extends EventEmitter {
   constructor(document, path) {
     super();
     this.document = document;
@@ -22,15 +24,14 @@ const DocumentRef = class DocumentRef extends EventEmitter {
       }
     }
     this.key = `${this.document.key}/${this.path.join('/')}`.replace(/\/$/, '');
-    this.data = this.document.data;
+    this.data = cloneDeep(this.document.data);
+
     for (const k of this.path) {
-      if (k !== '') {
-        this.data = this.data != null ? this.data[k] : undefined;
+      if (k !== '' && this.data != null) {
+        this.data = this.data[k];
       }
     }
-    if (this.data == null) {
-      this.data = null;
-    }
+
     this.ref = this.database.firebase.child(this.key);
   }
 
@@ -41,7 +42,7 @@ const DocumentRef = class DocumentRef extends EventEmitter {
 
   get(_path) {
     let path = _path;
-    const temp = this.path.slice(0);
+    const temp = cloneDeep(this.path);
     while (startsWith(path, '..')) {
       temp.pop();
       path = path.slice(2);
@@ -53,11 +54,7 @@ const DocumentRef = class DocumentRef extends EventEmitter {
   }
 
   name() {
-    if ((
-      this.path.length === 1
-    ) && (
-      this.path[0] === ''
-    )) {
+    if ((this.path.length === 1) && (this.path[0] === '')) {
       return this.data._id;
     }
     return this.path[this.path.length - 1];
@@ -68,35 +65,11 @@ const DocumentRef = class DocumentRef extends EventEmitter {
   on(event, handler) {
     super.on(event, handler);
 
-    if (
-      (
-        (
-          this.events.update != null ? this.events.update.length : undefined
-        ) > 0
-      )
-      || (
-        (
-          this.events.value != null ? this.events.value.length : undefined
-        ) > 0
-      )
+    if ((this.events.value && this.events.value.length)
+      || (this.events.update && this.events.update.length)
     ) {
       this.emit('value', this.val());
       this.ref.on('value', snapshot => this.updateData(snapshot.val()));
-    }
-  }
-
-  off(event, handler = null) {
-    super.off(event, handler);
-
-    if (
-      !(
-        this.events.update != null ? this.events.update.length : undefined
-      )
-      || !(
-        this.events.value != null ? this.events.value.length : undefined
-      )
-    ) {
-      this.ref.off('value');
     }
   }
 
@@ -104,23 +77,24 @@ const DocumentRef = class DocumentRef extends EventEmitter {
     return new DocumentRef(this.document, this.path.slice(0, this.path.length - 1));
   }
 
+  off(event, handler = null) {
+    super.off(event, handler);
+
+    if (!(this.events.update && this.events.update.length > 0)
+      && !(this.events.value && this.events.value.length > 0)
+    ) {
+      this.ref.off('value');
+    }
+  }
+
   refresh(next) {
-    let completed = false;
-    const done = () => {
-      if (!completed) {
-        if (typeof next === 'function') {
-          next();
-        }
-      }
-      completed = true;
-    };
-    return this.ref.once('value', snapshot => this.updateData(snapshot.val(), () => done()));
+    return this.ref.once('value', (snapshot) => {
+      this.updateData(snapshot.val());
+      next();
+    });
   }
 
   remove(next) {
-    if (!['function', 'undefined'].includes(typeof next)) {
-      return log('invalid callback function to remove');
-    }
     return this.set(null, next);
   }
 
@@ -129,140 +103,88 @@ const DocumentRef = class DocumentRef extends EventEmitter {
     if (this.database.safe_writes) {
       let allow = true;
       if (this.document.query.fields) {
-        allow = false;
-        for (const k in this.document.query.fields) {
-          if (k) {
-            const dst = `${this.document.key}/${k.replace(/\./g, '/')}`;
-            allow = allow || (
-              this.key.indexOf(dst) === 0
-            );
-          }
-        }
+        const keys = Object.keys(this.document.query.fields);
+        allow = some(keys, (key) => {
+          const dst = `${this.document.key}/${key.replace(/\./g, '/')}`;
+          return this.key.indexOf(dst) === 0;
+        });
       }
       if (!allow) {
-        return (
-          typeof next === 'function' ? next(
-            'cannot set a field that was not queried for',
-          ) : undefined
-        );
+        return next('cannot set a field that was not queried for');
       }
     }
 
     const ref = this.database.firebase.child(this.key);
     return ref.set(value, (err) => {
       if (err) {
-        return (
-          typeof next === 'function' ? next(err) : undefined
-        );
+        return next(err);
       }
-      return this.database.request(`sync/${this.key}`, (syncErr) => {
+      return this.database.request({
+        resource: `sync/${this.key}`,
+      }, (syncErr) => {
         if (syncErr) {
-          return (
-            typeof next === 'function' ? next(syncErr) : undefined
-          );
+          return next(syncErr);
         }
-        return this.updateData(value, () => (
-          typeof next === 'function' ? next(null) : undefined
-        ));
+        this.updateData(value);
+        return next();
       });
     });
   }
 
   // @data = what we got from mongodb or what was already updated here
   // data = new data from firebase
-  updateData(_data, next) {
+  updateData(_data) {
     const data = _data;
     // ignore special 'created' and 'last_modified' fields on documents
-    if (this.key === this.document.key) {
-      if (this.data != null ? this.data.created : undefined) {
+    if (this.key === this.document.key && this.data) {
+      if (this.data.created) {
         data.created = this.data.created;
       }
-      if (this.data != null ? this.data.last_modified : undefined) {
+      if (this.data.last_modified) {
         data.last_modified = this.data.last_modified;
       }
     }
 
     // no updates to send if data isn't changing
-    if (isEquals(this.data, data)) {
-      return (
-        typeof next === 'function' ? next() : undefined
-      );
+    if (isEqual(this.data, data)) {
+      return;
     }
 
+    // update DocumentRef data
+    this.data = cloneDeep(data);
 
-    // here, we need to set a brief timeout so all firebase listeners can
-    // fire before we update any data. if we ran this code synchonously
-    // a DocumentRef may update the Document data before the Document
-    // listener had a chance to update. In that case, the isEquals call a few
-    // lines above would return true, and the listener for the Document would
-    // never be fired. With this setTimeout, all listeners have a chance to
-    // compare against past data before anything is updated.
-    //
-    // example
-    // ```
-    //   cookie = db.cookies.findOne()
-    //   type = cookie.get 'type'
-    //   cookie.on 'update', (val) ->
-    //     console.log 'cookie was updated'
-    //   type.on 'update', (val) ->
-    //     console.log 'type was updated'
-    //   type.set 'new type'
-    // ```
-    //
-    // this works because setTimeout() re-queues the new javascript at the end
-    // of the execution queue.
-    return setTimeout((
-      () => {
-        // update DocumentRef data
-        this.data = data;
+    // update document data. this will allow handlers to use
+    // ref.get and have access to new data
+    if ((this.path.length === 1) && (this.path[0] === '')) {
+      this.document.data = cloneDeep(data);
+    } else {
+      set(this.document.data, this.path.join('.'), cloneDeep(data));
+    }
 
-        // update document data. this will allow handlers to use
-        // ref.get and have access to new data
-        if ((
-          this.path.length === 1
-        ) && (
-          this.path[0] === ''
-        )) {
-          this.document.data = data;
-        } else {
-          const adjustedLength = Math.max(this.path.length, 1);
-          const keys = this.path.slice(0, adjustedLength - 1);
-          const key = this.path[adjustedLength - 1];
-          let target = this.document.data;
-          for (const k of keys) {
-            if (target[k] == null) {
-              target[k] = {};
-            }
-            target = target[k];
-          }
-          target[key] = data;
-        }
-
-        // emit the updates
-        this.emit('update', this.val());
-        this.emit('value', this.val());
-        return (
-          typeof next === 'function' ? next() : undefined
-        );
-      }
-
-    ), 1);
+    // emit the updates
+    this.emit('update', this.val());
+    this.emit('value', this.val());
   }
 
   val() {
-    if (this.data === null) {
-      return null;
-    }
-    if (Array.isArray(this.data)) {
-      return [...this.data];
-    }
-    if (typeof this.data === 'object') {
-      return { ...this.data };
-    }
-    return this.data;
+    return cloneDeep(this.data);
   }
-};
+}
 
 DocumentRef._counter = 0;
+
+promisifyAll(DocumentRef, {
+  exclude: [
+    'get',
+    'log',
+    'name',
+    'off',
+    'on',
+    'parent',
+    'updateData',
+    'val',
+  ],
+  singular: true,
+});
 
 export default DocumentRef;

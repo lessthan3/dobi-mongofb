@@ -5,8 +5,11 @@
   },
   "scripts": {
     "build": "NODE_ENV=production webpack; babel src -d lib;",
+    "format": "eslint . --ext js,mjs --fix",
+    "lint": "eslint . --ext js,mjs",
     "prepublishOnly": "NODE_ENV=production npm run build",
-    "test": "npm run build; node --experimental-modules test/app.mjs"
+    "test": "npm run build; node --experimental-modules test/app.mjs",
+    "watch": "nodemon"
   },
   "devDependencies": {
     "@babel/cli": "7.0.0",
@@ -23,6 +26,7 @@
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-plugin-import": "^2.14.0",
     "morgan": "^1.9.1",
+    "nodemon": "^1.18.4",
     "uglifyjs-webpack-plugin": "^1.2.5",
     "unminified-webpack-plugin": "^2.0.0",
     "webpack": "^4.10.1",
@@ -30,12 +34,14 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.0.0",
+    "@google-cloud/promisify": "^0.3.1",
     "axios": "^0.18.0",
     "deepmerge": "2.0.1",
     "express": "4.16.x",
     "firebase": "2.2.9",
     "firebase-token-generator": "2.0.0",
     "jwt-simple": "0.5.x",
+    "lodash": "^4.17.11",
     "lru-cache": "2.5.x",
     "mongodb": "3.1.4"
   },
@@ -50,5 +56,5 @@
   "engines": {
     "node": ">= 10"
   },
-  "version": "3.0.5"
+  "version": "3.0.6"
 }

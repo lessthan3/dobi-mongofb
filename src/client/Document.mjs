@@ -1,7 +1,7 @@
+import { promisifyAll } from '@google-cloud/promisify';
 import DocumentRef from './DocumentRef';
-import { log } from './utils';
 
-export default class Document {
+class Document {
   constructor(collection, data, query) {
     this.collection = collection;
     this.data = data;
@@ -35,16 +35,10 @@ export default class Document {
   }
 
   refresh(next) {
-    if (!['function', 'undefined'].includes(typeof next)) {
-      return log('invalid callback function');
-    }
     return this.ref.refresh(next);
   }
 
   remove(next) {
-    if (!['function', 'undefined'].includes(typeof next)) {
-      return log('invalid callback function');
-    }
     return this.collection.removeById(this.data._id, next);
   }
 
@@ -53,9 +47,6 @@ export default class Document {
   }
 
   set(value, next) {
-    if (!['function', 'undefined'].includes(typeof next)) {
-      return log('invalid callback function');
-    }
     return this.ref.set(value, next);
   }
 
@@ -63,3 +54,16 @@ export default class Document {
     return this.ref.val();
   }
 }
+
+promisifyAll(Document, {
+  exclude: [
+    'emit',
+    'get',
+    'off',
+    'on',
+    'name',
+    'val',
+  ],
+});
+
+export default Document;

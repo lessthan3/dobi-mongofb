@@ -25,13 +25,13 @@
 
  - emit updates after the document.data has been updated
  - default @data to null because firebase data is never undefined
- - fix isEquals when a and b are both null
+ - fix isEqual when a and b are both null
  - fix val() when @data is null, typeof(null) is 'object'
  - add global counter to DocumentRefs to help debug
 
 **v0.9.9** (2014-10-21)
 
- - fix isEquals for when refs do not reference objects
+ - fix isEqual for when refs do not reference objects
 
 **v0.9.7** (2014-08-17)
 

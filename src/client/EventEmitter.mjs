@@ -24,9 +24,7 @@ export default class EventEmitter {
       this.events[event] = [];
     }
     this.events[event] = this.events[event].filter(fn => (
-      handler !== null
-    ) && (
-      fn !== handler
+      handler !== null && fn !== handler
     ));
   }
 }

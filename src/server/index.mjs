@@ -3,13 +3,12 @@
 
 // dependencies
 import express from 'express';
-import Firebase from 'firebase';
-import FirebaseTokenGenerator from 'firebase-token-generator';
 import fs from 'fs';
 import jwt from 'jwt-simple';
 import LRU from 'lru-cache';
 import merge from 'deepmerge';
 import mongodb from 'mongodb';
+import connect from './connect';
 import * as mongoFbClient from '../client';
 import { dirname } from './dirname';
 
@@ -56,62 +55,15 @@ export const server = (_cfg) => {
     root: '/api',
   }, cfg);
 
-  // variables
-  let db = null;
-  let fb = null;
-
   // connect to firebase and mongodb
-  const connect = (_next) => {
-    let next = _next;
-    if (typeof next !== 'function') {
-      next = () => {};
-    }
-    if (db && fb) {
-      return next();
-    }
-    const {
-      db: database,
-      host,
-      options,
-      pass,
-      port,
-      user,
-    } = cfg.mongodb;
-    const url = `mongodb://${user}:${pass}@${host}:${port}/${database}`.replace(':@', '@');
-    return mongodb.MongoClient.connect(url, options, (err, mongoClient) => {
-      if (err) {
-        return next(err);
-      }
-      db = mongoClient.db(database);
-      db.ObjectID = mongodb.ObjectID;
-      fb = new Firebase(cfg.firebase.url);
-      if (cfg.firebase.secret) {
-        const tokenGenerator = new FirebaseTokenGenerator(cfg.firebase.secret);
-        const token = tokenGenerator.createToken({}, {
-          admin: true,
-          expires: Date.now() + (1000 * 60 * 60 * 24 * 30),
-        });
-        return fb.authWithCustomToken(token, (authErr) => {
-          if (authErr) {
-            return next(authErr);
-          }
-          fb.admin_token = token;
-          return next();
-        });
-      }
-      return next();
-    });
-  };
-  connect();
+  connect(cfg);
 
   // middleware
-  return (_parentReq, _parentRes, next) => connect((_err) => {
+  return async (_parentReq, _parentRes, next) => {
+    const { db, fb } = await connect(cfg);
+
     const parentReq = _parentReq;
     const parentRes = _parentRes;
-    let err = _err;
-    if (err) {
-      return next(err);
-    }
 
     // databases
     parentReq.db = db;
@@ -133,17 +85,17 @@ export const server = (_cfg) => {
           req.token_parse_error = authErr;
         }
       }
-      return (typeof callback === 'function' ? callback() : undefined);
+      return (
+        typeof callback === 'function' ? callback() : undefined
+      );
     };
 
     const hasPermission = () => {
       auth(parentReq, parentRes);
       if (parentReq.admin) {
         return true;
-      } if (Array.from(cfg.options.blacklist).includes(parentReq.params.collection)) {
-        return false;
       }
-      return true;
+      return !cfg.options.blacklist.includes(parentReq.params.collection);
     };
 
     const _cache = new LRU(cfg.cache);
@@ -276,7 +228,6 @@ export const server = (_cfg) => {
           try {
             qry = { _id: new mongodb.ObjectID(req.params.id) };
           } catch (error) {
-            err = error;
             return handleError('Invalid ObjectID');
           }
         }
@@ -292,7 +243,9 @@ export const server = (_cfg) => {
         if (doc) {
           // set created
           if (cfg.options.set_created) {
-            if (doc.created == null) { doc.created = Date.now(); }
+            if (doc.created == null) {
+              doc.created = Date.now();
+            }
           }
 
           // set last modified
@@ -304,7 +257,6 @@ export const server = (_cfg) => {
           const opt = { upsert: true };
           return collection.updateOne(qry, { $set: doc }, opt, (updateErr) => {
             if (updateErr) {
-              console.error(updateErr);
               return handleError(updateErr);
             }
             hook('after', 'find', doc);
@@ -315,7 +267,6 @@ export const server = (_cfg) => {
         }
         return collection.removeOne(qry, (removeErr) => {
           if (removeErr) {
-            console.error(removeErr);
             return handleError(removeErr);
           }
           return res.sendStatus(200);
@@ -350,7 +301,6 @@ export const server = (_cfg) => {
           try {
             criteria = JSON.parse(req.query.criteria);
           } catch (error) {
-            err = error;
             return handleError('invalid criteria');
           }
         }
@@ -358,8 +308,7 @@ export const server = (_cfg) => {
         if (req.query.fields) {
           try {
             fields = JSON.parse(req.query.fields);
-          } catch (error1) {
-            err = error1;
+          } catch (error) {
             return handleError('invalid fields');
           }
         }
@@ -367,8 +316,7 @@ export const server = (_cfg) => {
         if (req.query.options) {
           try {
             options = JSON.parse(req.query.options);
-          } catch (error2) {
-            err = error2;
+          } catch (error) {
             return handleError('invalid options');
           }
         }
@@ -401,7 +349,9 @@ export const server = (_cfg) => {
         criteria = req.query;
       }
 
-      if (__single) { options.limit = 1; }
+      if (__single) {
+        options.limit = 1;
+      }
 
       // built-in hooks
       if (cfg.options.use_objectid) {
@@ -411,16 +361,19 @@ export const server = (_cfg) => {
               criteria._id = new mongodb.ObjectID(criteria._id);
             } else if (criteria._id.$in) {
               const ids = criteria._id.$in;
-              criteria._id.$in = (Array.from(ids).map(id => new mongodb.ObjectID(id)));
+              criteria._id.$in = (
+                ids.map(id => new mongodb.ObjectID(id))
+              );
             }
           }
         } catch (error3) {
-          err = error3;
           return handleError('Invalid ObjectID');
         }
       }
       if (cfg.options.limit_default) {
-        if (options.limit == null) { options.limit = cfg.options.limit_default; }
+        if (options.limit == null) {
+          options.limit = cfg.options.limit_default;
+        }
       }
       if (cfg.options.limit_max) {
         options.limit = Math.min(options.limit, cfg.options.limit_max);
@@ -466,13 +419,7 @@ export const server = (_cfg) => {
             }
             return o;
           };
-          docs = ((() => {
-            const result = [];
-            for (doc of docs) {
-              result.push(fn(doc));
-            }
-            return result;
-          })());
+          docs = docs.map(item => fn(item));
         }
         if (__single) {
           if (docs.length === 0) {
@@ -512,5 +459,5 @@ export const server = (_cfg) => {
 
     // execute routes
     return router.handle(parentReq, parentRes, next);
-  });
+  };
 };

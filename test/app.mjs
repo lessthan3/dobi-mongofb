@@ -1,15 +1,14 @@
 import bodyParser from 'body-parser';
-import config from '/u/config/test-config.js';
+import config from '/u/config/test-config';
 import express from 'express';
 import fs from 'fs';
-import path from 'path';
-import mongofb from '../lib/server';
 import morgan from 'morgan';
+import mongofb from '../lib/server';
+import dirname from './dirname';
 
-const __dirname = path.dirname(new URL(import.meta.url).pathname);
-
-// helpers
+// eslint-disable-next-line no-console
 const log = (...args) => console.log(args);
+// eslint-disable-next-line no-console
 const fail = (msg) => {
   console.log(`FATAL: ${msg}`);
   return process.exit(1);
@@ -17,9 +16,9 @@ const fail = (msg) => {
 
 // copy file over
 const copyFile = (next) => {
-  const read = fs.createReadStream(`${__dirname}/../dist/client.js`);
+  const read = fs.createReadStream('./dist/client.js');
   read.on('error', fail);
-  const wr = fs.createWriteStream(`${__dirname}/assets/js/client.js`);
+  const wr = fs.createWriteStream('./test/assets/js/client.js');
   wr.on('error', fail);
   wr.on('close', next);
   return read.pipe(wr);
@@ -27,7 +26,7 @@ const copyFile = (next) => {
 
 copyFile(() => {
   const endpoints = {
-    '/': (req, res) => res.sendFile(`${__dirname}/views/index.html`),
+    '/': (req, res) => res.sendFile(`${dirname}/views/index.html`),
   };
 
   const middleware = [
@@ -51,9 +50,6 @@ copyFile(() => {
           native_parser: false,
           poolSize: 1,
         },
-        pass: 'testPassword',
-        port: 27017,
-        user: 'testUser',
       },
       options: {
         blacklist: [
@@ -65,7 +61,7 @@ copyFile(() => {
   ];
 
   const app = express();
-  app.use(express.static(`${__dirname}/assets`));
+  app.use(express.static('./test/assets'));
   for (const ware of middleware) {
     app.use(ware);
   }

@@ -1,14 +1,18 @@
+import { promisifyAll } from '@google-cloud/promisify';
 import Firebase from 'firebase';
 import Collection from './Collection';
 import fetch from './fetch';
 
-export default class Database {
+class Database {
   constructor(cfg) {
     this.cache = true;
     this.safe_writes = true;
     if (typeof cfg === 'string') {
       this.api = cfg;
-      this.request('Firebase', false, (url) => {
+      this.request({
+        json: false,
+        resource: 'Firebase',
+      }, (url) => {
         this.firebase = new Firebase(url);
       });
     } else {
@@ -30,36 +34,20 @@ export default class Database {
     return collection.get(path.slice(1).join('/'));
   }
 
-  request(...args) {
-    let json = true;
-    let resource = '';
-    let next = (err) => {
-      if (err) {
-        console.error(err);
-      }
-    };
-    let params = {};
-
-    for (const arg of args) {
-      switch (typeof arg) {
-        case 'boolean':
-          json = arg;
-          break;
-        case 'string':
-          resource = arg;
-          break;
-        case 'function':
-          next = arg;
-          break;
-        case 'object':
-          params = arg;
-          break;
-        default:
-          break;
-      }
-    }
-
+  /**
+   * @param {Object} p
+   * @param {boolean} p.json
+   * @param {string} p.resource
+   * @param {Object} p.params
+   * @param {Function} next
+   */
+  request({
+    json = true,
+    params: _params = {},
+    resource = '',
+  }, next) {
     const url = `${this.api}/${resource}`;
+    const params = { ..._params };
     if (this.token) {
       params.token = this.token;
     }
@@ -75,9 +63,6 @@ export default class Database {
   }
 
   auth(token, next) {
-    if (typeof next !== 'function') {
-      console.warn('callback required');
-    }
     return this.firebase.authWithCustomToken(token, () => {
       this.token = token;
       return next();
@@ -88,3 +73,10 @@ export default class Database {
     this.token = token;
   }
 }
+
+promisifyAll(Database, {
+  exclude: ['collection', 'get', 'setToken'],
+  singular: true,
+});
+
+export default Database;

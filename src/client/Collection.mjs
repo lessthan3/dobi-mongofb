@@ -1,8 +1,10 @@
+import { promisifyAll } from '@google-cloud/promisify';
 import CollectionRef from './CollectionRef';
 import Document from './Document';
 import { prepareFind } from './utils';
 
-const Collection = class Collection {
+
+class Collection {
   constructor(database, name) {
     this.database = database;
     this.name = name;
@@ -16,38 +18,37 @@ const Collection = class Collection {
     if (typeof priority === 'function') {
       [next, priority] = [priority, null];
     }
-    if (typeof next !== 'function') {
-      next = (err) => {
-        if (err) {
-          console.error(err);
-        }
-      };
-    }
-    return this.database.request('ObjectID', false, {
-      _: `${Date.now()}-${Math.random()}`,
-    }, (requestErr, id) => {
-      if (requestErr) {
-        return next(requestErr);
-      }
-      doc._id = id;
-      const ref = this.database.firebase.child(`${this.name}/${id}`);
-      return ref.set(doc, (setErr) => {
-        if (setErr) {
-          return next(setErr);
-        }
-        if (priority) {
-          ref.setPriority(priority);
-        }
-        return this.database.request(`sync/${this.name}/${id}`, {
-          _: Date.now(),
-        }, (err, data) => {
-          if (err) {
-            return next(err);
+    return this.database.request({
+      json: false,
+      params: {
+        _: `${Date.now()}-${Math.random()}`,
+      },
+      resource: 'ObjectID',
+    })
+      .catch(err => next(err))
+      .then((id) => {
+        doc._id = id;
+        const ref = this.database.firebase.child(`${this.name}/${id}`);
+        return ref.set(doc, (setErr) => {
+          if (setErr) {
+            return next(setErr);
           }
-          return next(null, new Document(this, data));
+          if (priority) {
+            ref.setPriority(priority);
+          }
+          return this.database.request({
+            params: {
+              _: Date.now(),
+            },
+            resource: `sync/${this.name}/${id}`,
+          }, (err, data) => {
+            if (err) {
+              return next(err);
+            }
+            return next(null, new Document(this, data));
+          });
         });
       });
-    });
   }
 
   // find()
@@ -64,7 +65,10 @@ const Collection = class Collection {
   find(criteria = null, fields = null, options = null, _next = null) {
     const [query, params, next] = prepareFind(criteria, fields, options, _next);
 
-    return this.database.request(`${this.name}/find`, params, (err, datas) => {
+    return this.database.request({
+      params,
+      resource: `${this.name}/find`,
+    }, (err, datas) => {
       if (err) {
         return next(err);
       }
@@ -79,7 +83,10 @@ const Collection = class Collection {
   findById(id = null, fields = null, options = null, _next = null) {
     const [, params, next] = prepareFind(id, fields, options, _next);
 
-    return this.database.request(`${this.name}/${id}`, params, (err, data) => {
+    return this.database.request({
+      params,
+      resource: `${this.name}/${id}`,
+    }, (err, data) => {
       if (err) {
         return next(err);
       }
@@ -102,7 +109,10 @@ const Collection = class Collection {
   findOne(criteria = null, fields = null, options = null, _next = null) {
     const [query, params, next] = prepareFind(criteria, fields, options, _next);
 
-    return this.database.request(`${this.name}/findOne`, params, (err, data) => {
+    return this.database.request({
+      params,
+      resource: `${this.name}/findOne`,
+    }, (err, data) => {
       if (err) {
         return next(err);
       }
@@ -120,15 +130,7 @@ const Collection = class Collection {
     return this.ref;
   }
 
-  removeById(_id, _next) {
-    let next = _next;
-    if (typeof next !== 'function') {
-      next = (err) => {
-        if (err) {
-          console.error(err);
-        }
-      };
-    }
+  removeById(_id, next) {
     const ref = this.database.firebase.child(`${this.name}/${_id}`);
 
     // store current value
@@ -142,7 +144,9 @@ const Collection = class Collection {
         }
 
         // sync result to mongodb
-        return this.database.request(`sync/${this.name}/${_id}`, (syncErr) => {
+        return this.database.request({
+          resource: `sync/${this.name}/${_id}`,
+        }, (syncErr) => {
           // if sync failed, rollback data
           if (syncErr) {
             return ref.set(oldData, (err) => {
@@ -154,13 +158,13 @@ const Collection = class Collection {
 
             // sync successful
           }
-          return (
-            typeof next === 'function' ? next(null) : undefined
-          );
+          return next(null);
         });
       });
     });
   }
-};
+}
+
+promisifyAll(Collection, { exclude: ['list', 'limit'], singular: true });
 
 export default Collection;
