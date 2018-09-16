@@ -72,7 +72,7 @@ module.exports = {
     /*
       We use Mongo.
     */
-    'no-underscore-dangle': ['error', { allow: ['_id', '_counter'] }],
+    'no-underscore-dangle': ['error', { allow: ['_id', '_counter', '__field', '__single'] }],
     'sort-keys': 'error',
   },
 };
