@@ -37,11 +37,11 @@ export const server = (cfg) => {
     mongodb: mongoDbConfig = {},
     options: {
       blacklist = [],
-      limit_default: limitDefault = 20,
-      limit_max: limitMax = 1000,
-      set_created: setCreated = true,
-      set_last_modified: setLastModified = true,
-      use_objectid: useObjectId = true,
+      limitDefault = 20,
+      limitMax = 1000,
+      setCreated = true,
+      setLastModified = true,
+      useObjectId = true,
     } = {},
     root = '/api',
   } = cfg;
