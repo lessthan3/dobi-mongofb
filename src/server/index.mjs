@@ -33,7 +33,7 @@ export const server = (cfg) => {
       redisUri = 'localhost',
     } = {},
     firebase = {},
-    hooks = [],
+    hooks = {},
     mongodb: mongoDbConfig = {},
     options: {
       blacklist = [],

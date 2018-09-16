@@ -1,9 +1,10 @@
 import mongodb from 'mongodb';
 import createError from 'http-errors';
 import get from 'lodash/get';
+import trim from 'lodash/trim';
 import { hook } from '../helpers';
 
-const skipKeys = ['__field', '__single', 'fields', 'limit', 'skip', 'sort'];
+const skipKeys = ['_', '__field', '__single', 'fields', 'limit', 'skip', 'sort'];
 
 const parseJsonEncodedParams = req => ['criteria', 'fields', 'options'].reduce((obj, key) => {
   try {
@@ -83,7 +84,7 @@ const find = async ({
   } = req;
 
   // parse db args
-  const { criteria, fields, options } = (reqCriteria || reqOptions)
+  let { criteria, fields, options } = (reqCriteria || reqOptions)
     // use JSON encoded parameters
     ? parseJsonEncodedParams(req)
     // simple http queries
@@ -92,8 +93,9 @@ const find = async ({
   // fields got moved into options for v3+ mongo
   options.projection = Object.keys(fields).length ? fields : undefined;
 
-  // apply forceSingle, limitDefault, than limitMax
-  options.limit = forceSingle ? 1 : (options.limit || limitDefault);
+  // apply limitDefault, forceSingle, than limitMax
+  options.limit = Number.isInteger(options.limit) ? options.limit : limitDefault;
+  options.limit = forceSingle ? 1 : options.limit;
   options.limit = limitMax && options.limit
     ? Math.min(options.limit, limitMax)
     : options.limit;
@@ -128,33 +130,39 @@ const find = async ({
   }
 
   // hooks
-  hook({
+  ({ criteria, fields, options } = hook({
     hooks,
     method: 'find',
     req,
     time: 'before',
-  }, [criteria, options]);
+  }, [criteria, fields, options]));
 
-  let docs = await req.db.collection(collection).find(criteria, options).toArray();
-  for (const doc of docs) {
+  let docs = [];
+  try {
+    docs = await req.db.collection(collection).find(criteria, options).toArray();
+  } catch (err) {
+    throw createError(400, err.toString());
+  }
+
+  docs = docs.map(doc => (
     hook({
       hooks,
       method: 'find',
       req,
       time: 'after',
-    }, doc);
-  }
+    }, doc)
+  ));
 
   // special options (mainly for use by findByID and findOne)
-  const overrideFields = __field ? decodeURIComponent(__field).replace(/\//g, '.') : undefined;
-  if (overrideFields) {
-    docs = docs.map(doc => get(doc, overrideFields));
+  if (__field) {
+    const overrideFields = decodeURIComponent(__field).replace(/\//g, '.');
+    docs = docs.map(doc => get(doc, trim(overrideFields, '.')));
   }
   if (forceSingle) {
     if (docs.length === 0) {
       throw createError(400);
     }
-    [docs] = docs;
+    return docs[0];
   }
   return docs;
 };

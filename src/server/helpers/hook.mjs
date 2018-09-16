@@ -12,14 +12,13 @@ import get from 'lodash/get';
 export default ({
   hooks, method, req, time,
 }, args) => {
-  let fn;
   const { collection } = req.params;
-  fn = get(hooks, [collection, time, method]);
+  const fn = get(hooks, [collection, time, method]);
   if (fn && typeof fn === 'function') {
     if (!Array.isArray(args)) {
-      return fn.apply(req, [args]);
+      return fn.apply(null, [req, args]);
     }
-    return fn.apply(req, args);
+    return fn.apply(null, [req, ...args]);
   }
   return args;
 };
