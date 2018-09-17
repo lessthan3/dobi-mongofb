@@ -61,7 +61,7 @@ export const server = (cfg) => {
   // connect to firebase and mongodb
   connect({
     firebase: firebaseConfig,
-    mongdb: mongoDbConfig,
+    mongodb: mongoDbConfig,
   });
 
   const auth = authHelper(firebaseConfig);
