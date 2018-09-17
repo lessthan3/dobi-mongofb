@@ -84,14 +84,11 @@ const find = async ({
   } = req;
 
   // parse db args
-  let { criteria, fields, options } = (reqCriteria || reqOptions)
+  const { criteria, fields, options } = (reqCriteria || reqOptions)
     // use JSON encoded parameters
     ? parseJsonEncodedParams(req)
     // simple http queries
     : parseSimpleHttpParams(req);
-
-  // fields got moved into options for v3+ mongo
-  options.projection = Object.keys(fields).length ? fields : undefined;
 
   // apply limitDefault, forceSingle, than limitMax
   options.limit = Number.isInteger(options.limit) ? options.limit : limitDefault;
@@ -130,16 +127,19 @@ const find = async ({
   }
 
   // hooks
-  ({ criteria, fields, options } = hook({
+  const [hookedCriteria, hookedFields, hookedOptions] = hook({
     hooks,
     method: 'find',
     req,
     time: 'before',
-  }, [criteria, fields, options]));
+  }, [criteria, fields, options]);
+
+  // fields got moved into options for v3+ mongo
+  hookedOptions.projection = Object.keys(hookedFields).length ? hookedFields : undefined;
 
   let docs = [];
   try {
-    docs = await req.db.collection(collection).find(criteria, options).toArray();
+    docs = await req.db.collection(collection).find(hookedCriteria, hookedOptions).toArray();
   } catch (err) {
     throw createError(400, err.toString());
   }

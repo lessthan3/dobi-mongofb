@@ -75,13 +75,13 @@ export default ({
     doc._id = qry._id;
     const opt = { upsert: true };
     await dbCollection.updateOne(qry, { $set: doc }, opt);
-    hook({
+    const transformedDoc = hook({
       hooks,
       method: 'find',
       req,
       time: 'after',
     }, doc);
-    return res.send(doc);
+    return res.send(transformedDoc);
   }
 
   // remove
