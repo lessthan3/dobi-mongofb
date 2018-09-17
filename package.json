@@ -4,40 +4,57 @@
     "email": "ari@maestro.io"
   },
   "scripts": {
-    "prepare": "npm run compile",
-    "prepublishOnly": "npm run compile",
-    "compile": "coffee --compile --output lib/ src/",
-    "test": "npm run compile ; coffee test/app.coffee"
+    "build": "NODE_ENV=production webpack; babel src -d lib;",
+    "format": "eslint . --ext js,mjs --fix",
+    "lint": "eslint . --ext js,mjs",
+    "prepublishOnly": "NODE_ENV=production npm run build",
+    "test": "npm run build; node --experimental-modules test/app.mjs",
+    "watch": "nodemon"
   },
   "devDependencies": {
-    "async": "2.0.1",
+    "@babel/cli": "7.0.0",
+    "@babel/core": "7.0.0",
+    "@babel/plugin-transform-runtime": "7.0.0",
+    "@babel/polyfill": "^7.0.0",
+    "@babel/preset-env": "7.0.0",
+    "babel-core": "7.0.0-bridge.0",
+    "babel-loader": "8.0.2",
+    "babel-plugin-module-resolver": "3.1.1",
     "body-parser": "1.6.x",
-    "coffee-script": "1.10.0",
-    "teacup": "^2.0.0"
+    "clean-webpack-plugin": "^0.1.19",
+    "eslint": "^5.3.0",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-plugin-import": "^2.14.0",
+    "morgan": "^1.9.1",
+    "nodemon": "^1.18.4",
+    "uglifyjs-webpack-plugin": "^1.2.5",
+    "unminified-webpack-plugin": "^2.0.0",
+    "webpack": "^4.10.1",
+    "webpack-cli": "^2.1.4"
   },
   "dependencies": {
-    "connect-assets": "^5.4.0",
-    "deepmerge": "2.0.1",
-    "dobi-asset-wrap": "2.0.x",
+    "@babel/runtime": "^7.0.0",
+    "@google-cloud/promisify": "^0.3.1",
+    "axios": "^0.18.0",
+    "dobi-cache-2": "^3.0.8",
     "express": "4.16.x",
     "firebase": "2.2.9",
     "firebase-token-generator": "2.0.0",
+    "http-errors": "^1.7.1",
     "jwt-simple": "0.5.x",
-    "lru-cache": "2.5.x",
-    "mongodb": "2.2.x",
-    "node.extend": "2.0.0",
-    "request": "2.81.x"
+    "lodash": "^4.17.11",
+    "mongodb": "3.1.4"
   },
   "description": "Dobi Mongo Firebase",
   "license": "MIT",
-  "main": "./lib/server",
+  "main": "lib/server",
   "name": "dobi-mongofb",
   "repository": {
     "type": "git",
     "url": "git://github.com/lessthan3/dobi-mongofb.git"
   },
   "engines": {
-    "node": ">= 6.11.x"
+    "node": ">= 10"
   },
-  "version": "1.3.6"
+  "version": "3.0.10"
 }
