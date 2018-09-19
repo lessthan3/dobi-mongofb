@@ -32,7 +32,7 @@ class DocumentRef extends EventEmitter {
       }
     }
 
-    this.ref = this.database.firebase.child(this.key);
+    this.ref = this.database.firebase.database().ref(this.key);
   }
 
   log(...args) {
@@ -100,7 +100,7 @@ class DocumentRef extends EventEmitter {
 
   set(value, next) {
     // if specific fields were queried for, only allow those to be updated
-    if (this.database.safe_writes) {
+    if (this.database.safeWrites) {
       let allow = true;
       if (this.document.query.fields) {
         const keys = Object.keys(this.document.query.fields);
@@ -114,21 +114,15 @@ class DocumentRef extends EventEmitter {
       }
     }
 
-    const ref = this.database.firebase.child(this.key);
-    return ref.set(value, (err) => {
-      if (err) {
-        return next(err);
-      }
-      return this.database.request({
-        resource: `sync/${this.key}`,
-      }, (syncErr) => {
-        if (syncErr) {
-          return next(syncErr);
-        }
+    const ref = this.database.firebase.database().ref(this.key);
+    return ref.set(value)
+      .then(async () => {
+        await this.database.request({
+          resource: `sync/${this.key}`,
+        });
         this.updateData(value);
-        return next();
-      });
-    });
+      })
+      .catch(err => next(err));
   }
 
   // @data = what we got from mongodb or what was already updated here

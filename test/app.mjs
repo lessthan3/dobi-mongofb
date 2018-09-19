@@ -1,10 +1,20 @@
 import bodyParser from 'body-parser';
-import config from '/u/config/test-config';
 import express from 'express';
 import fs from 'fs';
 import morgan from 'morgan';
+import * as env from 'strict-env';
 import mongofb from '../lib/server';
 import dirname from './dirname';
+
+const API_KEY = env.get('API_KEY', env.string);
+const CREDENTIAL = env.get('CREDENTIAL', (str) => {
+  const obj = JSON.parse(str);
+  return {
+    ...obj,
+    private_key: obj.private_key.replace(/\\n/g, '\n'),
+  };
+});
+const DATABASE_URL = env.get('DATABASE_URL', env.string);
 
 // eslint-disable-next-line no-console
 const log = (...args) => console.log(args);
@@ -38,8 +48,9 @@ copyFile(() => {
         maxAge: 1000 * 60 * 5,
       },
       firebase: {
-        secret: config.firebase.secret,
-        url: config.firebase.url,
+        apiKey: API_KEY,
+        credential: CREDENTIAL,
+        databaseURL: DATABASE_URL,
       },
       mongodb: {
         db: 'test',

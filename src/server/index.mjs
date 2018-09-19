@@ -1,6 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 
 // dependencies
+import assert from 'assert';
 import express from 'express';
 import mongodb from 'mongodb';
 import Cache from 'dobi-cache-2';
@@ -13,7 +14,8 @@ import {
   sync,
 } from './routes';
 import {
-  auth as authHelper,
+  AdminTokenGenerator,
+  auth,
   connect,
   hasPermission as hasPermissionHelper,
 } from './helpers';
@@ -23,8 +25,29 @@ import * as mongoFbClient from '../client';
 export const client = mongoFbClient;
 export const { ObjectID } = mongodb;
 
-// exports
-export const server = (cfg) => {
+/**
+ *
+ * @param {Object} config
+ * @param {Object} config.cache
+ * @param {boolean} config.cache.enabled=true
+ * @param {number} config.cache.max=100
+ * @param {string} config.cache.redisUri=localhost
+ * @param {Object} config.firebase
+ * @param {string} config.firebase.apiKey
+ * @param {Object} config.firebase.credential
+ * @param {string} config.firebase.databaseURL
+ * @param {Object} config.hooks
+ * @param {Object} config.mongodb
+ * @param {Object} config.options
+ * @param {string[]} config.options.blacklist=[] array of blocked collections
+ * @param {number} config.options.limitDefault=20 default limit of query response
+ * @param {number} config.options.limitMax=1000 max returned results
+ * @param {boolean} config.options.setCreated=true
+ * @param {boolean} config.options.setLastModified=true
+ * @param {boolean} config.options.useObjectId=true
+ * @param {string} config.root='/api' endpoint root
+ */
+export const server = (config) => {
   // configuration
   const {
     cache: {
@@ -32,7 +55,7 @@ export const server = (cfg) => {
       max = 100,
       redisUri = 'localhost',
     } = {},
-    firebase = {},
+    firebase: firebaseConfig = {},
     hooks = {},
     mongodb: mongoDbConfig = {},
     options: {
@@ -44,13 +67,11 @@ export const server = (cfg) => {
       useObjectId = true,
     } = {},
     root = '/api',
-  } = cfg;
+  } = config;
 
-  const firebaseConfig = {
-    secret: null,
-    url: 'https://shining-fire-369.firebaseio.com/',
-    ...firebase,
-  };
+  assert(firebaseConfig.credential, 'firebase.credential required in config');
+
+  const adminTokenGenerator = new AdminTokenGenerator(firebaseConfig.credential);
 
   const { cache } = new Cache({
     enabled,
@@ -64,8 +85,7 @@ export const server = (cfg) => {
     mongodb: mongoDbConfig,
   });
 
-  const auth = authHelper(firebaseConfig);
-  const hasPermission = hasPermissionHelper({ blacklist, firebaseConfig });
+  const hasPermission = hasPermissionHelper(blacklist);
 
   // build routes
   const router = express.Router();
@@ -118,19 +138,27 @@ export const server = (cfg) => {
 
   // middleware
   return async (req, res, next) => {
-    const { db, fb } = await connect({
+    const { db, fbAdmin } = await connect({
       firebase: firebaseConfig,
       mongodb: mongoDbConfig,
     });
 
+    req.generateAdminToken = adminTokenGenerator.get.bind(adminTokenGenerator);
     req.db = db;
-    req.fb = fb;
+    req.fbAdmin = fbAdmin;
     req.mongofb = new mongoFbClient.Database({
-      firebase: firebaseConfig.url,
-      server: `http://${req.get('host')}${root}`,
+      api: root,
+      fbConfig: {
+        apiKey: firebaseConfig.apiKey,
+        databaseURL: firebaseConfig.databaseURL,
+      },
     });
 
     // execute routes
     return router.handle(req, res, next);
   };
+};
+
+export default {
+  server,
 };

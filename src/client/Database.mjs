@@ -1,23 +1,50 @@
 import { promisifyAll } from '@google-cloud/promisify';
-import Firebase from 'firebase';
+import firebase from 'firebase/app';
+import 'firebase/database';
+import 'firebase/auth';
 import Collection from './Collection';
 import fetch from './fetch';
 
 class Database {
-  constructor(cfg) {
-    this.cache = true;
-    this.safe_writes = true;
-    if (typeof cfg === 'string') {
-      this.api = cfg;
-      this.request({
-        json: false,
-        resource: 'Firebase',
-      }, (url) => {
-        this.firebase = new Firebase(url);
-      });
+  /**
+   * @param {Object} params
+   * @param {string} params.api
+   * @param {boolean} params.cache
+   * @param {Object} params.fbConfig
+   * @param {string} params.fbConfig.apiKey
+   * @param {string} params.fbConfig.databaseURL
+   * @param {string} params.persistence
+   * @param {boolean} params.safeWrites
+   */
+  constructor({
+    api,
+    cache = true,
+    fbConfig: {
+      apiKey,
+      databaseURL,
+    },
+    persistence,
+    safeWrites = true,
+  }) {
+    if (persistence && !['local', 'session', 'none'].includes(persistence)) {
+      console.warn(`invalid persistence value: ${persistence}.`);
+      this.persistence = 'local';
+    } else if (persistence) {
+      this.persistence = persistence;
+    }
+
+    this.api = api;
+    this.cache = cache;
+    this.safeWrites = safeWrites;
+    if (Database.fbCache) {
+      this.firebase = Database.fbCache;
     } else {
-      this.api = cfg.server;
-      this.firebase = new Firebase(cfg.firebase);
+      firebase.initializeApp({
+        apiKey,
+        databaseURL,
+      });
+      this.firebase = firebase;
+      Database.fbCache = firebase;
     }
   }
 
@@ -62,17 +89,34 @@ class Database {
       .catch(err => next(err));
   }
 
+  setPersistence(next) {
+    if (this.persistence) {
+      const val = this.firebase.auth.Auth.Persistence[this.persistence.toUpperCase()];
+      return this.firebase.auth().setPersistence(val)
+        .then(() => next())
+        .catch(err => next(err));
+    }
+    return next();
+  }
+
   auth(token, next) {
-    return this.firebase.authWithCustomToken(token, () => {
-      this.token = token;
-      return next();
-    });
+    this.setPersistence()
+      .then(() => {
+        this.firebase.auth().signInWithCustomToken(token)
+          .then(() => {
+            this.token = token;
+            return next();
+          });
+      })
+      .catch(err => next(err));
   }
 
   setToken(token) {
     this.token = token;
   }
 }
+
+Database.fbCache = null;
 
 promisifyAll(Database, {
   exclude: ['collection', 'get', 'setToken'],

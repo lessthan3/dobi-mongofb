@@ -1,16 +1,13 @@
 
-// helpers
-import jwt from 'jwt-simple';
-
-export default firebaseConfig => (req, res, next) => {
+export default async (req, res, next) => {
   const token = req.query.token || req.body.token;
   if (token) {
     try {
-      const payload = jwt.decode(token, firebaseConfig.secret);
-      req.user = payload.d;
-      req.admin = payload.admin;
+      const { admin, user } = await req.fbAdmin.auth().verifyIdToken(token);
+      req.user = user;
+      req.admin = admin;
     } catch (authErr) {
-      req.token_parse_error = authErr;
+      req.tokenParseError = authErr;
     }
   }
   if (next) {

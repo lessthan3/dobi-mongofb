@@ -18,37 +18,32 @@ class Collection {
     if (typeof priority === 'function') {
       [next, priority] = [priority, null];
     }
-    return this.database.request({
+    this.database.request({
       json: false,
       params: {
         _: `${Date.now()}-${Math.random()}`,
       },
       resource: 'ObjectID',
     })
-      .catch(err => next(err))
-      .then((id) => {
+      .then(async (id) => {
         doc._id = id;
-        const ref = this.database.firebase.child(`${this.name}/${id}`);
-        return ref.set(doc, (setErr) => {
-          if (setErr) {
-            return next(setErr);
-          }
-          if (priority) {
-            ref.setPriority(priority);
-          }
-          return this.database.request({
-            params: {
-              _: Date.now(),
-            },
-            resource: `sync/${this.name}/${id}`,
-          }, (err, data) => {
-            if (err) {
-              return next(err);
-            }
-            return next(null, new Document(this, data));
-          });
+        const ref = this.database.firebase.database().ref(`${this.name}/${id}`);
+        await ref.set(doc);
+        if (priority) {
+          await ref.setPriority(priority);
+        }
+        return id;
+      })
+      .then(async (id) => {
+        const data = await this.database.request({
+          params: {
+            _: Date.now(),
+          },
+          resource: `sync/${this.name}/${id}`,
         });
-      });
+        return next(null, new Document(this, data));
+      })
+      .catch(err => next(err));
   }
 
   // find()
@@ -65,19 +60,17 @@ class Collection {
   find(criteria = null, fields = null, options = null, _next = null) {
     const [query, params, next] = prepareFind(criteria, fields, options, _next);
 
-    return this.database.request({
+    this.database.request({
       params,
       resource: `${this.name}/find`,
-    }, (err, datas) => {
-      if (err) {
-        return next(err);
-      }
-      const output = [];
-      for (const data of datas) {
-        output.push(new Document(this, data, query));
-      }
-      return next(null, output);
-    });
+    })
+      .then((datas) => {
+        const output = datas.map(data => (
+          new Document(this, data, query)
+        ));
+        next(null, output);
+      })
+      .catch(err => next(err));
   }
 
   findById(id = null, fields = null, options = null, _next = null) {
@@ -86,15 +79,12 @@ class Collection {
     return this.database.request({
       params,
       resource: `${this.name}/${id}`,
-    }, (err, data) => {
-      if (err) {
-        return next(err);
-      }
-      if (!data) {
-        return next(null, null);
-      }
-      return next(null, new Document(this, data));
-    });
+    })
+      .then((data) => {
+        const doc = data ? new Document(this, data) : null;
+        return next(null, doc);
+      })
+      .catch(err => next(err));
   }
 
   // findOne()
@@ -112,26 +102,20 @@ class Collection {
     return this.database.request({
       params,
       resource: `${this.name}/findOne`,
-    }, (err, data) => {
-      if (err) {
-        return next(err);
-      }
-      if (!data) {
-        return next(null, null);
-      }
-      return next(null, new Document(this, data, query));
-    });
+    })
+      .then((data) => {
+        const doc = data ? new Document(this, data, query) : null;
+        return next(null, doc);
+      })
+      .catch(err => next(err));
   }
 
-  list(priority, _limit) {
-    const limit = _limit == null ? 1 : _limit;
-    this.ref.endAt(priority);
-    this.ref.limit(limit);
-    return this.ref;
+  list(priority, limit) {
+    return this.ref.limitToFirst(limit == null ? 1 : limit).endAt(priority);
   }
 
   removeById(_id, next) {
-    const ref = this.database.firebase.child(`${this.name}/${_id}`);
+    const ref = this.database.firebase.database().ref(`${this.name}/${_id}`);
 
     // store current value
     return ref.once('value', (snapshot) => {

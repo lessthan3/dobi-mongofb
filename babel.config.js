@@ -10,6 +10,10 @@ const BABEL_PRESET_ENV_CONFIG = {
 };
 
 module.exports = {
+  ignore: [
+    '**/?(*.)(spec|test).js',
+    '**/babel.config.js',
+  ],
   plugins: [
     [
       '@babel/plugin-transform-runtime',

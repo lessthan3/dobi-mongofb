@@ -1,3 +1,4 @@
+export { default as AdminTokenGenerator } from './adminTokenGenerator';
 export { default as asyncWrapper } from './asyncWrapper';
 export { default as auth } from './auth';
 export { default as connect } from './connect';

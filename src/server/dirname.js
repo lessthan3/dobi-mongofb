@@ -1,5 +1,3 @@
 'use strict';
 
-module.exports = {
-  dirname: __dirname,
-};
+module.exports = __dirname;

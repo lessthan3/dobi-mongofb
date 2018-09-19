@@ -4,8 +4,11 @@
     ref;
 
   window.db = new mongofb.Database({
-    server: '/api/v1',
-    firebase: 'https://shining-fire-369.firebaseio.com',
+    api: '/api/v1',
+    fbConfig: {
+      apiKey: 'AIzaSyDVb0dlomlJx3de1OdEpfSn9doVJ9dhMTc',
+      databaseURL: 'https://shining-fire-369.firebaseio.com',
+    },
   });
 
   window.app = {};

@@ -5,15 +5,19 @@ class CollectionRef extends EventEmitter {
     super();
     this.collection = collection;
     this.database = this.collection.database;
-    this.ref = this.database.firebase.child(this.collection.name);
+    this.ref = this.database.firebase.database().ref(this.collection.name);
   }
 
   endAt(priority) {
     this.ref = this.ref.endAt(priority);
   }
 
-  limit(num) {
-    this.ref = this.ref.limit(num);
+  limitToFirst(num) {
+    this.ref = this.ref.limitToFirst(num);
+  }
+
+  limitToLast(num) {
+    this.ref = this.ref.limitToLast(num);
   }
 
   startAt(priority) {

@@ -6,22 +6,12 @@
 // db.collection.remove
 // the format is /sync/:collection/:id and not /:collection/:sync/:id to
 // match firebase urls. the key in firebase is /:collection/:id
-import { ObjectID } from 'mongodb';
-import { handleError, hook } from '../helpers';
+import mongodb from 'mongodb';
+import { asyncWrapper, handleError, hook } from '../helpers';
 
-const asyncOnceValue = ref => new Promise(resolve => (
-  ref.once('value', snapshot => resolve(snapshot))
-));
+const { ObjectID } = mongodb;
 
-/**
- * @param {Object} params
- * @param {Function} params.hasPermission
- * @param {Object} params.hooks
- * @param {boolean} params.setCreated
- * @param {boolean} params.setLastModified
- * @param {boolean} params.useObjectId
- */
-export default ({
+const sync = ({
   hasPermission,
   hooks,
   setCreated,
@@ -30,7 +20,7 @@ export default ({
 }) => async (req, res) => {
   const {
     db,
-    fb,
+    fbAdmin,
     params: {
       collection,
       id,
@@ -40,8 +30,8 @@ export default ({
   const dbCollection = db.collection(collection);
 
   // get data
-  const ref = fb.child(`${collection}/${id}`);
-  const snapshot = await asyncOnceValue(ref);
+  const ref = fbAdmin.ref(`${collection}/${id}`);
+  const snapshot = await ref.once('value');
   const doc = snapshot.val();
 
   let qry;
@@ -73,8 +63,7 @@ export default ({
     }
 
     doc._id = qry._id;
-    const opt = { upsert: true };
-    await dbCollection.updateOne(qry, { $set: doc }, opt);
+    await dbCollection.updateOne(qry, { $set: doc }, { upsert: true });
     const transformedDoc = hook({
       hooks,
       method: 'find',
@@ -88,3 +77,14 @@ export default ({
   await dbCollection.removeOne(qry);
   return res.sendStatus(200);
 };
+
+
+/**
+ * @param {Object} params
+ * @param {Function} params.hasPermission
+ * @param {Object} params.hooks
+ * @param {boolean} params.setCreated
+ * @param {boolean} params.setLastModified
+ * @param {boolean} params.useObjectId
+ */
+export default params => asyncWrapper(sync(params));

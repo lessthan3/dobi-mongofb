@@ -2,6 +2,7 @@
   "ignore": [
     "dist",
     "lib",
+    "server/tester.mjs",
     "test/assets/js/client.js"
   ],
   "watch": [

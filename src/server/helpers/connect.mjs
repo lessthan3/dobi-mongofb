@@ -1,11 +1,8 @@
 import mongodb from 'mongodb';
-import Firebase from 'firebase';
-import FirebaseTokenGenerator from 'firebase-token-generator';
-import util from 'util';
+import admin from 'firebase-admin';
+import assert from 'assert';
 
-const { promisify } = util;
-
-let fb = null;
+let fbAdmin = null;
 let db = null;
 
 const defaultMongoConfig = {
@@ -23,17 +20,7 @@ const defaultMongoConfig = {
   user: 'testUser',
 };
 
-export default async ({
-  mongodb: mongoDbConfig = {},
-  firebase: {
-    secret: firebaseSecret,
-    url: firebaseUrl,
-  } = {},
-}) => {
-  if (db && fb) {
-    return { db, fb };
-  }
-
+const connectMongo = async (mongoDbConfig = {}) => {
   const {
     db: database,
     host,
@@ -52,21 +39,29 @@ export default async ({
 
   const url = `mongodb://${user}:${pass}@${host}:${port}/${database}`.replace(':@', '@');
   const mongoClient = await mongodb.MongoClient.connect(url, options);
+  return mongoClient.db(database);
+};
 
-  db = mongoClient.db(database);
-  db.ObjectID = mongodb.ObjectID;
-  fb = new Firebase(firebaseUrl);
-  const asyncAuth = promisify(fb.authWithCustomToken);
-  if (firebaseSecret) {
-    const tokenGenerator = new FirebaseTokenGenerator(firebaseSecret);
-    const token = tokenGenerator.createToken({}, {
-      admin: true,
-      expires: Date.now() + (1000 * 60 * 60 * 24 * 30),
-    });
-    await asyncAuth.apply(fb, [token]);
-
-    fb.admin_token = token;
-    return { db, fb };
+export default async ({
+  mongodb: mongoDbConfig = {},
+  firebase: {
+    credential,
+    databaseURL,
+  } = {},
+}) => {
+  if (db && fbAdmin) {
+    return { db, fbAdmin };
   }
-  return { db, fb };
+  assert(credential, 'firebase credential required in config');
+
+  db = await connectMongo(mongoDbConfig);
+  db.ObjectID = mongodb.ObjectID;
+
+  admin.initializeApp({
+    credential: admin.credential.cert(credential),
+    databaseURL,
+  });
+  fbAdmin = admin.database();
+
+  return { db, fbAdmin };
 };

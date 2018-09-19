@@ -1,6 +1,6 @@
 import fs from 'fs';
 import { contentType, handleError } from '../helpers';
-import { dirname } from '../dirname';
+import dirname from '../dirname';
 
 /**
  * @param {Object} params.
