@@ -10,16 +10,16 @@ class Database {
    * @param {Object} params
    * @param {string} params.api
    * @param {boolean} params.cache
-   * @param {Object} params.fbConfig
-   * @param {string} params.fbConfig.apiKey
-   * @param {string} params.fbConfig.databaseURL
+   * @param {Object} params.firebase
+   * @param {string} params.firebase.apiKey
+   * @param {string} params.firebase.databaseURL
    * @param {string} params.persistence
    * @param {boolean} params.safeWrites
    */
   constructor({
     api,
     cache = true,
-    fbConfig: {
+    firebase: {
       apiKey,
       databaseURL,
     },

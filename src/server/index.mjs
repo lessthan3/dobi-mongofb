@@ -148,7 +148,7 @@ export const server = (config) => {
     req.fbAdmin = fbAdmin;
     req.mongofb = new mongoFbClient.Database({
       api: root,
-      fbConfig: {
+      firebase: {
         apiKey: firebaseConfig.apiKey,
         databaseURL: firebaseConfig.databaseURL,
       },
