@@ -5,7 +5,10 @@
 
   window.db = new mongofb.Database({
     api: '/api/v1',
-    fbConfig: {
+    cache: {
+      enabled: false,
+    },
+    firebase: {
       apiKey: 'AIzaSyDVb0dlomlJx3de1OdEpfSn9doVJ9dhMTc',
       databaseURL: 'https://shining-fire-369.firebaseio.com',
     },

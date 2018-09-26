@@ -15,7 +15,7 @@ import {
 } from './routes';
 import {
   AdminTokenGenerator,
-  auth,
+  authGenerator,
   connect,
   hasPermission as hasPermissionHelper,
 } from './helpers';
@@ -36,6 +36,7 @@ export const { ObjectID } = mongodb;
  * @param {string} config.firebase.apiKey
  * @param {Object} config.firebase.credential
  * @param {string} config.firebase.databaseURL
+ * @param {string} config.firebase.legacySecret
  * @param {Object} config.hooks
  * @param {Object} config.mongodb
  * @param {Object} config.options
@@ -85,7 +86,9 @@ export const server = (config) => {
     mongodb: mongoDbConfig,
   });
 
-  const hasPermission = hasPermissionHelper(blacklist);
+  const auth = authGenerator(firebaseConfig.legacySecret);
+
+  const hasPermission = hasPermissionHelper({ auth, blacklist });
 
   // build routes
   const router = express.Router();

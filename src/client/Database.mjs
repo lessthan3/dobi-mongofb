@@ -22,11 +22,12 @@ class Database {
     firebase: {
       apiKey,
       databaseURL,
-    },
+    } = {},
     persistence,
     safeWrites = true,
   }) {
     if (persistence && !['local', 'session', 'none'].includes(persistence)) {
+      // eslint-disable-next-line no-console
       console.warn(`invalid persistence value: ${persistence}.`);
       this.persistence = 'local';
     } else if (persistence) {
@@ -34,17 +35,20 @@ class Database {
     }
 
     this.api = api;
+    this.apiKey = apiKey;
     this.cache = cache;
+    this.currentUser = null;
+    this.refreshToken = null;
     this.safeWrites = safeWrites;
-    if (Database.fbCache) {
-      this.firebase = Database.fbCache;
+    const key = `dobi-mongofb-${databaseURL}`;
+    if (Database.fbCache[key]) {
+      this.firebase = Database.fbCache[key];
     } else {
-      firebase.initializeApp({
+      this.firebase = firebase.initializeApp({
         apiKey,
         databaseURL,
-      });
-      this.firebase = firebase;
-      Database.fbCache = firebase;
+      }, key);
+      Database.fbCache[key] = this.firebase;
     }
   }
 
@@ -70,14 +74,10 @@ class Database {
    */
   request({
     json = true,
-    params: _params = {},
+    params = {},
     resource = '',
   }, next) {
     const url = `${this.api}/${resource}`;
-    const params = { ..._params };
-    if (this.token) {
-      params.token = this.token;
-    }
     return fetch({
       cache: this.cache,
       json,
@@ -99,27 +99,48 @@ class Database {
     return next();
   }
 
-  auth(token, next) {
+  getRefreshToken() {
+    return this.refreshToken;
+  }
+
+  getIdToken(next) {
+    if (!this.currentUser) {
+      return next('must log in first.');
+    }
+    return this.firebase.auth().currentUser.getIdToken(true)
+      .then(token => next(null, token))
+      .catch(err => next(err));
+  }
+
+  signInWithCustomToken(token, next) {
     this.setPersistence()
-      .then(() => {
+      .then(() => (
         this.firebase.auth().signInWithCustomToken(token)
-          .then(() => {
-            this.token = token;
-            return next();
-          });
+      ))
+      .then(() => (
+        firebase.auth().currentUser.getIdTokenResult(true)
+      ))
+      .then((idTokenResult) => {
+        this.currentUser = idTokenResult;
+        this.refreshToken = firebase.auth().currentUser.refreshToken;
+        return next();
       })
       .catch(err => next(err));
   }
 
-  setToken(token) {
-    this.token = token;
+  signOut(next) {
+    this.currentUser = null;
+    this.refreshToken = null;
+    this.firebase.auth().signOut()
+      .then(() => next())
+      .catch(err => next(err));
   }
 }
 
-Database.fbCache = null;
+Database.fbCache = {};
 
 promisifyAll(Database, {
-  exclude: ['collection', 'get', 'setToken'],
+  exclude: ['collection', 'get', 'getRefreshToken'],
   singular: true,
 });
 
