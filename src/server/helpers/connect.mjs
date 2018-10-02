@@ -49,19 +49,17 @@ export default async ({
     databaseURL,
   } = {},
 }) => {
-  if (db && fbAdmin) {
-    return { db, fbAdmin };
-  }
   assert(credential, 'firebase credential required in config');
-
-  db = await connectMongo(mongoDbConfig);
-  db.ObjectID = mongodb.ObjectID;
-
-  const instance = admin.initializeApp({
-    credential: admin.credential.cert(credential),
-    databaseURL,
-  }, 'dobi-mongofb-admin');
-  fbAdmin = instance.database();
-
+  if (!fbAdmin) {
+    const instance = admin.initializeApp({
+      credential: admin.credential.cert(credential),
+      databaseURL,
+    }, 'dobi-mongofb-admin');
+    fbAdmin = instance.database();
+  }
+  if (!db) {
+    db = await connectMongo(mongoDbConfig);
+    db.ObjectID = mongodb.ObjectID;
+  }
   return { db, fbAdmin };
 };
