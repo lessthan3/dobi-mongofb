@@ -57,11 +57,11 @@ export default async ({
   db = await connectMongo(mongoDbConfig);
   db.ObjectID = mongodb.ObjectID;
 
-  admin.initializeApp({
+  const instance = admin.initializeApp({
     credential: admin.credential.cert(credential),
     databaseURL,
-  });
-  fbAdmin = admin.database();
+  }, 'dobi-mongofb-admin');
+  fbAdmin = instance.database();
 
   return { db, fbAdmin };
 };
