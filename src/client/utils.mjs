@@ -58,7 +58,7 @@ export const prepareFind = (..._args) => {
   // args[2] can be either options or special
 
   // case: special was in args[2]
-  if (options && !special && (options.token || options._)) {
+  if (options && !special && (options.token || options._ || options.idToken)) {
     [special, options] = [options, null];
   }
 
@@ -71,7 +71,7 @@ export const prepareFind = (..._args) => {
 
   // case: special was in args[1]
   if (fields && !special && (
-    fields.token || fields._
+    fields.token || fields._ || fields.idToken
   )) {
     [special, fields] = [fields, null];
   }
@@ -80,11 +80,12 @@ export const prepareFind = (..._args) => {
   const query = { criteria, fields, options };
   const params = jsonify(query);
 
-  if (special && special.token) {
-    params.token = special.token;
-  }
-  if (special && special._) {
-    params._ = special._;
+  if (special) {
+    for (const key of ['_', 'token', 'idToken']) {
+      if (special[key]) {
+        params[key] = special[key];
+      }
+    }
   }
 
   return [query, params, next];

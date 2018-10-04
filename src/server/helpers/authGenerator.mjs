@@ -11,7 +11,7 @@ export default legacySecret => async (req, res, next) => {
       req.user = payload.d;
       req.admin = payload.admin;
     } else if (idToken) {
-      const { admin, user } = await req.fbAdmin.auth().verifyIdToken(idToken);
+      const { admin, user } = await req.fbAdminPrimary.auth().verifyIdToken(idToken);
       req.user = user;
       req.admin = admin;
     }
