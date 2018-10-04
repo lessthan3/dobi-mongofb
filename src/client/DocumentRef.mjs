@@ -1,9 +1,11 @@
-import { promisifyAll } from '@google-cloud/promisify';
+import promisify from '@google-cloud/promisify';
 import set from 'lodash/set';
 import cloneDeep from 'lodash/cloneDeep';
 import some from 'lodash/some';
 import EventEmitter from './EventEmitter';
 import { isEqual, startsWith } from './utils';
+
+const { promisifyAll } = promisify;
 
 class DocumentRef extends EventEmitter {
   constructor(document, path) {

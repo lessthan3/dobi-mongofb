@@ -12,7 +12,7 @@ const EXCLUDE = /node_modules|test/;
 module.exports = {
   devtool: DEV_MODE ? 'eval-source-map' : 'nosources-source-map',
   entry: [
-    path.join(__dirname, 'lib', 'client'),
+    path.join(__dirname, 'src', 'client'),
   ],
   mode: DEV_MODE ? 'development' : 'production',
   module: {
@@ -58,7 +58,6 @@ module.exports = {
   resolve: {
     extensions: ['.js', '.mjs'],
     modules: [
-      path.resolve('lib/mongoFbClient'),
       'node_modules',
     ],
   },

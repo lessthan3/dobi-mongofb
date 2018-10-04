@@ -4,7 +4,7 @@
     "email": "ari@maestro.io"
   },
   "scripts": {
-    "build": "NODE_ENV=production webpack; babel src -d lib;",
+    "build": "NODE_ENV=production babel src -d lib; webpack;",
     "format": "eslint . --ext js,mjs --fix",
     "lint": "eslint . --ext js,mjs",
     "prepublishOnly": "NODE_ENV=production npm run build",
@@ -44,8 +44,8 @@
     "strict-env": "^1.1.0",
     "uglifyjs-webpack-plugin": "^1.2.5",
     "unminified-webpack-plugin": "^2.0.0",
-    "webpack": "^4.10.1",
-    "webpack-cli": "^2.1.4"
+    "webpack": "^4.20.2",
+    "webpack-cli": "^3.1.2"
   },
   "description": "Dobi Mongo Firebase",
   "license": "MIT",
@@ -58,5 +58,5 @@
   "engines": {
     "node": ">= 10"
   },
-  "version": "4.0.11"
+  "version": "4.0.13"
 }
