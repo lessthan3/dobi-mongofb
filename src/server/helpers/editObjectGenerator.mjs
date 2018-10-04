@@ -55,7 +55,7 @@ export default ({
   try {
     // write to firebase shards
     const promises = Object.values(fbAdminShards).map(async fb => (
-      fb.database().ref(`${collection}/${objectId}`).set(value)
+      fb.database().ref(key).set(value)
     ));
     await Promise.all(promises);
   } catch (err) {
