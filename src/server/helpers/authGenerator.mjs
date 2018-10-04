@@ -16,7 +16,7 @@ export default legacySecret => async (req, res, next) => {
       req.admin = admin;
     }
   } catch (authErr) {
-    req.tokenParseError = authErr;
+    return res.status(401).send(`invalid token: ${authErr}`);
   }
   if (next) {
     return next();

@@ -9,8 +9,8 @@
       enabled: false,
     },
     firebase: {
-      apiKey: 'AIzaSyDVb0dlomlJx3de1OdEpfSn9doVJ9dhMTc',
-      databaseURL: 'https://shining-fire-369.firebaseio.com',
+      apiKey: 'AIzaSyBZ7RgxzO3v_GTPD58nC_xjs2n3jfexH0w',
+      databaseURL: 'https://maestro-db-staging.firebaseio.com',
     },
   });
 

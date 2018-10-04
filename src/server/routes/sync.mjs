@@ -7,6 +7,7 @@
 // the format is /sync/:collection/:id and not /:collection/:sync/:id to
 // match firebase urls. the key in firebase is /:collection/:id
 import mongodb from 'mongodb';
+import createError from 'http-errors';
 import { asyncWrapper, handleError, hook } from '../helpers';
 
 const { ObjectID } = mongodb;
@@ -20,17 +21,19 @@ const sync = ({
 }) => async (req, res) => {
   const {
     db,
-    fbAdmin,
+    fbAdminPrimary,
+    fbAdminShards,
     params: {
       collection,
       id,
     },
+    primaryFirebaseShard,
   } = req;
 
   const dbCollection = db.collection(collection);
 
   // get data
-  const ref = fbAdmin.ref(`${collection}/${id}`);
+  const ref = fbAdminPrimary.database().ref(`${collection}/${id}`);
   const snapshot = await ref.once('value');
   const doc = snapshot.val();
 
@@ -63,7 +66,24 @@ const sync = ({
     }
 
     doc._id = qry._id;
-    await dbCollection.updateOne(qry, { $set: doc }, { upsert: true });
+    try {
+      await dbCollection.updateOne(qry, { $set: doc }, { upsert: true });
+    } catch (err) {
+      throw createError(400, 'mongo sync failed');
+    }
+
+    try {
+      const promises = Object.entries(fbAdminShards).map(async ([shard, fbAdmin]) => {
+        if (shard === primaryFirebaseShard) {
+          return;
+        }
+        await fbAdmin.database().ref(`${collection}/${doc._id.toString()}`).set(doc);
+      });
+      await Promise.all(promises);
+    } catch (err) {
+      throw createError(500, 'firebase sync failed');
+    }
+
     const transformedDoc = hook({
       hooks,
       method: 'find',
@@ -74,7 +94,24 @@ const sync = ({
   }
 
   // remove
-  await dbCollection.removeOne(qry);
+  try {
+    await dbCollection.removeOne(qry);
+  } catch (err) {
+    throw createError(400, 'mongo sync failed');
+  }
+
+  try {
+    const promises = Object.entries(fbAdminShards).map(async ([shard, fbAdmin]) => {
+      if (shard === primaryFirebaseShard) {
+        return;
+      }
+      await fbAdmin.database().ref(`${collection}/${doc._id.toString()}`).set(null);
+    });
+    await Promise.all(promises);
+  } catch (err) {
+    throw createError(500, 'firebase sync failed');
+  }
+
   return res.sendStatus(200);
 };
 
