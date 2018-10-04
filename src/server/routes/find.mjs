@@ -59,7 +59,6 @@ const parseSimpleHttpParams = ({
  * @param {number} params.limitMax
  * @param {Object} params.req
  * @param {Object} params.res
- * @param {boolean} params.useObjectId
  * @return {*}
  */
 const find = async ({
@@ -69,7 +68,6 @@ const find = async ({
   limitMax = undefined,
   req,
   res,
-  useObjectId,
 }) => {
   const {
     params: {
@@ -98,18 +96,16 @@ const find = async ({
     : options.limit;
 
   // built-in hooks
-  if (useObjectId) {
-    try {
-      if (criteria._id) {
-        if (typeof criteria._id === 'string') {
-          criteria._id = new mongodb.ObjectID(criteria._id);
-        } else if (criteria._id.$in) {
-          criteria._id.$in = criteria._id.$in.map(id => new mongodb.ObjectID(id));
-        }
+  try {
+    if (criteria._id) {
+      if (typeof criteria._id === 'string') {
+        criteria._id = new mongodb.ObjectID(criteria._id);
+      } else if (criteria._id.$in) {
+        criteria._id.$in = criteria._id.$in.map(id => new mongodb.ObjectID(id));
       }
-    } catch (error) {
-      throw createError(400, 'Invalid ObjectID');
     }
+  } catch (error) {
+    throw createError(400, 'Invalid ObjectID');
   }
 
   // don't allow $where clauses in the criteria
@@ -174,7 +170,6 @@ const find = async ({
  * @param {Object} params.hooks
  * @param {number} params.limitDefault
  * @param {number} params.limitMax
- * @param {boolean} params.useObjectId
  * @return {*}
  */
 export default ({
@@ -183,7 +178,6 @@ export default ({
   hooks,
   limitDefault,
   limitMax,
-  useObjectId,
 }) => (req, res) => cache(async (callback) => {
   try {
     const data = await find({
@@ -193,7 +187,6 @@ export default ({
       limitMax,
       req,
       res,
-      useObjectId,
     });
     return callback(data);
   } catch (err) {

@@ -44,7 +44,6 @@ import {
  * @param {number} config.options.limitMax=1000 max returned results
  * @param {boolean} config.options.setCreated=true
  * @param {boolean} config.options.setLastModified=true
- * @param {boolean} config.options.useObjectId=true
  * @param {string} config.root='/api' endpoint root
  */
 export const server = (config) => {
@@ -65,7 +64,6 @@ export const server = (config) => {
       limitMax = 1000,
       setCreated = true,
       setLastModified = true,
-      useObjectId = true,
     } = {},
     root = '/api',
   } = config;
@@ -114,7 +112,6 @@ export const server = (config) => {
     hooks,
     setCreated,
     setLastModified,
-    useObjectId,
   }));
 
   // db.collection.find
@@ -124,7 +121,6 @@ export const server = (config) => {
     hooks,
     limitDefault,
     limitMax,
-    useObjectId,
   }));
 
   // db.collection.findOne

@@ -17,7 +17,6 @@ const sync = ({
   hooks,
   setCreated,
   setLastModified,
-  useObjectId,
 }) => async (req, res) => {
   const {
     db,
@@ -37,15 +36,12 @@ const sync = ({
   const snapshot = await ref.once('value');
   const doc = snapshot.val();
 
-  let qry;
-
   // convert _id if using ObjectIDs
-  if (useObjectId) {
-    try {
-      qry = { _id: new ObjectID(req.params.id) };
-    } catch (error) {
-      return handleError(res, 'Invalid ObjectID');
-    }
+  let qry;
+  try {
+    qry = { _id: new ObjectID(req.params.id) };
+  } catch (error) {
+    return handleError(res, 'Invalid ObjectID');
   }
 
   // send null if collection in blacklist
@@ -122,6 +118,5 @@ const sync = ({
  * @param {Object} params.hooks
  * @param {boolean} params.setCreated
  * @param {boolean} params.setLastModified
- * @param {boolean} params.useObjectId
  */
 export default params => asyncWrapper(sync(params));
