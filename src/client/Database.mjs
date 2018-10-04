@@ -78,13 +78,33 @@ class Database {
     resource = '',
   }, next) {
     const url = `${this.api}/${resource}`;
-    return fetch({
-      cache: this.cache,
-      json,
-      params,
-      resource,
-      url,
-    })
+
+    const getIdToken = new Promise((resolve) => {
+      if (!this.currentUser) {
+        resolve();
+      }
+      this.getIdToken((err, idToken) => {
+        if (err) {
+          // eslint-disable-next-line
+          console.warn(err);
+          resolve(null);
+        } else {
+          resolve(idToken);
+        }
+      });
+    });
+
+    return getIdToken()
+      .then(idToken => fetch({
+        cache: this.cache,
+        json,
+        params: {
+          ...params,
+          idToken: idToken || undefined,
+        },
+        resource,
+        url,
+      }))
       .then(data => next(null, data))
       .catch(err => next(err));
   }
