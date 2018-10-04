@@ -81,7 +81,7 @@ class Database {
   }, next) {
     const url = `${this.api}/${resource}`;
 
-    const getIdToken = new Promise((resolve) => {
+    const getToken = () => new Promise((resolve) => {
       if (!this.currentUser) {
         resolve();
       }
@@ -96,7 +96,7 @@ class Database {
       });
     });
 
-    return getIdToken()
+    return getToken()
       .then(idToken => fetch({
         cache: this.cache,
         json,
