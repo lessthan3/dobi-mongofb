@@ -4,26 +4,24 @@
 import assert from 'assert';
 import express from 'express';
 import mongodb from 'mongodb';
+import admin from 'firebase-admin';
 import Cache from 'dobi-cache-2';
+
 import {
   find,
   findById,
   findOne,
   fixQueryParameters,
-  getMongoFbScript,
   sync,
 } from './routes';
+
 import {
-  AdminTokenGenerator,
   authGenerator,
-  connect,
+  connectMongo,
+  createObjectGenerator,
+  editObjectGenerator,
   hasPermission as hasPermissionHelper,
 } from './helpers';
-import * as mongoFbClient from '../client';
-
-
-export const client = mongoFbClient;
-export const { ObjectID } = mongodb;
 
 /**
  *
@@ -32,11 +30,12 @@ export const { ObjectID } = mongodb;
  * @param {boolean} config.cache.enabled=true
  * @param {number} config.cache.max=100
  * @param {string} config.cache.redisUri=localhost
- * @param {Object} config.firebase
- * @param {string} config.firebase.apiKey
- * @param {Object} config.firebase.credential
- * @param {string} config.firebase.databaseURL
- * @param {string} config.firebase.legacySecret
+ * @param {Object} config.firebaseShards
+ * @param {string} config.firebaseShards.*.apiKey
+ * @param {Object} config.firebaseShards.*.credential
+ * @param {string} config.firebaseShards.*.databaseURL
+ * @param {string} config.firebaseShards.*.legacySecret
+ * @param {string} config.primaryFirebaseShard
  * @param {Object} config.hooks
  * @param {Object} config.mongodb
  * @param {Object} config.options
@@ -45,7 +44,6 @@ export const { ObjectID } = mongodb;
  * @param {number} config.options.limitMax=1000 max returned results
  * @param {boolean} config.options.setCreated=true
  * @param {boolean} config.options.setLastModified=true
- * @param {boolean} config.options.useObjectId=true
  * @param {string} config.root='/api' endpoint root
  */
 export const server = (config) => {
@@ -56,7 +54,8 @@ export const server = (config) => {
       max = 100,
       redisUri = 'localhost',
     } = {},
-    firebase: firebaseConfig = {},
+    firebaseShards = {},
+    primaryFirebaseShard,
     hooks = {},
     mongodb: mongoDbConfig = {},
     options: {
@@ -65,29 +64,31 @@ export const server = (config) => {
       limitMax = 1000,
       setCreated = true,
       setLastModified = true,
-      useObjectId = true,
     } = {},
     root = '/api',
   } = config;
 
-  assert(firebaseConfig.credential, 'firebase.credential required in config');
+  assert(primaryFirebaseShard, 'primaryFirebaseShard required');
+  assert(firebaseShards[primaryFirebaseShard], 'config for primary firebase required');
+  const primaryFbConfig = firebaseShards[primaryFirebaseShard];
 
-  const adminTokenGenerator = new AdminTokenGenerator(firebaseConfig.credential);
+  // create fb admin shards
+  const fbAdminShards = {};
+  for (const [shard, { credential, databaseURL }] of Object.entries(firebaseShards)) {
+    fbAdminShards[shard] = admin.initializeApp({
+      credential: admin.credential.cert(credential),
+      databaseURL,
+    }, `dobi-mongofb-admin-${shard}`);
+  }
 
+  // create cache
   const { cache } = new Cache({
     enabled,
     lruMaxItems: max,
     redisUri,
   });
 
-  // connect to firebase and mongodb
-  connect({
-    firebase: firebaseConfig,
-    mongodb: mongoDbConfig,
-  });
-
-  const auth = authGenerator(firebaseConfig.legacySecret);
-
+  const auth = authGenerator(primaryFbConfig.legacySecret);
   const hasPermission = hasPermissionHelper({ auth, blacklist });
 
   // build routes
@@ -95,14 +96,6 @@ export const server = (config) => {
 
   // fix query parameters
   router.use(`${root}/*`, fixQueryParameters);
-
-  // mongoFbClient javascript
-  router.get(`${root}/mongofb.js`, getMongoFbScript({ cache, minified: false }));
-  router.get(`${root}/mongofb.min.js`, getMongoFbScript({ cache, minified: true }));
-
-  // firebase url
-  router.get(`${root}/Firebase`, (req, res) => res.send(firebaseConfig.url));
-
 
   // ObjectID for creating documents
   router.get(`${root}/ObjectID`, (req, res) => res.send(mongodb.ObjectID().toString()));
@@ -119,7 +112,6 @@ export const server = (config) => {
     hooks,
     setCreated,
     setLastModified,
-    useObjectId,
   }));
 
   // db.collection.find
@@ -129,7 +121,6 @@ export const server = (config) => {
     hooks,
     limitDefault,
     limitMax,
-    useObjectId,
   }));
 
   // db.collection.findOne
@@ -141,27 +132,19 @@ export const server = (config) => {
 
   // middleware
   return async (req, res, next) => {
-    const { db, fbAdmin } = await connect({
-      firebase: firebaseConfig,
-      mongodb: mongoDbConfig,
-    });
-
-    req.generateAdminToken = adminTokenGenerator.get.bind(adminTokenGenerator);
+    const db = await connectMongo(mongoDbConfig);
     req.db = db;
-    req.fbAdmin = fbAdmin;
-    req.mongofb = new mongoFbClient.Database({
-      api: root,
-      firebase: {
-        apiKey: firebaseConfig.apiKey,
-        databaseURL: firebaseConfig.databaseURL,
-      },
-    });
+    req.primaryFirebaseShard = primaryFirebaseShard;
+    req.fbAdminPrimary = fbAdminShards[primaryFirebaseShard];
+    req.fbAdminShards = fbAdminShards;
+    req.mongoFbAdmin = {
+      createObject: createObjectGenerator({ db, fbAdminShards }),
+      editObject: editObjectGenerator({ db, fbAdminShards }),
+    };
 
     // execute routes
     return router.handle(req, res, next);
   };
 };
 
-export default {
-  server,
-};
+export default { server };

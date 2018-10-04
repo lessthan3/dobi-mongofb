@@ -1,8 +1,5 @@
 import mongodb from 'mongodb';
-import admin from 'firebase-admin';
-import assert from 'assert';
 
-let fbAdmin = null;
 let db = null;
 
 const defaultMongoConfig = {
@@ -42,24 +39,10 @@ const connectMongo = async (mongoDbConfig = {}) => {
   return mongoClient.db(database);
 };
 
-export default async ({
-  mongodb: mongoDbConfig = {},
-  firebase: {
-    credential,
-    databaseURL,
-  } = {},
-}) => {
-  assert(credential, 'firebase credential required in config');
-  if (!fbAdmin) {
-    const instance = admin.initializeApp({
-      credential: admin.credential.cert(credential),
-      databaseURL,
-    }, 'dobi-mongofb-admin');
-    fbAdmin = instance.database();
-  }
+export default async (mongoDbConfig = {}) => {
   if (!db) {
     db = await connectMongo(mongoDbConfig);
     db.ObjectID = mongodb.ObjectID;
   }
-  return { db, fbAdmin };
+  return db;
 };

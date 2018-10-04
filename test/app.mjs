@@ -15,6 +15,7 @@ const CREDENTIAL = env.get('CREDENTIAL', (str) => {
   };
 });
 const DATABASE_URL = env.get('DATABASE_URL', env.string);
+const LEGACY_SECRET = env.get('LEGACY_SECRET', env.string);
 
 // eslint-disable-next-line no-console
 const log = (...args) => console.log(args);
@@ -47,11 +48,15 @@ copyFile(() => {
         max: 100,
         maxAge: 1000 * 60 * 5,
       },
-      firebase: {
-        apiKey: API_KEY,
-        credential: CREDENTIAL,
-        databaseURL: DATABASE_URL,
+      firebaseShards: {
+        'maestro-db-staging': {
+          apiKey: API_KEY,
+          credential: CREDENTIAL,
+          databaseURL: DATABASE_URL,
+          legacySecret: LEGACY_SECRET,
+        },
       },
+      primaryFirebaseShard: 'maestro-db-staging',
       mongodb: {
         db: 'test',
         host: 'localhost',
