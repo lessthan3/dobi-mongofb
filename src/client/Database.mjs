@@ -1,5 +1,5 @@
 import promisify from '@google-cloud/promisify';
-import firebase from 'firebase';
+import firebase from 'firebase/app';
 import 'firebase/auth';
 import 'firebase/database';
 import Collection from './Collection';
