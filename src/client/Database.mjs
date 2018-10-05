@@ -83,16 +83,15 @@ class Database {
 
     const getToken = () => new Promise((resolve) => {
       if (!this.currentUser) {
-        resolve();
+        return resolve();
       }
-      this.getIdToken((err, idToken) => {
+      return this.getIdToken((err, idToken) => {
         if (err) {
           // eslint-disable-next-line
           console.warn(err);
-          resolve(null);
-        } else {
-          resolve(idToken);
+          return resolve(null);
         }
+        return resolve(idToken);
       });
     });
 
@@ -140,11 +139,11 @@ class Database {
         this.firebase.auth().signInWithCustomToken(token)
       ))
       .then(() => (
-        firebase.auth().currentUser.getIdTokenResult(true)
+        this.firebase.auth().currentUser.getIdTokenResult(true)
       ))
       .then((idTokenResult) => {
         this.currentUser = idTokenResult;
-        this.refreshToken = firebase.auth().currentUser.refreshToken;
+        this.refreshToken = this.firebase.auth().currentUser.refreshToken;
         return next();
       })
       .catch(err => next(err));

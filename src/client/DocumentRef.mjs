@@ -123,6 +123,7 @@ class DocumentRef extends EventEmitter {
           resource: `sync/${this.key}`,
         });
         this.updateData(value);
+        next();
       })
       .catch(err => next(err));
   }
