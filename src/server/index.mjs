@@ -23,6 +23,10 @@ import {
   hasPermission as hasPermissionHelper,
 } from './helpers';
 
+import {
+  decodeLegacySecretGenerator,
+} from './utils';
+
 /**
  *
  * @param {Object} config
@@ -129,14 +133,14 @@ export const server = (config) => {
   // db.collection.findById
   router.get(`${root}/:collection/:id*`, auth, findById(root, router));
 
-
   // middleware
   return async (req, res, next) => {
     const db = await connectMongo(mongoDbConfig);
     req.db = db;
-    req.primaryFirebaseShard = primaryFirebaseShard;
+    req.decodeLegacySecret = decodeLegacySecretGenerator(firebaseShards);
     req.fbAdminPrimary = fbAdminShards[primaryFirebaseShard];
     req.fbAdminShards = fbAdminShards;
+    req.primaryFirebaseShard = primaryFirebaseShard;
     req.mongoFbAdmin = {
       createObject: createObjectGenerator({ db, fbAdminShards }),
       editObject: editObjectGenerator({ db, fbAdminShards }),
