@@ -1,9 +1,11 @@
-const webpack = require('webpack');
+'use strict';
+
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const path = require('path');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const UnminifiedWebpackPlugin = require('unminified-webpack-plugin');
 
+// eslint-disable-next-line no-process-env
 const PROD_MODE = process.env.NODE_ENV === 'production';
 const DEV_MODE = !PROD_MODE;
 const DIST_PATH = path.join(__dirname, 'dist');

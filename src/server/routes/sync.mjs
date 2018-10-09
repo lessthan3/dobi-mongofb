@@ -20,19 +20,27 @@ const sync = ({
 }) => async (req, res) => {
   const {
     db,
-    fbAdminPrimary,
     fbAdminShards,
     params: {
       collection,
       id,
     },
-    primaryFirebaseShard,
+    shard,
+    user,
   } = req;
+
+  if (!shard) {
+    return res.status(400).send('shard required');
+  }
+
+  if (!user) {
+    return res.status(401);
+  }
 
   const dbCollection = db.collection(collection);
 
   // get data
-  const ref = fbAdminPrimary.database().ref(`${collection}/${id}`);
+  const ref = fbAdminShards[shard].database().ref(`${collection}/${id}`);
   const snapshot = await ref.once('value');
   const doc = snapshot.val();
 
@@ -69,8 +77,8 @@ const sync = ({
     }
 
     try {
-      const promises = Object.entries(fbAdminShards).map(async ([shard, fbAdmin]) => {
-        if (shard === primaryFirebaseShard) {
+      const promises = Object.entries(fbAdminShards).map(async ([shardName, fbAdmin]) => {
+        if (shard === shardName) {
           return;
         }
         await fbAdmin.database().ref(`${collection}/${doc._id.toString()}`).set(doc);
@@ -97,8 +105,8 @@ const sync = ({
   }
 
   try {
-    const promises = Object.entries(fbAdminShards).map(async ([shard, fbAdmin]) => {
-      if (shard === primaryFirebaseShard) {
+    const promises = Object.entries(fbAdminShards).map(async ([shardName, fbAdmin]) => {
+      if (shard === shardName) {
         return;
       }
       await fbAdmin.database().ref(`${collection}/${doc._id.toString()}`).set(null);

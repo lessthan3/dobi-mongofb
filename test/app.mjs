@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+
 import bodyParser from 'body-parser';
 import express from 'express';
 import fs from 'fs';
@@ -48,15 +50,13 @@ copyFile(() => {
         max: 100,
         maxAge: 1000 * 60 * 5,
       },
-      firebaseShards: {
-        'maestro-db-staging': {
-          apiKey: API_KEY,
-          credential: CREDENTIAL,
-          databaseURL: DATABASE_URL,
-          legacySecret: LEGACY_SECRET,
-        },
-      },
-      primaryFirebaseShard: 'maestro-db-staging',
+      firebaseShards: [{
+        apiKey: API_KEY,
+        credential: CREDENTIAL,
+        databaseURL: DATABASE_URL,
+        legacySecret: LEGACY_SECRET,
+        primary: true,
+      }],
       mongodb: {
         db: 'test',
         host: 'localhost',

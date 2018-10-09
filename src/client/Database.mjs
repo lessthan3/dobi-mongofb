@@ -6,6 +6,7 @@ import Collection from './Collection';
 import fetch from './fetch';
 
 const { promisifyAll } = promisify;
+const SHARD_REGEX = /^https?:\/\/([\w\d-_]+)\.firebaseio\.com/;
 
 class Database {
   /**
@@ -41,6 +42,8 @@ class Database {
     this.cache = cache;
     this.currentUser = null;
     this.refreshToken = null;
+    // eslint-disable-next-line prefer-destructuring
+    this.shard = SHARD_REGEX.exec(databaseURL)[1];
     this.safeWrites = safeWrites;
     const key = `dobi-mongofb-${databaseURL}`;
     if (Database.fbCache[key]) {
@@ -102,6 +105,7 @@ class Database {
         params: {
           ...params,
           idToken: idToken || undefined,
+          shard: this.shard,
         },
         resource,
         url,

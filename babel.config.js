@@ -1,3 +1,5 @@
+'use strict';
+
 const BABEL_PRESET_ENV_CONFIG = {
   forceAllTransforms: true,
   targets: {

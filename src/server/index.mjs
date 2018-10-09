@@ -25,6 +25,7 @@ import {
 
 import {
   decodeLegacySecretGenerator,
+  getShard,
 } from './utils';
 
 /**
@@ -34,11 +35,12 @@ import {
  * @param {boolean} config.cache.enabled=true
  * @param {number} config.cache.max=100
  * @param {string} config.cache.redisUri=localhost
- * @param {Object} config.firebaseShards
+ * @param {Object[]} config.firebaseShards
  * @param {string} config.firebaseShards.*.apiKey
  * @param {Object} config.firebaseShards.*.credential
  * @param {string} config.firebaseShards.*.databaseURL
  * @param {string} config.firebaseShards.*.legacySecret
+ * @param {boolean} config.firebaseShards.*.primary
  * @param {string} config.primaryFirebaseShard
  * @param {Object} config.hooks
  * @param {Object} config.mongodb
@@ -58,8 +60,7 @@ export const server = (config) => {
       max = 100,
       redisUri = 'localhost',
     } = {},
-    firebaseShards = {},
-    primaryFirebaseShard,
+    firebaseShards = [],
     hooks = {},
     mongodb: mongoDbConfig = {},
     options: {
@@ -72,17 +73,28 @@ export const server = (config) => {
     root = '/api',
   } = config;
 
-  assert(primaryFirebaseShard, 'primaryFirebaseShard required');
-  assert(firebaseShards[primaryFirebaseShard], 'config for primary firebase required');
-  const primaryFbConfig = firebaseShards[primaryFirebaseShard];
+  // make sure theres only one primary
+  let primaryCount = 0;
+  for (const { primary } of firebaseShards) {
+    if (primary) {
+      primaryCount++;
+    }
+  }
+  assert(primaryCount === 1, 'only one shard may be primary');
 
   // create fb admin shards
+  let primaryFirebaseShard;
   const fbAdminShards = {};
-  for (const [shard, { credential, databaseURL }] of Object.entries(firebaseShards)) {
+  for (const { credential, primary, databaseURL } of firebaseShards) {
+    const shard = getShard(databaseURL);
     fbAdminShards[shard] = admin.initializeApp({
       credential: admin.credential.cert(credential),
       databaseURL,
     }, `dobi-mongofb-admin-${shard}`);
+
+    if (primary) {
+      primaryFirebaseShard = shard;
+    }
   }
 
   // create cache
@@ -92,7 +104,14 @@ export const server = (config) => {
     redisUri,
   });
 
-  const auth = authGenerator(primaryFbConfig.legacySecret);
+  const legacySecretMap = firebaseShards.reduce((obj, {
+    databaseURL,
+    legacySecret,
+  }) => ({
+    ...obj,
+    [getShard(databaseURL)]: legacySecret,
+  }), {});
+  const auth = authGenerator(legacySecretMap);
   const hasPermission = hasPermissionHelper({ auth, blacklist });
 
   // build routes
