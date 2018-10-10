@@ -1,4 +1,4 @@
-import { decode } from 'jwt-simple';
+import jwt from 'jwt-simple';
 
 // TODO: remove legacy support.
 export default legacySecretMap => async (req, res, next) => {
@@ -9,7 +9,7 @@ export default legacySecretMap => async (req, res, next) => {
   req.shard = shard;
   try {
     if (token) {
-      const payload = decode(token, legacySecretMap[shard]);
+      const payload = jwt.decode(token, legacySecretMap[shard]);
       req.user = payload.d;
       req.admin = payload.admin;
       req.shard = shard;

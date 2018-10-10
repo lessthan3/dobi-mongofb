@@ -1,4 +1,4 @@
-import { decode } from 'jwt-simple';
+import jwt from 'jwt-simple';
 import getShard from './getShard';
 
 export default firebaseShards => ({ shard, token }) => {
@@ -11,6 +11,5 @@ export default firebaseShards => ({ shard, token }) => {
   if (!secret) {
     throw new Error(`invalid shard: ${shard}`);
   }
-  const { legacySecret } = firebaseShards[shard];
-  return decode(token, legacySecret);
+  return jwt.decode(token, secret);
 };
