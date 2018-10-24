@@ -1,4 +1,4 @@
-export default ({ auth, blacklist }) => async (req, res) => {
+export default ({ auth, blacklist }) => (req, res) => {
   await auth(req, res);
   if (req.admin) {
     return true;
