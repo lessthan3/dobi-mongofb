@@ -116,7 +116,10 @@ class Database {
 
   setPersistence(next) {
     if (this.persistence) {
-      const val = this.firebase.auth.Auth.Persistence[this.persistence.toUpperCase()];
+      const val = firebase.auth.Auth.Persistence[this.persistence.toUpperCase()];
+      if (!val) {
+        return next(`invalid persistence, ${this.persistence}`);
+      }
       return this.firebase.auth().setPersistence(val)
         .then(() => next())
         .catch(err => next(err));
