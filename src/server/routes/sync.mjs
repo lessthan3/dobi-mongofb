@@ -55,7 +55,7 @@ const sync = ({
   // send null if collection in blacklist
   // WARNING: IF YOU ATTEMPT TO SYNC A COLLECTION ITEM NOT
   // ON YOUR FIREBASE AND CALL SYNC, IT WILL GET DESTROYED
-  const permission = await hasPermission(req, res);
+  const permission = await hasPermission(req, res, true);
   if (!permission) {
     return res.send(null);
   }
