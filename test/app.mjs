@@ -5,6 +5,7 @@ import express from 'express';
 import fs from 'fs';
 import morgan from 'morgan';
 import * as env from 'strict-env';
+import get from 'lodash/get';
 import mongofb from '../lib/server';
 import dirname from './dirname';
 
@@ -18,6 +19,7 @@ const CREDENTIAL = env.get('CREDENTIAL', (str) => {
 });
 const DATABASE_URL = env.get('DATABASE_URL', env.string);
 const LEGACY_SECRET = env.get('LEGACY_SECRET', env.string);
+const MONGO = env.get('MONGO_CONFIG', env.json);
 
 // eslint-disable-next-line no-console
 const log = (...args) => console.log(args);
@@ -57,15 +59,33 @@ copyFile(() => {
         legacySecret: LEGACY_SECRET,
         primary: true,
       }],
+      hooks: {
+        users: {
+          after: {
+            find({ user, admin }, doc) {
+              const userUid = get(user, 'uid');
+              const isUser = userUid && (get(doc, 'uid') === userUid);
+              if (!(isUser || admin)) {
+                return {};
+              }
+              return doc;
+            },
+          },
+        },
+      },
       mongodb: {
-        db: 'test',
-        host: 'localhost',
+        db: MONGO.db,
+        host: MONGO.host,
         options: {
           autoReconnect: true,
-          keepAlive: 12,
+          keepAlive: 120,
           native_parser: false,
           poolSize: 1,
+          useNewUrlParser: true,
         },
+        pass: MONGO.pass,
+        port: MONGO.port,
+        user: MONGO.user,
       },
       options: {
         blacklist: [

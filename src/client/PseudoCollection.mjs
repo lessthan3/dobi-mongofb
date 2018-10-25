@@ -23,10 +23,10 @@ class PseudoCollection extends Collection {
 
   find(criteria = null, fields = null, options = null, _next = null) {
     const [query, , next] = prepareFind(criteria, fields, options, _next);
-    for (const k of Object.keys(this.defaults)) {
-      const v = this.defaults[k];
-      query.criteria[k] = v;
-    }
+    query.criteria = {
+      ...query.criteria,
+      ...this.defaults,
+    };
     return super.find(query.criteria, query.fields, query.options, next);
   }
 
@@ -40,6 +40,6 @@ class PseudoCollection extends Collection {
   }
 }
 
-promisifyAll(PseudoCollection);
+promisifyAll(PseudoCollection, { singular: true });
 
 export default PseudoCollection;

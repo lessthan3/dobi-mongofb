@@ -66,6 +66,7 @@ promisifyAll(Document, {
     'name',
     'val',
   ],
+  singular: true,
 });
 
 export default Document;

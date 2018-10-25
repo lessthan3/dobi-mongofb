@@ -142,9 +142,7 @@ class Database {
       .then(() => (
         this.firebase.auth().signInWithCustomToken(token)
       ))
-      .then(() => (
-        this.firebase.auth().currentUser.getIdTokenResult(true)
-      ))
+      .then(() => this.firebase.auth().currentUser.getIdTokenResult(true))
       .then((idTokenResult) => {
         this.currentUser = idTokenResult;
         this.refreshToken = this.firebase.auth().currentUser.refreshToken;

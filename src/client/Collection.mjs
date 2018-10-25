@@ -99,7 +99,6 @@ class Collection {
   // findOne(criteria, fields, options, next)
   findOne(criteria = null, fields = null, options = null, _next = null) {
     const [query, params, next] = prepareFind(criteria, fields, options, _next);
-
     return this.database.request({
       params,
       resource: `${this.name}/findOne`,
