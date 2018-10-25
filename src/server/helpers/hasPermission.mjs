@@ -1,6 +1,7 @@
-export default ({ auth, blacklist }) => (req, res) => {
+export default ({ auth, blacklist }) => async (req, res, bypassAuth = false) => {
   await auth(req, res);
-  if (req.admin) {
+  // bypass auth allows calls to not allow admins to get collection
+  if (req.admin && !bypassAuth) {
     return true;
   }
   return !blacklist.includes(req.params.collection);

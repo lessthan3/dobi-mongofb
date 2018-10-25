@@ -115,7 +115,8 @@ const find = async ({
 
   // dont make a DB call for blacklist
   // as mongo errors can be revealing
-  if (!hasPermission(req, res)) {
+  const permission = await hasPermission(req, res);
+  if (!permission) {
     if (forceSingle) {
       throw createError(404);
     }
