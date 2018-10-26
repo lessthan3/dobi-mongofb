@@ -29,12 +29,13 @@ const sync = ({
     user,
   } = req;
 
+
   if (!shard) {
-    return res.status(400).send('shard required');
+    throw createError(400, 'shard required');
   }
 
   if (!user) {
-    return res.status(401);
+    throw createError(401);
   }
 
   const dbCollection = db.collection(collection);
