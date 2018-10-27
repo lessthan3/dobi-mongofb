@@ -1,2 +1,9 @@
+/*
 .DS_Store
-test
+!/dist
+!/lib
+!/package.json
+!/package-lock.json
+!/README.md
+!/LICENSE
+!/CHANGELOG.md

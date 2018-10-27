@@ -1,15 +1,30 @@
-(function() {
-  var collection, _i, _len, _ref;
+(function () {
+  // setup mongoFB database
+  let collection; let i; let len; let
+    ref;
 
   window.db = new mongofb.Database({
-    server: '/api/v1',
-    firebase: 'https://testproject-24602.firebaseio.com'
+    api: '/api/v1',
+    cache: {
+      enabled: false,
+    },
+    firebase: {
+      apiKey: 'AIzaSyD6OhCRWmpfwPmgSlNz1uZK4lhrLBFpFLs',
+      databaseURL: 'https://lessthan3.firebaseio.com',
+    },
   });
 
-  _ref = ['users', 'objects', 'sites'];
-  for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-    collection = _ref[_i];
+  window.app = {};
+
+  ref = ['blacklist', 'users', 'objects', 'sites'];
+  for (i = 0, len = ref.length; i < len; i++) {
+    collection = ref[i];
     window.app[collection] = window.db.get(collection);
   }
-
+  for (const collection of ['pages']) {
+    window.app[collection] = new mongofb.PseudoCollection(db, 'objects', {
+      site_id: '5a4ed7f9d368452034bec957',
+      collection,
+    });
+  }
 }).call(this);

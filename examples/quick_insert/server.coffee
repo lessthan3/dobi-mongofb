@@ -1,5 +1,5 @@
 express = require 'express'
-mongofb = require '../../lib/server'
+mongofb = require '../../src/server'
 wrap = require 'asset-wrap'
 
 app = express()
@@ -13,7 +13,7 @@ app.use mongofb.server {
 }
 app.get '/', (req, res) ->
   asset = new wrap.Snockets {
-    src: "#{__dirname}/client.coffee"
+    src: "#{__dirname}/mongoFbClient.coffee"
   }, (err) ->
     return res.send 500, err if err
     res.send """
