@@ -12,31 +12,43 @@ class PseudoCollection extends Collection {
     this.defaults = defaults == null ? {} : defaults;
   }
 
-  insert(_doc, priority, next) {
-    const doc = _doc;
-    for (const k of Object.keys(this.defaults)) {
-      const v = this.defaults[k];
-      doc[k] = v;
-    }
-    return super.insert(doc, priority, next);
+  insert(doc, priority, next) {
+    return super.insert({ ...doc, ...this.defaults }, priority, next);
   }
 
-  find(criteria = null, fields = null, options = null, _next = null) {
-    const [query, , next] = prepareFind(criteria, fields, options, _next);
-    query.criteria = {
-      ...query.criteria,
+  /**
+   * @param {Object} criteria
+   * @param {Object} fields
+   * @param {Object} options
+   * @param {Function} next
+   */
+  find(...args) {
+    const { next, query } = prepareFind(args);
+    const { criteria: queryCriteria, fields, options } = query;
+    const criteria = {
+      ...queryCriteria,
       ...this.defaults,
     };
-    return super.find(query.criteria, query.fields, query.options, next);
+    return super.find(criteria, fields, options, next);
   }
 
-  findOne(criteria = null, fields = null, options = null, _next = null) {
-    const [query, , next] = prepareFind(criteria, fields, options, _next);
-    for (const k of Object.keys(this.defaults)) {
-      const v = this.defaults[k];
-      query.criteria[k] = v;
-    }
-    return super.findOne(query.criteria, query.fields, query.options, next);
+  /**
+   * @param {Object} criteria
+   * @param {Object} fields
+   * @param {Object} options
+   * @param {Function} next
+   */
+  findOne(...args) {
+    const { query, next } = prepareFind(args);
+
+    const { criteria: queryCriteria, fields, options } = query;
+
+    const criteria = {
+      ...queryCriteria,
+      ...this.defaults,
+    };
+
+    return super.findOne(criteria, fields, options, next);
   }
 }
 

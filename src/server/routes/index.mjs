@@ -1,5 +1,6 @@
 export { default as find } from './find';
-export { default as findById } from './findById';
 export { default as findOne } from './findOne';
-export { default as fixQueryParameters } from './fixQueryParameters';
-export { default as sync } from './sync';
+export { default as insert } from './insert';
+export { default as read } from './read';
+export { default as remove } from './remove';
+export { default as update } from './update';

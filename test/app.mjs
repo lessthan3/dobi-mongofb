@@ -1,13 +1,23 @@
 /* eslint-disable no-console */
 
-import bodyParser from 'body-parser';
-import express from 'express';
+import Koa from 'koa';
+import Router from 'koa-router';
+import koaConnect from 'koa-connect';
+import bodyParser from 'koa-bodyparser';
+import serve from 'koa-static';
+import send from 'koa-send';
 import fs from 'fs';
 import morgan from 'morgan';
 import * as env from 'strict-env';
-import get from 'lodash/get';
-import mongofb from '../lib/server';
+import mongofb from '../src/server';
 import dirname from './dirname';
+import {
+  canInsert,
+  canRead,
+  canRemove,
+  canUpdate,
+  postFind,
+} from './mongoFbMiddleware';
 
 const API_KEY = env.get('API_KEY', env.string);
 const CREDENTIAL = env.get('CREDENTIAL', (str) => {
@@ -18,8 +28,55 @@ const CREDENTIAL = env.get('CREDENTIAL', (str) => {
   };
 });
 const DATABASE_URL = env.get('DATABASE_URL', env.string);
-const LEGACY_SECRET = env.get('LEGACY_SECRET', env.string);
 const MONGO = env.get('MONGO_CONFIG', env.json);
+
+const mongoFbAdmin = {
+  cache: {
+    max: 100,
+    maxAge: 1000 * 60 * 5,
+  },
+  firebaseShards: [{
+    apiKey: API_KEY,
+    credential: CREDENTIAL,
+    databaseURL: DATABASE_URL,
+  }],
+  middleware: {
+    canInsert,
+    canRead,
+    canRemove,
+    canUpdate,
+    postFind,
+  },
+  mongodb: {
+    db: MONGO.db,
+    host: MONGO.host,
+    options: {
+      autoReconnect: true,
+      keepAlive: 120,
+      native_parser: false,
+      poolSize: 1,
+      useNewUrlParser: true,
+    },
+    pass: MONGO.pass,
+    port: MONGO.port,
+    user: MONGO.user,
+  },
+  options: {
+    collections: [
+      'apps',
+      'entities',
+      'media',
+      'objects',
+      'pages',
+      'sites',
+      'packages_config',
+      'packages',
+      'site_users',
+      'users',
+    ],
+  },
+  root: '/api/v1',
+};
 
 // eslint-disable-next-line no-console
 const log = (...args) => console.log(args);
@@ -40,71 +97,21 @@ const copyFile = (next) => {
 };
 
 copyFile(() => {
-  const endpoints = {
-    '/': (req, res) => res.sendFile(`${dirname}/views/index.html`),
-  };
+  const app = new Koa();
+  const router = new Router();
+  router.get('/', async (ctx) => {
+    await send(ctx, ctx.path, { index: 'index.html', root: `${dirname}/views` });
+  });
 
-  const middleware = [
-    morgan('combined'),
-    bodyParser.json(),
-    mongofb.server({
-      cache: {
-        max: 100,
-        maxAge: 1000 * 60 * 5,
-      },
-      firebaseShards: [{
-        apiKey: API_KEY,
-        credential: CREDENTIAL,
-        databaseURL: DATABASE_URL,
-        legacySecret: LEGACY_SECRET,
-        primary: true,
-      }],
-      hooks: {
-        users: {
-          after: {
-            find({ user, admin }, doc) {
-              const userUid = get(user, 'uid');
-              const isUser = userUid && (get(doc, 'uid') === userUid);
-              if (!(isUser || admin)) {
-                return {};
-              }
-              return doc;
-            },
-          },
-        },
-      },
-      mongodb: {
-        db: MONGO.db,
-        host: MONGO.host,
-        options: {
-          autoReconnect: true,
-          keepAlive: 120,
-          native_parser: false,
-          poolSize: 1,
-          useNewUrlParser: true,
-        },
-        pass: MONGO.pass,
-        port: MONGO.port,
-        user: MONGO.user,
-      },
-      options: {
-        blacklist: [
-          'blacklist',
-        ],
-      },
-      root: '/api/v1',
-    }),
-  ];
+  const mongofbRoutes = mongofb(mongoFbAdmin);
 
-  const app = express();
-  app.use(express.static('./test/assets'));
-  for (const ware of middleware) {
-    app.use(ware);
-  }
-  for (const point of Object.keys(endpoints)) {
-    const action = endpoints[point];
-    app.get(point, action);
-  }
+  app.use(bodyParser());
+  app.use(koaConnect(morgan('combined')));
+  app.use(serve('./test/assets'));
+  app.use(mongofbRoutes.routes());
+  app.use(mongofbRoutes.allowedMethods());
+  app.use(router.routes());
+  app.use(router.allowedMethods());
   app.listen(8080);
   return log('server running..., connect to localhost:8080');
 });

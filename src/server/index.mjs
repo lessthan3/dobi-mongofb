@@ -2,31 +2,26 @@
 
 // dependencies
 import assert from 'assert';
-import express from 'express';
-import mongodb from 'mongodb';
-import admin from 'firebase-admin';
-import Cache from 'dobi-cache-2';
+import Router from 'koa-router';
+import middleware from './middleware';
 
 import {
   find,
-  findById,
   findOne,
-  fixQueryParameters,
-  sync,
+  insert,
+  read,
+  remove,
+  update,
 } from './routes';
 
-import {
-  authGenerator,
-  connectMongo,
-  createObjectGenerator,
-  editObjectGenerator,
-  hasPermission as hasPermissionHelper,
-} from './helpers';
-
-import {
-  decodeLegacySecretGenerator,
-  getShard,
-} from './utils';
+const {
+  findByIdMiddleware,
+  findMiddleware,
+  findOneMiddleware,
+  insertMiddleware,
+  removeMiddleware,
+  updateMiddleware,
+} = middleware;
 
 /**
  *
@@ -39,135 +34,31 @@ import {
  * @param {string} config.firebaseShards.*.apiKey
  * @param {Object} config.firebaseShards.*.credential
  * @param {string} config.firebaseShards.*.databaseURL
- * @param {string} config.firebaseShards.*.legacySecret
- * @param {boolean} config.firebaseShards.*.primary
- * @param {string} config.primaryFirebaseShard
- * @param {Object} config.hooks
+ * @param {Object} config.middleware
  * @param {Object} config.mongodb
  * @param {Object} config.options
- * @param {string[]} config.options.blacklist=[] array of blocked collections
+ * @param {string[]} config.options.collections=[] array of collections
  * @param {number} config.options.limitDefault=20 default limit of query response
  * @param {number} config.options.limitMax=1000 max returned results
  * @param {boolean} config.options.setCreated=true
  * @param {boolean} config.options.setLastModified=true
+ * @param {function} config.validateSync
  * @param {string} config.root='/api' endpoint root
  */
-export const server = (config) => {
+export default (config) => {
   // configuration
-  const {
-    cache: {
-      enabled = true,
-      max = 100,
-      redisUri = 'localhost',
-    } = {},
-    firebaseShards = [],
-    hooks = {},
-    mongodb: mongoDbConfig = {},
-    options: {
-      blacklist = [],
-      limitDefault = 20,
-      limitMax = 1000,
-      setCreated = true,
-      setLastModified = true,
-    } = {},
-    root = '/api',
-  } = config;
-
-  // make sure theres only one primary
-  let primaryCount = 0;
-  for (const { primary } of firebaseShards) {
-    if (primary) {
-      primaryCount++;
-    }
-  }
-  assert(primaryCount === 1, 'only one shard may be primary');
-
-  // create fb admin shards
-  let primaryFirebaseShard;
-  const fbAdminShards = {};
-  for (const { credential, primary, databaseURL } of firebaseShards) {
-    const shard = getShard(databaseURL);
-    fbAdminShards[shard] = admin.initializeApp({
-      credential: admin.credential.cert(credential),
-      databaseURL,
-    }, `dobi-mongofb-admin-${shard}`);
-
-    if (primary) {
-      primaryFirebaseShard = shard;
-    }
-  }
-
-  // create cache
-  const { cache } = new Cache({
-    enabled,
-    lruMaxItems: max,
-    redisUri,
-  });
-
-  const legacySecretMap = firebaseShards.reduce((obj, {
-    databaseURL,
-    legacySecret,
-  }) => ({
-    ...obj,
-    [getShard(databaseURL)]: legacySecret,
-  }), {});
-  const auth = authGenerator(legacySecretMap);
-  const hasPermission = hasPermissionHelper({ auth, blacklist });
+  const { root } = config;
+  assert(root, 'root required');
+  assert(root[0] === '/', 'root must start with /');
 
   // build routes
-  const router = express.Router();
-
-  // fix query parameters
-  router.use(`${root}/*`, fixQueryParameters);
-
-  // ObjectID for creating documents
-  router.get(`${root}/ObjectID`, (req, res) => res.send(mongodb.ObjectID().toString()));
-
-  // sync data from firebase
-  // NOTE: requires _id to be an ObjectID
-  // db.collection.update
-  // db.collection.insert
-  // db.collection.remove
-  // the format is /sync/:collection/:id and not /:collection/:sync/:id to
-  // match firebase urls. the key in firebase is /:collection/:id
-  router.get(`${root}/sync/:collection/:id*`, auth, sync({
-    hasPermission,
-    hooks,
-    setCreated,
-    setLastModified,
-  }));
-
-  // db.collection.find
-  router.get(`${root}/:collection/find`, auth, find({
-    cache,
-    hasPermission,
-    hooks,
-    limitDefault,
-    limitMax,
-  }));
-
-  // db.collection.findOne
-  router.get(`${root}/:collection/findOne`, auth, findOne(root, router));
-
-  // db.collection.findById
-  router.get(`${root}/:collection/:id*`, auth, findById(root, router));
-
-  // middleware
-  return async (req, res, next) => {
-    const db = await connectMongo(mongoDbConfig);
-    req.db = db;
-    req.decodeLegacySecret = decodeLegacySecretGenerator(firebaseShards);
-    req.fbAdminPrimary = fbAdminShards[primaryFirebaseShard];
-    req.fbAdminShards = fbAdminShards;
-    req.primaryFirebaseShard = primaryFirebaseShard;
-    req.mongoFbAdmin = {
-      createObject: createObjectGenerator({ db, fbAdminShards }),
-      editObject: editObjectGenerator({ db, fbAdminShards }),
-    };
-
-    // execute routes
-    return router.handle(req, res, next);
-  };
+  const router = new Router();
+  router.get(`${root}/:collection/find`, findMiddleware, find);
+  router.get(`${root}/:collection/findOne`, findOneMiddleware, findOne);
+  router.delete(`${root}/:collection/:id`, removeMiddleware, remove);
+  router.get(`${root}/:collection/:id/*`, findByIdMiddleware, read);
+  router.get(`${root}/:collection/:id`, findByIdMiddleware, read);
+  router.patch(`${root}/:collection/:id`, updateMiddleware, update);
+  router.post(`${root}/:collection`, insertMiddleware, insert);
+  return router;
 };
-
-export default { server };

@@ -1,94 +1,55 @@
 import isEqualWith from 'lodash/isEqualWith';
-
-const customIsEqual = (a, b) => {
-  if (typeof a === 'function' && typeof b === 'function') {
-    return a.toString() === b.toString();
-  }
-  return undefined;
-};
+import isNumber from 'lodash/isNumber';
 
 export const isEqual = (a, b) => (
-  isEqualWith(a, b, customIsEqual)
+  isEqualWith(a, b, (aVal, bVal) => {
+    if (typeof aVal === 'function' && typeof bVal === 'function') {
+      return aVal.toString() === bVal.toString();
+    }
+    return undefined;
+  })
 );
 
-// stringify json params
-export const jsonify = (q) => {
-  const o = {};
-  for (const [k, v] of Object.entries(q)) {
-    if (v) {
-      o[k] = JSON.stringify(v);
-    }
-  }
-  return o;
-};
 
 // prepare query parameters for a find
-export const prepareFind = (..._args) => {
-  let fields;
+export const prepareFind = (args) => {
+  let criteria = null;
+  let fields = null;
   let next;
-  let options;
-  let special;
+  let options = null;
 
-  const args = _args.filter(arg => arg != null);
-
-  // callback
-  const hasCallback = typeof args[args.length - 1] === 'function';
-  if (hasCallback) {
-    next = args[args.length - 1];
-  }
-
-  // defaults
-  let criteria = {};
-
-  // query objects
-  if (typeof args[0] === 'object') {
-    [criteria] = args;
-  }
-  if (typeof args[1] === 'object') {
-    [, fields] = args;
-  }
-  if (typeof args[2] === 'object') {
-    [, , options] = args;
-  }
-  if (typeof args[3] === 'object') {
-    [, , , special] = args;
-  }
-
-  // args[1] can be either fields or options or special
-  // args[2] can be either options or special
-
-  // case: special was in args[2]
-  if (options && !special && (options.token || options._ || options.idToken)) {
-    [special, options] = [options, null];
-  }
-
-  // case: options was in args[1]
-  if (fields && !options && (
-    fields.limit || fields.skip || fields.sort
-  )) {
-    [options, fields] = [fields, null];
-  }
-
-  // case: special was in args[1]
-  if (fields && !special && (
-    fields.token || fields._ || fields.idToken
-  )) {
-    [special, fields] = [fields, null];
-  }
-
-  // format query objects and prepare to send
-  const query = { criteria, fields, options };
-  const params = jsonify(query);
-
-  if (special) {
-    for (const key of ['_', 'token', 'idToken']) {
-      if (special[key]) {
-        params[key] = special[key];
-      }
+  if (args.length === 1) {
+    ([next] = args);
+  } else if (args.length === 2) {
+    ([criteria, next] = args);
+  } else if (args.length === 3) {
+    if (args[1] && (isNumber(args[1].limit) || isNumber(args[1].skip) || args[1].sort)) {
+      ([criteria, options, next] = args);
+    } else {
+      ([criteria, fields, next] = args);
+    }
+  } else if (args.length === 4) {
+    ([criteria, fields, options, next] = args);
+    if (args[1] && (isNumber(args[1].limit) || isNumber(args[1].skip) || args[1].sort)) {
+      ([criteria, options, fields, next] = args);
+    } else {
+      ([criteria, fields, options, next] = args);
     }
   }
 
-  return [query, params, next];
-};
+  const params = {
+    _: options && options._ ? options._ : undefined,
+    criteria: criteria ? JSON.stringify(criteria) : undefined,
+    fields: fields ? JSON.stringify(fields) : undefined,
+    options: options ? JSON.stringify(options) : undefined,
+  };
 
-export const startsWith = (str, target) => str.slice(0, target.length) === target;
+  // format query objects and prepare to send
+  const query = {
+    criteria: criteria || {},
+    fields,
+    options,
+  };
+
+  return { next, params, query };
+};

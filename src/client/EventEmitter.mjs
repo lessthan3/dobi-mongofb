@@ -4,10 +4,9 @@ export default class EventEmitter {
   }
 
   emit(event, ...args) {
-    if (this.events[event]) {
-      for (const handler of this.events[event]) {
-        handler(...args || []);
-      }
+    if (!this.events[event]) { return; }
+    for (const handler of this.events[event]) {
+      handler(...args || []);
     }
   }
 
