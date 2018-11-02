@@ -60,5 +60,5 @@ export default (config) => {
   router.get(`${root}/:collection/:id`, findByIdMiddleware, read);
   // router.patch(`${root}/:collection/:id`, updateMiddleware, update);
   // router.post(`${root}/:collection`, insertMiddleware, insert);
-  return router;
+  return compose([router.routes(), router.allowedMethods()]);
 };
