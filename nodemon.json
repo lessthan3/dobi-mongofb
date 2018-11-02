@@ -9,6 +9,6 @@
     "src/",
     "test/"
   ],
-  "exec": "npm run test",
+  "exec": "npm run tes",
   "ext": "js,mjs"
 }

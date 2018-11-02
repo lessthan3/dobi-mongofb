@@ -8,19 +8,19 @@ import middleware from './middleware';
 import {
   find,
   findOne,
-  insert,
+  // insert,
   read,
-  remove,
-  update,
+  // remove,
+  // update,
 } from './routes';
 
 const {
   findByIdMiddleware,
   findMiddleware,
   findOneMiddleware,
-  insertMiddleware,
-  removeMiddleware,
-  updateMiddleware,
+  // insertMiddleware,
+  // removeMiddleware,
+  // updateMiddleware,
 } = middleware;
 
 /**
@@ -55,10 +55,10 @@ export default (config) => {
   const router = new Router();
   router.get(`${root}/:collection/find`, findMiddleware, find);
   router.get(`${root}/:collection/findOne`, findOneMiddleware, findOne);
-  router.delete(`${root}/:collection/:id`, removeMiddleware, remove);
-  router.get(`${root}/:collection/:id/*`, findByIdMiddleware, read);
+  // router.delete(`${root}/:collection/:id`, removeMiddleware, remove);
+  // router.get(`${root}/:collection/:id/*`, findByIdMiddleware, read);
   router.get(`${root}/:collection/:id`, findByIdMiddleware, read);
-  router.patch(`${root}/:collection/:id`, updateMiddleware, update);
-  router.post(`${root}/:collection`, insertMiddleware, insert);
+  // router.patch(`${root}/:collection/:id`, updateMiddleware, update);
+  // router.post(`${root}/:collection`, insertMiddleware, insert);
   return router;
 };

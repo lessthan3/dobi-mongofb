@@ -17,6 +17,7 @@ import {
   canRemove,
   canUpdate,
   postFind,
+  preFind,
 } from './mongoFbMiddleware';
 
 const API_KEY = env.get('API_KEY', env.string);
@@ -46,6 +47,7 @@ const mongoFbAdmin = {
     canRemove,
     canUpdate,
     postFind,
+    preFind,
   },
   mongodb: {
     db: MONGO.db,

@@ -49,7 +49,6 @@ let db;
 export default config => async (ctx, next) => {
   const {
     firebaseShards = [],
-    hooks = {},
     mongodb: mongoDbConfig = {},
     options: {
       collections = [],
@@ -87,7 +86,6 @@ export default config => async (ctx, next) => {
     mongoFbLimitDefault: limitDefault,
     mongoFbLimitMax: limitMax,
     mongoFbCollections: collections,
-    mongoFbHooks: hooks,
     ObjectId,
   };
 
