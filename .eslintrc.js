@@ -2,6 +2,18 @@
 module.exports = {
   extends: 'airbnb-base',
   overrides: [
+    // MJS files
+    {
+      env: {es6: true},
+      files: [
+        'src/**/.mjs',
+      ],
+      parserOptions: {
+        allowImportExportEverywhere: true,
+        ecmaVersion: 9,
+        sourceType: 'module',
+      },
+    },
     // JS files
     {
       files: [

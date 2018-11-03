@@ -10,14 +10,14 @@ export default async (ctx) => {
   ctx.assert(fbAdminShards, 500, 'insert: missing fbAdminShards from state');
   ctx.assert(id, 500, 'remove: missing id from state');
   ctx.assert(ObjectId, 500, 'remove: missing ObjectId on state');
-  ctx.assert(Object.isValid(id), 500, 'remove: invalid id from state');
+  ctx.assert(ObjectId.isValid(id), 500, 'remove: invalid id from state');
 
   try {
     await db.collection(collection).deleteOne({
       _id: new ObjectId(id),
     });
   } catch (err) {
-    ctx.throw(400, err);
+    ctx.throw(400, err.toString());
   }
 
   try {

@@ -16,13 +16,13 @@ const postFind = ({ collection, doc, user }) => {
 };
 
 export default async (ctx, next) => {
+  await next();
   const { collection, user } = ctx.state;
   ctx.assert(collection, 500, 'postFind: missing collection from state');
   ctx.assert(isObject(ctx.body), 500, 'postFind: ctx.body is not array or object');
   ctx.body = (
     isArray(ctx.body)
       ? [...ctx.body].map((doc => postFind({ collection, doc, user })))
-      : postFind(ctx.body)
+      : postFind({ collection, doc: ctx.body, user })
   );
-  await next();
 };

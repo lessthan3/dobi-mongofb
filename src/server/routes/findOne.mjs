@@ -9,9 +9,16 @@ export default async (ctx) => {
 
   // parse db args
   const { criteria, options } = mongoFbQuery;
+  console.log('hi hi hi ');
+  console.log('hi hi hi ');
+  console.log('hi hi hi ');
   let doc;
   try {
     doc = await db.collection(collection).findOne(criteria, options);
+    console.log({ doc });
+    console.log({ doc });
+    console.log({ doc });
+    console.log({ doc });
   } catch (err) {
     ctx.throw(400, err.toString());
   }

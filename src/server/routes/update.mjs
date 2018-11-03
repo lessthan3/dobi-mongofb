@@ -20,7 +20,7 @@ export default async (ctx) => {
   ctx.assert(firebaseWriteValue !== undefined, 500, 'insert: missing firebaseWriteValue from state');
   ctx.assert(id, 500, 'insert: missing mongoId from state');
   ctx.assert(ObjectId, 500, 'insert: missing ObjectId, from state');
-  ctx.assert(Object.isValid(id), 500, 'insert: invalid id from state');
+  ctx.assert(ObjectId.isValid(id), 500, 'insert: invalid id from state');
   ctx.assert(updatedDocument, 500, 'insert: missing updatedDocument from state');
   ctx.assert(
     isPlainObject(updatedDocument),
@@ -38,7 +38,7 @@ export default async (ctx) => {
       _id: new ObjectId(id),
     }, {
       ...updatedDocument,
-      _id: new ObjectId(),
+      _id: new ObjectId(id),
     });
   } catch (err) {
     ctx.throw(400, err.toString());
@@ -50,7 +50,7 @@ export default async (ctx) => {
     ));
     await Promise.all(promises);
   } catch (err) {
-    ctx.throw(500, 'firebase sync failed');
+    ctx.throw(500, 'firebase write failed');
   }
 
   ctx.status = 200;

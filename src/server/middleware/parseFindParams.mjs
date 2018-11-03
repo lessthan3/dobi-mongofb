@@ -45,16 +45,13 @@ const parseSimpleHttpParams = (query) => {
 export default async (ctx, next) => {
   const {
     collection,
-    forceSingle,
     mongoFbLimitDefault,
     mongoFbLimitMax,
     ObjectId,
   } = ctx.state;
+  const { path } = ctx.request;
 
   ctx.assert(collection, 500, 'parseFindParams: missing collection from state');
-  ctx.assert(
-    [true, false].includes(forceSingle), 500, 'parseFindParams: missing forceSingle from state',
-  );
   ctx.assert(
     mongoFbLimitDefault, 500, 'parseFindParams: missing mongoFbLimitDefault from state',
   );
@@ -82,7 +79,7 @@ export default async (ctx, next) => {
 
   // parse limit
   options.limit = Number.isInteger(options.limit) ? options.limit : mongoFbLimitDefault;
-  options.limit = forceSingle ? 1 : options.limit;
+  options.limit = /findOne/.test(path) ? 1 : options.limit;
   options.limit = Math.min(options.limit, mongoFbLimitMax);
 
   // parse id

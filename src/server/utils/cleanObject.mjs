@@ -5,11 +5,11 @@ import isArray from 'lodash/isArray';
 import isObject from 'lodash/isObject';
 import isPlainObject from 'lodash/isPlainObject';
 
-const cleanObject = (object, path = []) => {
+export const cleanObject = (object, path = []) => {
   let output;
   if (isPlainObject(object)) {
     output = entries(object).reduce((obj, [key, value]) => {
-      const newValue = isObject(object) ? cleanObject(value, [...path, key]) : value;
+      const newValue = isObject(value) ? cleanObject(value, [...path, key]) : value;
       return isNil(newValue) ? obj : {
         ...obj, [key]: newValue,
       };

@@ -1,52 +1,39 @@
-import mongodb from 'mongodb';
-import admin from 'firebase-admin';
 import isArray from 'lodash/isArray';
 
-const { ObjectId } = mongodb;
 const SHARD_REGEX = /^https?:\/\/([\w\d-_]+)\.firebaseio\.com/;
 
-const defaultMongoConfig = {
-  db: 'test',
-  host: 'localhost',
-  options: {
+const connectMongo = async ({ ctx, mongodb, mongoDbConfig = {} }) => {
+  const {
+    database,
+    host,
+    password,
+    port,
+    user,
+  } = mongoDbConfig;
+  ctx.assert(database, 500, 'initState: database missing from config.mongodb');
+  ctx.assert(host, 500, 'initState: host missing from config.mongodb');
+  ctx.assert(password, 500, 'initState: password missing from config.mongodb');
+  ctx.assert(port, 500, 'initState: port missing from config.mongodb');
+  ctx.assert(user, 500, 'initState: user missing from config.mongodb');
+
+  const url = `mongodb://${user}:${password}@${host}:${port}/${database}`.replace(':@', '@');
+  const mongoClient = await mongodb.MongoClient.connect(url, {
     autoReconnect: true,
     keepAlive: 120,
     native_parser: false,
-    poolSize: 1,
+    poolSize: 10,
     useNewUrlParser: true,
-  },
-  pass: 'testPassword',
-  port: 27017,
-  user: 'testUser',
-};
-
-
-const connectMongo = async (mongoDbConfig = {}) => {
-  const {
-    db: database,
-    host,
-    options,
-    pass,
-    port,
-    user,
-  } = {
-    ...defaultMongoConfig,
-    ...mongoDbConfig,
-    options: {
-      ...defaultMongoConfig.options,
-      ...mongoDbConfig.options,
-    },
-  };
-
-  const url = `mongodb://${user}:${pass}@${host}:${port}/${database}`.replace(':@', '@');
-  const mongoClient = await mongodb.MongoClient.connect(url, options);
+  });
   return mongoClient.db(database);
 };
 
 
 let fbAdminShards;
 let db;
-export default config => async (ctx, next) => {
+export default ({ admin, mongodb, config }) => async (ctx, next) => {
+  ctx.assert(admin, 500, 'initState: firebase-admin module not found');
+  ctx.assert(mongodb, 500, 'initState: mongodb module not found');
+  ctx.assert(mongodb.ObjectId, 500, 'initState: ObjectId not found in mongodb');
   const {
     firebaseShards = [],
     mongodb: mongoDbConfig = {},
@@ -63,7 +50,7 @@ export default config => async (ctx, next) => {
     fbAdminShards = firebaseShards.reduce((obj, { credential, databaseURL }) => {
       const matches = SHARD_REGEX.exec(databaseURL);
       ctx.assert(matches, 500, `initState: cannot parse database url - ${databaseURL}`);
-      const [shard] = matches;
+      const [, shard] = matches;
       return {
         ...obj,
         [shard]: admin.initializeApp({
@@ -75,7 +62,7 @@ export default config => async (ctx, next) => {
   }
 
   if (!db) {
-    db = await connectMongo(mongoDbConfig);
+    db = await connectMongo({ ctx, mongodb, mongoDbConfig });
   }
 
   ctx.state = {
@@ -86,7 +73,7 @@ export default config => async (ctx, next) => {
     mongoFbLimitDefault: limitDefault,
     mongoFbLimitMax: limitMax,
     mongoFbCollections: collections,
-    ObjectId,
+    ObjectId: mongodb.ObjectId,
   };
 
   await next();

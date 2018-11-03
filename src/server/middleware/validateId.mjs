@@ -13,7 +13,7 @@ export default async (ctx, next) => {
       _id: new ObjectId(id),
     });
   } catch (err) {
-    ctx.throw(500, err);
+    ctx.throw(500, err.toString());
   }
   ctx.assert(doc, 404, 'object not found');
 

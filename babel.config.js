@@ -13,13 +13,13 @@ const BABEL_PRESET_ENV_CONFIG = {
 
 module.exports = {
   ignore: [
-    '**/?(*.)(spec|test).js',
     '**/babel.config.js',
   ],
   plugins: [
+    '@babel/plugin-transform-modules-commonjs',
+    'babel-plugin-dynamic-import-node',
     [
-      '@babel/plugin-transform-runtime',
-      {
+      '@babel/plugin-transform-runtime', {
         corejs: false,
         helpers: true,
         regenerator: true,

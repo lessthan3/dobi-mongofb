@@ -1,0 +1,158 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DELETE :collection/:id fails if no auth 1`] = `"Unauthorized"`;
+
+exports[`DELETE :collection/:id fails if no auth 2`] = `"Unauthorized"`;
+
+exports[`DELETE :collection/:id fails if user not admin (client middleware test) 1`] = `"unauthorized to remove"`;
+
+exports[`GET :collection/:id fails on bad id 1`] = `"invalid id"`;
+
+exports[`GET :collection/:id fails on protected value if no auth 1`] = `"Unauthorized"`;
+
+exports[`GET :collection/:id fails on protected value if wrong admin (client middleware test) 1`] = `"Unauthorized"`;
+
+exports[`GET :collection/:id fails on protected value if wrong user 1`] = `"Unauthorized"`;
+
+exports[`GET :collection/:id returns expected value 1`] = `
+Object {
+  "_id": "5bdce894a1649c5974fb30c3",
+  "created": 100,
+  "name": "alphaSite",
+  "users": Object {
+    "test-alphaAdmin@test,com": "admin",
+  },
+}
+`;
+
+exports[`GET :collection/:id returns on protected value when authd 1`] = `
+Object {
+  "_id": "5bdce8afa1649c5974fb30c4",
+  "created": 100,
+  "site_id": "5bdce894a1649c5974fb30c3",
+  "uid": "test-alpha@test.com",
+}
+`;
+
+exports[`GET :collection/:id returns on protected value when user is admin (client middleware test) 1`] = `
+Object {
+  "_id": "5bdce8afa1649c5974fb30c4",
+  "created": 100,
+  "site_id": "5bdce894a1649c5974fb30c3",
+  "uid": "test-alpha@test.com",
+}
+`;
+
+exports[`PATCH :collection/:id fails if a root write but the _id was updated 1`] = `"modifying _id not permitted"`;
+
+exports[`PATCH :collection/:id fails if bad collection 1`] = `"Not Found"`;
+
+exports[`PATCH :collection/:id fails if key is contains '  ' 1`] = `"invalid characters in key"`;
+
+exports[`PATCH :collection/:id fails if key is contains ' ' 1`] = `"invalid characters in key"`;
+
+exports[`PATCH :collection/:id fails if key is contains '#' 1`] = `"invalid characters in key"`;
+
+exports[`PATCH :collection/:id fails if key is contains '$' 1`] = `"invalid characters in key"`;
+
+exports[`PATCH :collection/:id fails if key is contains '/' 1`] = `"invalid characters in key"`;
+
+exports[`PATCH :collection/:id fails if key is contains '[' 1`] = `"invalid characters in key"`;
+
+exports[`PATCH :collection/:id fails if key is contains ']' 1`] = `"invalid characters in key"`;
+
+exports[`PATCH :collection/:id fails if key is contains '{' 1`] = `"invalid characters in key"`;
+
+exports[`PATCH :collection/:id fails if key is contains '}' 1`] = `"invalid characters in key"`;
+
+exports[`PATCH :collection/:id fails if key is empty (meaning root) and value isnt an object 1`] = `"update value must be object if modifying root"`;
+
+exports[`PATCH :collection/:id fails if key isnt a string 1`] = `"invalid key"`;
+
+exports[`PATCH :collection/:id fails if key part contains empty string 1`] = `"cannot contain empty part in key (e.g. foo..bar)"`;
+
+exports[`PATCH :collection/:id fails if user doesnt send a value 1`] = `"missing value"`;
+
+exports[`PATCH :collection/:id fails if user not admin (client middleware test) 1`] = `"unauthorized to update"`;
+
+exports[`PATCH :collection/:id fails if user not authd 1`] = `"Unauthorized"`;
+
+exports[`PATCH :collection/:id succeeds for non-root update if admin is authed (client middleware test) 1`] = `
+Object {
+  "author": Object {
+    "name": "steve",
+  },
+  "item": "myUpdate",
+}
+`;
+
+exports[`PATCH :collection/:id succeeds for root update if admin is authed (client middleware test) 1`] = `
+Object {
+  "_id": "5bdcea2ba5b86e5a65b09bb1",
+  "created": 100,
+  "data": Object {
+    "test": Object {
+      "author": Object {
+        "name": "steve",
+      },
+      "item": "myUpdate",
+    },
+  },
+  "name": "alphaPage",
+  "site_id": "5bdce894a1649c5974fb30c3",
+}
+`;
+
+exports[`POST :collection/:id fails if bad collection 1`] = `"Not Found"`;
+
+exports[`POST :collection/:id fails if object has an _id in it 1`] = `"value must not contain _id"`;
+
+exports[`POST :collection/:id fails if user doesnt send a value 1`] = `"invalid value to insert"`;
+
+exports[`POST :collection/:id fails if user isnt an admin (client middleware test) 1`] = `"unauthorized to insert"`;
+
+exports[`POST :collection/:id fails if user not authd 1`] = `"Unauthorized"`;
+
+exports[`POST :collection/:id returns if user is admin (client middleware test) 1`] = `"{\\"created\\":200,\\"name\\":\\"gammaPage\\",\\"site_id\\":\\"5bdce894a1649c5974fb30c3\\",\\"_id\\":\\"5bdd2f98b966ff619846ae1a\\"}"`;
+
+exports[`utils/cleanObject parses primary values correctly 1`] = `
+Array [
+  Object {
+    "foo": "bar",
+  },
+  Array [
+    "foo",
+  ],
+  0,
+  "",
+  "foo",
+]
+`;
+
+exports[`utils/cleanObject parses primary values correctly 2`] = `
+Object {
+  "array": Array [
+    "foo",
+  ],
+  "booleanFalse": false,
+  "booleanTrue": true,
+  "numberFloat": 123.45,
+  "numberInt": 123,
+  "numberZero": 0,
+  "object": Object {
+    "foo": "bars",
+  },
+  "string": "foo",
+  "stringEmpty": "",
+}
+`;
+
+exports[`utils/cleanObject parses primary values correctly 3`] = `123.45`;
+
+exports[`utils/cleanObject parses primary values correctly 4`] = `123`;
+
+exports[`utils/cleanObject parses primary values correctly 5`] = `0`;
+
+exports[`utils/cleanObject parses primary values correctly 6`] = `"foo"`;
+
+exports[`utils/cleanObject parses primary values correctly 7`] = `""`;

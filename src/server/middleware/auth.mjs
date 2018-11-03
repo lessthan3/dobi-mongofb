@@ -6,12 +6,11 @@ const BAD_FORMAT_ERROR = (
 // sets admin and shard data on state
 export default (forceAuth = false) => async (ctx, next) => {
   const {
-    db, fbAdminShards, legacySecretMap, ObjectId,
+    db, fbAdminShards, ObjectId,
   } = ctx.state;
   ctx.assert(db, 500, 'authGenerator: db not found on state');
   ctx.assert(ObjectId, 500, 'authGenerator: ObjectId not found on state');
   ctx.assert(fbAdminShards, 500, 'authGenerator: fbAdminShards not found on state');
-  ctx.assert(legacySecretMap, 500, 'authGenerator: legacySecretMap not found on state');
 
   // parse authorization header
   const {

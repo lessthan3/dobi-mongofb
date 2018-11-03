@@ -1,7 +1,7 @@
 import isPlainObject from 'lodash/isPlainObject';
 import isObject from 'lodash/isObject';
 import set from 'lodash/set';
-import { cleanObject } from '../utils';
+import { cleanObject, invalidFirebaseKeyChars } from '../utils';
 
 // adds updatedValue to state
 export default async (ctx, next) => {
@@ -14,19 +14,20 @@ export default async (ctx, next) => {
   ctx.assert(id, 500, 'validateUpdateValue: missing id from state');
   const { key, value: rawValue } = ctx.request.body;
   ctx.assert(typeof key === 'string', 400, 'invalid key');
-  ctx.assert(rawValue !== undefined, 400, 'value cannot be undefined');
-
+  ctx.assert(rawValue !== undefined, 400, 'missing value');
+  ctx.assert(!invalidFirebaseKeyChars.test(key), 400, 'invalid characters in key');
 
   // clean up the value
   const value = isObject(rawValue) ? cleanObject(rawValue) : rawValue;
 
   // create updatedDocument
   let updatedDocument;
-  const keyParts = key.split('.');
+  const keyParts = key === '' ? [] : key.split('.');
   if (keyParts.length === 0) {
     ctx.assert(isPlainObject(value), 400, 'update value must be object if modifying root');
     updatedDocument = cleanObject({ ...value });
   } else {
+    ctx.assert(!keyParts.includes(''), 400, 'cannot contain empty part in key (e.g. foo..bar)');
     updatedDocument = cleanObject(set({ ...currentDocument }, keyParts, value));
   }
   ctx.assert(
