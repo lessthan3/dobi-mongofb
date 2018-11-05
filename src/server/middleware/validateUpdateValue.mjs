@@ -8,11 +8,12 @@ export default async (ctx, next) => {
   const {
     db, collection, currentDocument, id,
   } = ctx.state;
+  const { 0: key = '' } = ctx.params;
   ctx.assert(db, 500, 'validateUpdateValue: missing db from state');
   ctx.assert(currentDocument, 500, 'validateUpdateValue: missing currentDocument from state');
   ctx.assert(collection, 500, 'validateUpdateValue: missing collection from state');
   ctx.assert(id, 500, 'validateUpdateValue: missing id from state');
-  const { key, value: rawValue } = ctx.request.body;
+  const { value: rawValue } = ctx.request.body;
   ctx.assert(typeof key === 'string', 400, 'invalid key');
   ctx.assert(rawValue !== undefined, 400, 'missing value');
   ctx.assert(!invalidFirebaseKeyChars.test(key), 400, 'invalid characters in key');
@@ -22,7 +23,7 @@ export default async (ctx, next) => {
 
   // create updatedDocument
   let updatedDocument;
-  const keyParts = key === '' ? [] : key.split('.');
+  const keyParts = key === '' ? [] : key.split('/');
   if (keyParts.length === 0) {
     ctx.assert(isPlainObject(value), 400, 'update value must be object if modifying root');
     updatedDocument = cleanObject({ ...value });

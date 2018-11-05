@@ -52,6 +52,7 @@ module.exports = {
       },
     },
   ],
+  parser: 'babel-eslint',
   rules: {
     /*
       This rule gets in the way when writing a module that will contain multiple exports in the

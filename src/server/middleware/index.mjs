@@ -22,14 +22,15 @@ export default (config) => {
   const { enabled = true, max = 100, redisUri = 'localhost' } = config.cache || {};
 
   const {
-    canRead, canInsert, canRemove, canUpdate, preFind, postFind,
+    canRead, canInsert, canRemove, canUpdate, preFind,
   } = middleware;
+
+
   assert(canRead, 'middleware.canRead missing');
   assert(canInsert, 'middleware.canInsert missing');
   assert(canRemove, 'middleware.canRemove missing');
   assert(canUpdate, 'middleware.canUpdate missing');
   assert(preFind, 'middleware.preFind missing');
-  assert(postFind, 'middleware.postFind missing');
 
 
   // create cache
@@ -45,28 +46,13 @@ export default (config) => {
     validateCollection,
   ];
 
-  const findOneMiddleware = compose([
-    // pre-route
-    ...baseMiddleware,
-    cache(),
-    parseFindParams,
-    preFind,
-    auth(false),
-
-    // post-route
-    postFind,
-  ]);
-
   const findMiddleware = compose([
     // pre-route
     ...baseMiddleware,
     cache(),
     parseFindParams,
-    preFind,
     auth(false),
-
-    // post-route
-    postFind,
+    preFind,
   ]);
 
 
@@ -107,7 +93,6 @@ export default (config) => {
   return {
     findByIdMiddleware,
     findMiddleware,
-    findOneMiddleware,
     insertMiddleware,
     removeMiddleware,
     updateMiddleware,

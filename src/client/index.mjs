@@ -1,3 +1,4 @@
+import axios from 'axios';
 import firebase from 'firebase/app';
 import 'firebase/auth';
 import 'firebase/database';
@@ -11,4 +12,4 @@ export { default as Document } from './Document';
 export { default as DocumentRef } from './DocumentRef';
 export { default as EventEmitter } from './EventEmitter';
 export { default as PseudoCollection } from './PseudoCollection';
-export { firebase };
+export { axios, firebase };

@@ -1,12 +1,11 @@
-import promisify from '@google-cloud/promisify';
+import { promisifyAll } from '@google-cloud/promisify';
+import assert from 'assert';
 import firebase from 'firebase/app';
 import 'firebase/auth';
 import 'firebase/database';
 import axios from 'axios';
-import assert from 'assert';
 import Collection from './Collection';
 
-const { promisifyAll } = promisify;
 const SHARD_REGEX = /^https?:\/\/([\w\d-_]+)\.firebaseio\.com/;
 
 class Database {
@@ -37,6 +36,8 @@ class Database {
     } else if (persistence) {
       this.persistence = persistence;
     }
+    assert(apiKey, 'firebase.apiKey required');
+    assert(databaseURL, 'firebase.databaseURL required');
 
     this.api = api;
     this.apiKey = apiKey;

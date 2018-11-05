@@ -1,6 +1,7 @@
 import cloneDeep from 'lodash/cloneDeep';
 import get from 'lodash/get';
 import * as promisify from '@google-cloud/promisify';
+import isNil from 'lodash/isNil';
 import set from 'lodash/set';
 import some from 'lodash/some';
 import trimEnd from 'lodash/trimEnd';
@@ -48,8 +49,8 @@ class DocumentRef extends EventEmitter {
     super.on(event, handler);
     const { update, value } = this.events;
 
-    if ((value && value.length)
-      || (update && update.length)
+    if ((!isNil(value) && value.length)
+      || (!isNil(update) && update.length)
     ) {
       this.emit('value', this.val());
       this.ref.on('value', snapshot => this.updateData(snapshot.val()));
@@ -100,13 +101,15 @@ class DocumentRef extends EventEmitter {
 
     return this.database.request({
       data: {
-        key: this.path.join('.'),
         value,
       },
       method: 'PATCH',
-      resource: `${this.document.key}`,
-    }).then((data) => {
-      this.updateData(data);
+      resource: this.path.length
+        ? `${this.document.key}/${this.path.join('/')}`
+        : this.document.key,
+    }).then(({ value }) => {
+      this.updateData(value);
+      next(null, value);
     })
       .catch(err => next(err));
   }

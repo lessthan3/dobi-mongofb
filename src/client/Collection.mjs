@@ -1,9 +1,7 @@
-import promisify from '@google-cloud/promisify';
+import { promisifyAll } from '@google-cloud/promisify';
 import CollectionRef from './CollectionRef';
 import Document from './Document';
 import { prepareFind } from './utils';
-
-const { promisifyAll } = promisify;
 
 class Collection {
   constructor(database, name) {
@@ -16,19 +14,12 @@ class Collection {
     const [next, priority] = typeof _priority === 'function'
       ? [_priority, null] : [_priority, _next];
     this.database.request({
-      data: doc,
+      data: { priority, value: doc },
       method: 'POST',
       params: {
         _: Date.now(),
       },
-      resource: `sync/${this.name}`,
-    }).then(async (data) => {
-      const { _id: id } = data;
-      const ref = this.database.firebase.database().ref(`${this.name}/${id}`);
-      if (priority) {
-        await ref.setPriority(priority);
-      }
-      return data;
+      resource: this.name,
     }).then(data => (
       next(null, new Document(this, data))
     )).catch(err => next(err));
@@ -46,7 +37,7 @@ class Collection {
     this.database.request({
       method: 'GET',
       params,
-      resource: `${this.name}/find`,
+      resource: `${this.name}`,
     })
       .then((datas) => {
         const output = datas.map(data => (
@@ -65,8 +56,8 @@ class Collection {
    */
   findById(...args) {
     const [id] = args;
-    const updatedArgs = [{ _id: id }, ...args.slice(1, args.length - 1)];
-    const { params, next } = prepareFind(updatedArgs);
+    const updatedArgs = [{ _id: id }, ...args.slice(1, args.length)];
+    const { params, next } = prepareFind(updatedArgs, { limit: 1 });
 
     return this.database.request({
       method: 'GET',
@@ -87,13 +78,13 @@ class Collection {
    * @param {Function} next
    */
   findOne(...args) {
-    const { query, params, next } = prepareFind(args);
+    const { query, params, next } = prepareFind(args, { limit: 1 });
     return this.database.request({
       method: 'GET',
       params,
-      resource: `${this.name}/findOne`,
+      resource: `${this.name}`,
     })
-      .then((data) => {
+      .then(([data] = []) => {
         const doc = data ? new Document(this, data, query) : null;
         return next(null, doc);
       })

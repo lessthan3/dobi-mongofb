@@ -6,6 +6,94 @@ exports[`DELETE :collection/:id fails if no auth 2`] = `"Unauthorized"`;
 
 exports[`DELETE :collection/:id fails if user not admin (client middleware test) 1`] = `"unauthorized to remove"`;
 
+exports[`GET :collection respects limit option 1`] = `
+Array [
+  Object {
+    "_id": "5bdce894a1649c5974fb30c3",
+    "created": 100,
+    "data": Object {
+      "one": Object {
+        "two": "nested",
+      },
+    },
+    "family": "sites",
+    "name": "alphaSite",
+    "site_id": "5bdce894a1649c5974fb30c3",
+    "users": Object {
+      "test-alphaAdmin@test,com": "admin",
+    },
+  },
+]
+`;
+
+exports[`GET :collection respects options for authd admin accounts (client middleware test) 1`] = `
+Array [
+  Object {
+    "_id": "5bdce8afa1649c5974fb30c4",
+    "created": 150,
+    "site_id": "5bdce894a1649c5974fb30c3",
+    "uid": "test-alpha@test.com",
+  },
+]
+`;
+
+exports[`GET :collection respects projection option 1`] = `
+Array [
+  Object {
+    "created": 100,
+    "family": "sites",
+  },
+]
+`;
+
+exports[`GET :collection returns expected values 1`] = `
+Array [
+  Object {
+    "_id": "5bdce894a1649c5974fb30c3",
+    "created": 100,
+    "data": Object {
+      "one": Object {
+        "two": "nested",
+      },
+    },
+    "family": "sites",
+    "name": "alphaSite",
+    "site_id": "5bdce894a1649c5974fb30c3",
+    "users": Object {
+      "test-alphaAdmin@test,com": "admin",
+    },
+  },
+]
+`;
+
+exports[`GET :collection returns for authd admin accounts (client middleware test) 1`] = `
+Array [
+  Object {
+    "_id": "5bdd0044a5b86e5a65b09bb4",
+    "created": 100,
+    "site_id": "5bdce894a1649c5974fb30c3",
+    "uid": "test-alphaAdmin@test.com",
+  },
+  Object {
+    "_id": "5bdce8afa1649c5974fb30c4",
+    "created": 150,
+    "site_id": "5bdce894a1649c5974fb30c3",
+    "uid": "test-alpha@test.com",
+  },
+]
+`;
+
+exports[`GET :collection returns for authd non-admin accounts (client middleware test) 1`] = `
+Array [
+  Object {
+    "_id": "5bdce8afa1649c5974fb30c4",
+    "created": 150,
+    "site_id": "5bdce894a1649c5974fb30c3",
+    "uid": "test-alpha@test.com",
+  },
+]
+`;
+
 exports[`GET :collection/:id fails on bad id 1`] = `"invalid id"`;
 
 exports[`GET :collection/:id fails on protected value if no auth 1`] = `"Unauthorized"`;
@@ -18,28 +106,47 @@ exports[`GET :collection/:id returns expected value 1`] = `
 Object {
   "_id": "5bdce894a1649c5974fb30c3",
   "created": 100,
+  "data": Object {
+    "one": Object {
+      "two": "nested",
+    },
+  },
+  "family": "sites",
   "name": "alphaSite",
+  "site_id": "5bdce894a1649c5974fb30c3",
   "users": Object {
     "test-alphaAdmin@test,com": "admin",
   },
 }
 `;
 
+exports[`GET :collection/:id returns expected value 2`] = `"{\\"_id\\":\\"5bdce894a1649c5974fb30c3\\",\\"created\\":100,\\"data\\":{\\"one\\":{\\"two\\":\\"nested\\"}},\\"family\\":\\"sites\\",\\"name\\":\\"alphaSite\\",\\"site_id\\":\\"5bdce894a1649c5974fb30c3\\",\\"users\\":{\\"test-alphaAdmin@test,com\\":\\"admin\\"}}"`;
+
 exports[`GET :collection/:id returns on protected value when authd 1`] = `
 Object {
   "_id": "5bdce8afa1649c5974fb30c4",
-  "created": 100,
+  "created": 150,
   "site_id": "5bdce894a1649c5974fb30c3",
   "uid": "test-alpha@test.com",
 }
 `;
 
+exports[`GET :collection/:id returns on protected value when authd 2`] = `"{\\"_id\\":\\"5bdce8afa1649c5974fb30c4\\",\\"created\\":150,\\"site_id\\":\\"5bdce894a1649c5974fb30c3\\",\\"uid\\":\\"test-alpha@test.com\\"}"`;
+
 exports[`GET :collection/:id returns on protected value when user is admin (client middleware test) 1`] = `
 Object {
   "_id": "5bdce8afa1649c5974fb30c4",
-  "created": 100,
+  "created": 150,
   "site_id": "5bdce894a1649c5974fb30c3",
   "uid": "test-alpha@test.com",
+}
+`;
+
+exports[`GET :collection/:id returns on protected value when user is admin (client middleware test) 2`] = `"{\\"_id\\":\\"5bdce8afa1649c5974fb30c4\\",\\"created\\":150,\\"site_id\\":\\"5bdce894a1649c5974fb30c3\\",\\"uid\\":\\"test-alpha@test.com\\"}"`;
+
+exports[`GET :collection/:id/* returns on valid key 1`] = `
+Object {
+  "two": "nested",
 }
 `;
 
@@ -47,29 +154,7 @@ exports[`PATCH :collection/:id fails if a root write but the _id was updated 1`]
 
 exports[`PATCH :collection/:id fails if bad collection 1`] = `"Not Found"`;
 
-exports[`PATCH :collection/:id fails if key is contains '  ' 1`] = `"invalid characters in key"`;
-
-exports[`PATCH :collection/:id fails if key is contains ' ' 1`] = `"invalid characters in key"`;
-
-exports[`PATCH :collection/:id fails if key is contains '#' 1`] = `"invalid characters in key"`;
-
-exports[`PATCH :collection/:id fails if key is contains '$' 1`] = `"invalid characters in key"`;
-
-exports[`PATCH :collection/:id fails if key is contains '/' 1`] = `"invalid characters in key"`;
-
-exports[`PATCH :collection/:id fails if key is contains '[' 1`] = `"invalid characters in key"`;
-
-exports[`PATCH :collection/:id fails if key is contains ']' 1`] = `"invalid characters in key"`;
-
-exports[`PATCH :collection/:id fails if key is contains '{' 1`] = `"invalid characters in key"`;
-
-exports[`PATCH :collection/:id fails if key is contains '}' 1`] = `"invalid characters in key"`;
-
-exports[`PATCH :collection/:id fails if key is empty (meaning root) and value isnt an object 1`] = `"update value must be object if modifying root"`;
-
-exports[`PATCH :collection/:id fails if key isnt a string 1`] = `"invalid key"`;
-
-exports[`PATCH :collection/:id fails if key part contains empty string 1`] = `"cannot contain empty part in key (e.g. foo..bar)"`;
+exports[`PATCH :collection/:id fails if root (meaning root) and value isnt an object 1`] = `"update value must be object if modifying root"`;
 
 exports[`PATCH :collection/:id fails if user doesnt send a value 1`] = `"missing value"`;
 
@@ -77,29 +162,104 @@ exports[`PATCH :collection/:id fails if user not admin (client middleware test) 
 
 exports[`PATCH :collection/:id fails if user not authd 1`] = `"Unauthorized"`;
 
-exports[`PATCH :collection/:id succeeds for non-root update if admin is authed (client middleware test) 1`] = `
+exports[`PATCH :collection/:id succeeds for root update if admin is authed (client middleware test) 1`] = `
 Object {
-  "author": Object {
-    "name": "steve",
+  "value": Object {
+    "_id": "5bdcea2ba5b86e5a65b09bb1",
+    "created": 100,
+    "data": Object {
+      "test": Object {
+        "author": Object {
+          "name": "steve",
+        },
+        "item": "myUpdate",
+      },
+    },
+    "name": "alphaPage",
+    "site_id": "5bdce894a1649c5974fb30c3",
   },
-  "item": "myUpdate",
 }
 `;
 
-exports[`PATCH :collection/:id succeeds for root update if admin is authed (client middleware test) 1`] = `
+exports[`PATCH :collection/:id/* fails if key is contains '  ' 1`] = `"invalid characters in key"`;
+
+exports[`PATCH :collection/:id/* fails if key is contains ' ' 1`] = `"invalid characters in key"`;
+
+exports[`PATCH :collection/:id/* fails if key is contains '$' 1`] = `"invalid characters in key"`;
+
+exports[`PATCH :collection/:id/* fails if key is contains '.' 1`] = `"invalid characters in key"`;
+
+exports[`PATCH :collection/:id/* fails if key is contains '[' 1`] = `"invalid characters in key"`;
+
+exports[`PATCH :collection/:id/* fails if key is contains ']' 1`] = `"invalid characters in key"`;
+
+exports[`PATCH :collection/:id/* fails if key is contains '{' 1`] = `"invalid characters in key"`;
+
+exports[`PATCH :collection/:id/* fails if key is contains '}' 1`] = `"invalid characters in key"`;
+
+exports[`PATCH :collection/:id/* fails if key part contains empty string 1`] = `"cannot contain empty part in key (e.g. foo..bar)"`;
+
+exports[`PATCH :collection/:id/* fails if user not admin (client middleware test) 1`] = `"unauthorized to update"`;
+
+exports[`PATCH :collection/:id/* succeeds for non-root update for array values if admin is authed (client middleware test) 1`] = `
 Object {
-  "_id": "5bdcea2ba5b86e5a65b09bb1",
-  "created": 100,
-  "data": Object {
-    "test": Object {
-      "author": Object {
-        "name": "steve",
-      },
-      "item": "myUpdate",
+  "value": Array [
+    "a",
+    1,
+  ],
+}
+`;
+
+exports[`PATCH :collection/:id/* succeeds for non-root update for boolean values if admin is authed (client middleware test) 1`] = `
+Object {
+  "value": false,
+}
+`;
+
+exports[`PATCH :collection/:id/* succeeds for non-root update for emptyArray values if admin is authed (client middleware test) 1`] = `
+Object {
+  "value": null,
+}
+`;
+
+exports[`PATCH :collection/:id/* succeeds for non-root update for emptyObject values if admin is authed (client middleware test) 1`] = `
+Object {
+  "value": null,
+}
+`;
+
+exports[`PATCH :collection/:id/* succeeds for non-root update for emptyString values if admin is authed (client middleware test) 1`] = `
+Object {
+  "value": "",
+}
+`;
+
+exports[`PATCH :collection/:id/* succeeds for non-root update for null values if admin is authed (client middleware test) 1`] = `
+Object {
+  "value": null,
+}
+`;
+
+exports[`PATCH :collection/:id/* succeeds for non-root update for number values if admin is authed (client middleware test) 1`] = `
+Object {
+  "value": 1.2345,
+}
+`;
+
+exports[`PATCH :collection/:id/* succeeds for non-root update for string values if admin is authed (client middleware test) 1`] = `
+Object {
+  "value": "str",
+}
+`;
+
+exports[`PATCH :collection/:id/* succeeds for non-root update if admin is authed (client middleware test) 1`] = `
+Object {
+  "value": Object {
+    "author": Object {
+      "name": "steve",
     },
+    "item": "myUpdate",
   },
-  "name": "alphaPage",
-  "site_id": "5bdce894a1649c5974fb30c3",
 }
 `;
 
@@ -112,6 +272,10 @@ exports[`POST :collection/:id fails if user doesnt send a value 1`] = `"invalid 
 exports[`POST :collection/:id fails if user isnt an admin (client middleware test) 1`] = `"unauthorized to insert"`;
 
 exports[`POST :collection/:id fails if user not authd 1`] = `"Unauthorized"`;
+
+exports[`POST :collection/:id respects priority settings if empty 1`] = `"{\\"created\\":200,\\"name\\":\\"gammaPage\\",\\"site_id\\":\\"5bdce894a1649c5974fb30c3\\",\\"_id\\":\\"5bdd2f98b966ff619846ae1a\\"}"`;
+
+exports[`POST :collection/:id respects priority settings if filled out 1`] = `"{\\"created\\":200,\\"name\\":\\"gammaPage\\",\\"site_id\\":\\"5bdce894a1649c5974fb30c3\\",\\"_id\\":\\"5bdd2f98b966ff619846ae1a\\"}"`;
 
 exports[`POST :collection/:id returns if user is admin (client middleware test) 1`] = `"{\\"created\\":200,\\"name\\":\\"gammaPage\\",\\"site_id\\":\\"5bdce894a1649c5974fb30c3\\",\\"_id\\":\\"5bdd2f98b966ff619846ae1a\\"}"`;
 

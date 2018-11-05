@@ -28,8 +28,14 @@ export const betaPage = {
 export const alphaSite = {
   _id: new ObjectId(alphaSiteId),
   created: 100,
+  data: {
+    one: {
+      two: 'nested',
+    },
+  },
   family: 'sites',
   name: 'alphaSite',
+  site_id: alphaSiteId,
   users: {
     'test-alphaAdmin@test,com': 'admin',
   },
@@ -37,8 +43,14 @@ export const alphaSite = {
 export const betaSite = {
   _id: new ObjectId(betaSiteId),
   created: 200,
+  data: {
+    one: {
+      two: 'nested',
+    },
+  },
   family: 'sites',
   name: 'betaSite',
+  site_id: betaSiteId,
   users: {
     'test-betaAdmin@test,com': 'admin',
   },
@@ -53,7 +65,7 @@ export const alphaAdminUser = {
 
 export const alphaUser = {
   _id: new ObjectId(alphaUserId),
-  created: 100,
+  created: 150,
   site_id: alphaSiteId,
   uid: 'test-alpha@test.com',
 };

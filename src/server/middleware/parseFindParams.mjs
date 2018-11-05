@@ -1,7 +1,7 @@
 import isArray from 'lodash/isArray';
 import hasIn from 'lodash/hasIn';
 
-const parseJsonEncodedParams = params => ['criteria', 'fields', 'options']
+const parseJsonEncodedParams = params => ['criteria', 'options']
   .reduce((obj, key) => ({
     ...obj,
     [key]: params[key] ? JSON.parse(params[key]) : {},
@@ -16,13 +16,12 @@ const parseSimpleHttpParams = (query) => {
     sort,
   } = query;
 
-  const fields = reqFields ? reqFields.split(',')
-    .reduce((obj, field) => ({
-      ...obj,
-      [field]: 1,
-    }), {}) : {};
-
   const options = {
+    projection: reqFields ? reqFields.split(',')
+      .reduce((obj, field) => ({
+        ...obj,
+        [field]: 1,
+      }), {}) : {},
     limit: limit || undefined,
     skip: skip || undefined,
     sort: sort ? sort.split(',').reduce((arr, val, ind) => (
@@ -38,7 +37,7 @@ const parseSimpleHttpParams = (query) => {
     return { ...obj, [key]: query[key] };
   }, {});
 
-  return { criteria, fields, options };
+  return { criteria, options };
 };
 
 // sets mongoFbQuery on state
@@ -67,7 +66,7 @@ export default async (ctx, next) => {
     options: reqOptions,
   } = ctx.request.query;
 
-  const { criteria, fields, options } = (reqCriteria || reqOptions)
+  const { criteria, options } = (reqCriteria || reqOptions)
     // use JSON encoded parameters
     ? parseJsonEncodedParams(ctx.request.query)
 
@@ -108,10 +107,7 @@ export default async (ctx, next) => {
     ...ctx.state,
     mongoFbQuery: {
       criteria,
-      options: {
-        ...options,
-        projection: Object.keys(fields).length ? fields : undefined,
-      },
+      options,
     },
   };
   await next();

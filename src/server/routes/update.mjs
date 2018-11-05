@@ -54,5 +54,5 @@ export default async (ctx) => {
   }
 
   ctx.status = 200;
-  ctx.body = firebaseWriteValue;
+  ctx.body = { value: firebaseWriteValue };
 };

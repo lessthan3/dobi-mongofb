@@ -15,10 +15,11 @@ import {
 
 const { ObjectId } = mongodb;
 
-const filterCollection = (docs, query) => docs.filter((doc) => {
+const filterCollection = (docs, query) => docs.reduce((arr, doc) => {
+  let match = true;
   for (const [key, value] of entries(query)) {
     if (!hasIn(doc, key)) {
-      return false;
+      match = false;
     }
     if (isPlainObject(value) && value.$in) {
       const values = key === '_id'
@@ -29,16 +30,20 @@ const filterCollection = (docs, query) => docs.filter((doc) => {
         : get(doc, key);
 
       if (!values.includes(docValue)) {
-        return false;
+        match = false;
       }
     } else if (key === '_id') {
       if (value.toString() !== doc._id.toString()) {
-        return false;
+        match = false;
       }
+    } else if (match) {
+      match = value === get(doc, key);
     }
   }
-  return true;
-});
+  return [...arr, { valid: match, value: doc }];
+}, [])
+  .filter(({ valid }) => valid)
+  .map(({ value }) => value);
 
 export const createMongoMock = (jest) => {
   const deleteOneMock = jest.fn((collection, query) => {
@@ -80,7 +85,7 @@ export const createMongoMock = (jest) => {
       if (results.length === 0) {
         return [];
       }
-      if (projection) {
+      if (isPlainObject(projection) && keys(projection).length) {
         results = results.map(result => (
           pickBy(result, (value, key) => keys(projection).includes(key))
         ));
@@ -163,7 +168,8 @@ export const createFirebaseMock = (jest) => {
     verifyIdToken: verifyIdTokenMock,
   }));
   const setMock = jest.fn();
-  const refMock = jest.fn(() => ({ set: setMock }));
+  const setWithPriorityMock = jest.fn();
+  const refMock = jest.fn(() => ({ setWithPriority: setWithPriorityMock, set: setMock }));
   const databaseMock = jest.fn(() => ({ ref: refMock }));
   const initializeAppMock = jest.fn(() => ({
     auth: authMock,
@@ -181,6 +187,7 @@ export const createFirebaseMock = (jest) => {
     authMock,
     databaseMock,
     initializeAppMock,
+    setWithPriorityMock,
     refMock,
     setMock,
     verifyIdTokenMock,

@@ -1,7 +1,5 @@
-import promisify from '@google-cloud/promisify';
+import { promisifyAll } from '@google-cloud/promisify';
 import DocumentRef from './DocumentRef';
-
-const { promisifyAll } = promisify;
 
 class Document {
   constructor(collection, data, query) {
@@ -9,7 +7,7 @@ class Document {
     this.data = data;
     this.database = this.collection.database;
     this.key = `${this.collection.name}/${this.data._id}`;
-    this.query = query || { criteria: null, fields: null, options: null };
+    this.query = query || { criteria: null, options: null };
     this.ref = new DocumentRef(this);
   }
 
