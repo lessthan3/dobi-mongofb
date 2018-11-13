@@ -23,7 +23,7 @@ module.exports = {
         corejs: false,
         helpers: true,
         regenerator: true,
-        useESModules: false, // Jest + ES modules = no
+        useESModules: process.env.NODE_ENV !== 'test', // Jest + ES modules = no
       },
     ],
   ],

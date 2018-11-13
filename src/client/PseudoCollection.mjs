@@ -1,6 +1,8 @@
-import { promisifyAll } from '@google-cloud/promisify';
+import * as promisify from '@google-cloud/promisify';
 import Collection from './Collection';
 import { prepareFind } from './utils';
+
+const { promisifyAll } = promisify;
 
 class PseudoCollection extends Collection {
   constructor(database, name, defaults) {

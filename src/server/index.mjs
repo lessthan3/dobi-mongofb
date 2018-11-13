@@ -34,8 +34,6 @@ import {
  * @param {string[]} config.options.collections=[] array of collections
  * @param {number} config.options.limitDefault=20 default limit of query response
  * @param {number} config.options.limitMax=1000 max returned results
- * @param {boolean} config.options.setCreated=true
- * @param {boolean} config.options.setLastModified=true
  * @param {function} config.validateSync
  * @param {string} config.root='/api' endpoint root
  */

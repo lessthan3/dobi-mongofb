@@ -1,5 +1,7 @@
-import { promisifyAll } from '@google-cloud/promisify';
+import * as promisify from '@google-cloud/promisify';
 import DocumentRef from './DocumentRef';
+
+const { promisifyAll } = promisify;
 
 class Document {
   constructor(collection, data, query) {

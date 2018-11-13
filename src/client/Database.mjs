@@ -1,10 +1,12 @@
-import { promisifyAll } from '@google-cloud/promisify';
+import * as promisify from '@google-cloud/promisify';
 import assert from 'assert';
 import firebase from 'firebase/app';
 import 'firebase/auth';
 import 'firebase/database';
 import axios from 'axios';
 import Collection from './Collection';
+
+const { promisifyAll } = promisify;
 
 const SHARD_REGEX = /^https?:\/\/([\w\d-_]+)\.firebaseio\.com/;
 

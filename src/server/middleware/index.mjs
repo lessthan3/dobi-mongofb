@@ -25,7 +25,6 @@ export default (config) => {
     canRead, canInsert, canRemove, canUpdate, preFind,
   } = middleware;
 
-
   assert(canRead, 'middleware.canRead missing');
   assert(canInsert, 'middleware.canInsert missing');
   assert(canRemove, 'middleware.canRemove missing');

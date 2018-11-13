@@ -77,10 +77,6 @@ describe('Database', () => {
   });
 });
 
-// describe.only('Document', () => {
-// })
-//
-
 describe('Collection', () => {
   let instance;
   let pages;

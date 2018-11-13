@@ -23,7 +23,7 @@ module.exports = {
         {
           exclude: EXCLUDE,
           loader: 'babel-loader',
-          test: /\.js$/,
+          test: /\.m?js$/,
           type: 'javascript/auto', // TODO: 'javascript/esm' breaks default imports & react-hot-loader
         },
       ],
