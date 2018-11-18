@@ -1,7 +1,7 @@
 .DS_Store
-.idea
-node_modules
-dist/
-lib/
-test/assets/js/client.js
 .env
+.idea
+coverage
+dist
+node_modules
+yarn-error.log

@@ -1,39 +1,26 @@
-import promisify from '@google-cloud/promisify';
-import set from 'lodash/set';
 import cloneDeep from 'lodash/cloneDeep';
+import get from 'lodash/get';
+import * as promisify from '@google-cloud/promisify';
+import isNil from 'lodash/isNil';
+import set from 'lodash/set';
 import some from 'lodash/some';
+import trimEnd from 'lodash/trimEnd';
+import { isEqual } from './utils';
 import EventEmitter from './EventEmitter';
-import { isEqual, startsWith } from './utils';
 
 const { promisifyAll } = promisify;
 
 class DocumentRef extends EventEmitter {
-  constructor(document, path) {
+  constructor(document, path = []) {
     super();
     this.document = document;
-    this.path = path == null ? '' : path;
     this.counter = ++DocumentRef._counter;
     this.collection = this.document.collection;
     this.database = this.collection.database;
-
-    // @path[0] doesn't work in ie6, must use @path[0..0]
-    if (typeof this.path === 'string') {
-      if (this.path.slice(0, 1) === '/') {
-        this.path = this.path.slice(1);
-      }
-      if (typeof this.path === 'string') {
-        this.path = this.path.split(/[/.]/g);
-      }
-    }
-    this.key = `${this.document.key}/${this.path.join('/')}`.replace(/\/$/, '');
-    this.data = cloneDeep(this.document.data);
-
-    for (const k of this.path) {
-      if (k !== '' && this.data != null) {
-        this.data = this.data[k];
-      }
-    }
-
+    this.path = path;
+    this.key = trimEnd(`${[this.document.key, ...this.path].join('/')}`, '/');
+    const dataCopy = cloneDeep(this.document.data);
+    this.data = this.path.length ? get(dataCopy, this.path) : dataCopy;
     this.ref = this.database.firebase.database().ref(this.key);
   }
 
@@ -42,33 +29,28 @@ class DocumentRef extends EventEmitter {
     return console.log(`ref_${this.counter}`, args);
   }
 
-  get(_path) {
-    let path = _path;
-    const temp = cloneDeep(this.path);
-    while (startsWith(path, '..')) {
-      temp.pop();
-      path = path.slice(2);
-      if (startsWith(path, '/')) {
-        path = path.slice(1);
-      }
-    }
-    return new DocumentRef(this.document, `${temp.join('/')}/${path}`);
+  get(pathStr) {
+    const path = pathStr.split(/[./]/g).reduce((arr, part) => {
+      // eslint-disable-next-line no-unused-expressions
+      part === '..' ? arr.pop() : arr.push(part);
+      return arr;
+    }, cloneDeep(this.path));
+
+    return new DocumentRef(this.document, path);
   }
 
   name() {
-    if ((this.path.length === 1) && (this.path[0] === '')) {
-      return this.data._id;
-    }
-    return this.path[this.path.length - 1];
+    return this.path.length === 0 ? this.data._id : this.path[this.path.length - 1];
   }
 
   // value: emit now and when updated
   // update: emit only when updated
   on(event, handler) {
     super.on(event, handler);
+    const { update, value } = this.events;
 
-    if ((this.events.value && this.events.value.length)
-      || (this.events.update && this.events.update.length)
+    if ((!isNil(value) && value.length)
+      || (!isNil(update) && update.length)
     ) {
       this.emit('value', this.val());
       this.ref.on('value', snapshot => this.updateData(snapshot.val()));
@@ -81,9 +63,10 @@ class DocumentRef extends EventEmitter {
 
   off(event, handler = null) {
     super.off(event, handler);
+    const { update, value } = this.events;
 
-    if (!(this.events.update && this.events.update.length > 0)
-      && !(this.events.value && this.events.value.length > 0)
+    if (!(update && update.length > 0)
+      && !(value && value.length > 0)
     ) {
       this.ref.off('value');
     }
@@ -102,29 +85,32 @@ class DocumentRef extends EventEmitter {
 
   set(value, next) {
     // if specific fields were queried for, only allow those to be updated
-    if (this.database.safeWrites) {
-      let allow = true;
-      if (this.document.query.fields) {
-        const keys = Object.keys(this.document.query.fields);
-        allow = some(keys, (key) => {
-          const dst = `${this.document.key}/${key.replace(/\./g, '/')}`;
-          return this.key.indexOf(dst) === 0;
-        });
-      }
-      if (!allow) {
+    const { safeWrites } = this.database;
+    const { fields } = this.document.query;
+    if (safeWrites && fields) {
+      const keys = Object.keys(fields);
+      const fail = some(keys, (key) => {
+        const dst = `${this.document.key}/${key.replace(/\./g, '/')}`;
+        return this.key.indexOf(dst) !== 0;
+      });
+
+      if (fail) {
         return next('cannot set a field that was not queried for');
       }
     }
 
-    const ref = this.database.firebase.database().ref(this.key);
-    return ref.set(value)
-      .then(async () => {
-        await this.database.request({
-          resource: `sync/${this.key}`,
-        });
-        this.updateData(value);
-        next();
-      })
+    return this.database.request({
+      data: {
+        value,
+      },
+      method: 'PATCH',
+      resource: this.path.length
+        ? `${this.document.key}/${this.path.join('/')}`
+        : this.document.key,
+    }).then(({ value }) => {
+      this.updateData(value);
+      next(null, value);
+    })
       .catch(err => next(err));
   }
 
@@ -152,10 +138,10 @@ class DocumentRef extends EventEmitter {
 
     // update document data. this will allow handlers to use
     // ref.get and have access to new data
-    if ((this.path.length === 1) && (this.path[0] === '')) {
+    if (this.path.length === 0) {
       this.document.data = cloneDeep(data);
     } else {
-      set(this.document.data, this.path.join('.'), cloneDeep(data));
+      set(this.document.data, this.path, cloneDeep(data));
     }
 
     // emit the updates

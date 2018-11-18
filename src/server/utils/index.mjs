@@ -1,2 +1,2 @@
-export { default as decodeLegacySecretGenerator } from './decodeLegacySecretGenerator';
-export { default as getShard } from './getShard';
+export { default as cleanObject } from './cleanObject';
+export const invalidFirebaseKeyChars = /[$#[\].\s{}]/;

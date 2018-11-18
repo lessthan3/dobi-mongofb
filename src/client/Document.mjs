@@ -1,4 +1,4 @@
-import promisify from '@google-cloud/promisify';
+import * as promisify from '@google-cloud/promisify';
 import DocumentRef from './DocumentRef';
 
 const { promisifyAll } = promisify;
@@ -7,12 +7,9 @@ class Document {
   constructor(collection, data, query) {
     this.collection = collection;
     this.data = data;
-    this.query = query;
     this.database = this.collection.database;
     this.key = `${this.collection.name}/${this.data._id}`;
-    if (this.query == null) {
-      this.query = { criteria: null, fields: null, options: null };
-    }
+    this.query = query || { criteria: null, options: null };
     this.ref = new DocumentRef(this);
   }
 
@@ -42,10 +39,6 @@ class Document {
 
   remove(next) {
     return this.collection.removeById(this.data._id, next);
-  }
-
-  save(next) {
-    return this.ref.set(this.data, next);
   }
 
   set(value, next) {

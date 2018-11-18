@@ -1,11 +1,13 @@
-import promisify from '@google-cloud/promisify';
+import * as promisify from '@google-cloud/promisify';
+import assert from 'assert';
 import firebase from 'firebase/app';
 import 'firebase/auth';
 import 'firebase/database';
+import axios from 'axios';
 import Collection from './Collection';
-import fetch from './fetch';
 
 const { promisifyAll } = promisify;
+
 const SHARD_REGEX = /^https?:\/\/([\w\d-_]+)\.firebaseio\.com/;
 
 class Database {
@@ -36,6 +38,8 @@ class Database {
     } else if (persistence) {
       this.persistence = persistence;
     }
+    assert(apiKey, 'firebase.apiKey required');
+    assert(databaseURL, 'firebase.databaseURL required');
 
     this.api = api;
     this.apiKey = apiKey;
@@ -78,39 +82,36 @@ class Database {
    * @param {Function} next
    */
   request({
+    data = {},
     json = true,
+    method,
     params = {},
     resource = '',
   }, next) {
-    const url = `${this.api}/${resource}`;
+    assert(['DELETE', 'GET', 'PATCH', 'POST'].includes(method), 'invalid method');
 
-    const getToken = () => new Promise((resolve) => {
-      if (!this.currentUser) {
-        return resolve();
-      }
-      return this.getIdToken((err, idToken) => {
-        if (err) {
-          // eslint-disable-next-line
-          console.warn(err);
-          return resolve(null);
-        }
-        return resolve(idToken);
-      });
-    });
+    const getToken = async () => (
+      this.currentUser ? this.getIdToken() : null
+    );
 
     return getToken()
-      .then(idToken => fetch({
-        cache: this.cache,
-        json,
-        params: {
-          ...params,
-          idToken: idToken || undefined,
-          shard: this.shard,
-        },
-        resource,
-        url,
-      }))
-      .then(data => next(null, data))
+      .then(idToken => (
+        axios({
+          data,
+          headers: idToken ? {
+            authorization: `Bearer ${idToken}`,
+            'x-bearer-token-shard': this.shard,
+          } : {},
+          method,
+          params: {
+            ...params,
+            ...(this.cache ? {} : { _: Date.now() }),
+          },
+          responseType: json ? 'json' : 'text',
+          url: `${this.api}/${resource}`,
+        })
+      ))
+      .then(resp => next(null, resp.data))
       .catch(err => next(err));
   }
 
