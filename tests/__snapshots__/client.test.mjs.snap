@@ -751,6 +751,2131 @@ Database {
 }
 `;
 
+exports[`PseudoCollection finds correctly 1`] = `
+Array [
+  Document {
+    "collection": PseudoCollection {
+      "database": Database {
+        "api": "/app/v1",
+        "apiKey": "MOCK_API_KEY",
+        "cache": true,
+        "currentUser": null,
+        "firebase": Object {
+          "auth": [MockFunction],
+          "database": [MockFunction] {
+            "calls": Array [
+              Array [],
+              Array [],
+              Array [],
+            ],
+            "results": Array [
+              Object {
+                "isThrow": false,
+                "value": Object {
+                  "priority": [MockFunction],
+                  "ref": [MockFunction] {
+                    "calls": Array [
+                      Array [
+                        "objects",
+                      ],
+                      Array [
+                        "objects/123123123",
+                      ],
+                      Array [
+                        "objects/321321321",
+                      ],
+                    ],
+                    "results": Array [
+                      Object {
+                        "isThrow": false,
+                        "value": Object {
+                          "off": [MockFunction],
+                          "on": [MockFunction],
+                          "once": [MockFunction],
+                          "set": [MockFunction],
+                        },
+                      },
+                      Object {
+                        "isThrow": false,
+                        "value": Object {
+                          "off": [MockFunction],
+                          "on": [MockFunction],
+                          "once": [MockFunction],
+                          "set": [MockFunction],
+                        },
+                      },
+                      Object {
+                        "isThrow": false,
+                        "value": Object {
+                          "off": [MockFunction],
+                          "on": [MockFunction],
+                          "once": [MockFunction],
+                          "set": [MockFunction],
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+              Object {
+                "isThrow": false,
+                "value": Object {
+                  "priority": [MockFunction],
+                  "ref": [MockFunction] {
+                    "calls": Array [
+                      Array [
+                        "objects",
+                      ],
+                      Array [
+                        "objects/123123123",
+                      ],
+                      Array [
+                        "objects/321321321",
+                      ],
+                    ],
+                    "results": Array [
+                      Object {
+                        "isThrow": false,
+                        "value": Object {
+                          "off": [MockFunction],
+                          "on": [MockFunction],
+                          "once": [MockFunction],
+                          "set": [MockFunction],
+                        },
+                      },
+                      Object {
+                        "isThrow": false,
+                        "value": Object {
+                          "off": [MockFunction],
+                          "on": [MockFunction],
+                          "once": [MockFunction],
+                          "set": [MockFunction],
+                        },
+                      },
+                      Object {
+                        "isThrow": false,
+                        "value": Object {
+                          "off": [MockFunction],
+                          "on": [MockFunction],
+                          "once": [MockFunction],
+                          "set": [MockFunction],
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+              Object {
+                "isThrow": false,
+                "value": Object {
+                  "priority": [MockFunction],
+                  "ref": [MockFunction] {
+                    "calls": Array [
+                      Array [
+                        "objects",
+                      ],
+                      Array [
+                        "objects/123123123",
+                      ],
+                      Array [
+                        "objects/321321321",
+                      ],
+                    ],
+                    "results": Array [
+                      Object {
+                        "isThrow": false,
+                        "value": Object {
+                          "off": [MockFunction],
+                          "on": [MockFunction],
+                          "once": [MockFunction],
+                          "set": [MockFunction],
+                        },
+                      },
+                      Object {
+                        "isThrow": false,
+                        "value": Object {
+                          "off": [MockFunction],
+                          "on": [MockFunction],
+                          "once": [MockFunction],
+                          "set": [MockFunction],
+                        },
+                      },
+                      Object {
+                        "isThrow": false,
+                        "value": Object {
+                          "off": [MockFunction],
+                          "on": [MockFunction],
+                          "once": [MockFunction],
+                          "set": [MockFunction],
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+            ],
+          },
+        },
+        "refreshToken": null,
+        "safeWrites": true,
+        "shard": "mongofb-mock",
+      },
+      "defaults": Object {
+        "site_id": "5bdce894a1649c5974fb30c3",
+      },
+      "name": "objects",
+      "ref": CollectionRef {
+        "collection": [Circular],
+        "database": Database {
+          "api": "/app/v1",
+          "apiKey": "MOCK_API_KEY",
+          "cache": true,
+          "currentUser": null,
+          "firebase": Object {
+            "auth": [MockFunction],
+            "database": [MockFunction] {
+              "calls": Array [
+                Array [],
+                Array [],
+                Array [],
+              ],
+              "results": Array [
+                Object {
+                  "isThrow": false,
+                  "value": Object {
+                    "priority": [MockFunction],
+                    "ref": [MockFunction] {
+                      "calls": Array [
+                        Array [
+                          "objects",
+                        ],
+                        Array [
+                          "objects/123123123",
+                        ],
+                        Array [
+                          "objects/321321321",
+                        ],
+                      ],
+                      "results": Array [
+                        Object {
+                          "isThrow": false,
+                          "value": Object {
+                            "off": [MockFunction],
+                            "on": [MockFunction],
+                            "once": [MockFunction],
+                            "set": [MockFunction],
+                          },
+                        },
+                        Object {
+                          "isThrow": false,
+                          "value": Object {
+                            "off": [MockFunction],
+                            "on": [MockFunction],
+                            "once": [MockFunction],
+                            "set": [MockFunction],
+                          },
+                        },
+                        Object {
+                          "isThrow": false,
+                          "value": Object {
+                            "off": [MockFunction],
+                            "on": [MockFunction],
+                            "once": [MockFunction],
+                            "set": [MockFunction],
+                          },
+                        },
+                      ],
+                    },
+                  },
+                },
+                Object {
+                  "isThrow": false,
+                  "value": Object {
+                    "priority": [MockFunction],
+                    "ref": [MockFunction] {
+                      "calls": Array [
+                        Array [
+                          "objects",
+                        ],
+                        Array [
+                          "objects/123123123",
+                        ],
+                        Array [
+                          "objects/321321321",
+                        ],
+                      ],
+                      "results": Array [
+                        Object {
+                          "isThrow": false,
+                          "value": Object {
+                            "off": [MockFunction],
+                            "on": [MockFunction],
+                            "once": [MockFunction],
+                            "set": [MockFunction],
+                          },
+                        },
+                        Object {
+                          "isThrow": false,
+                          "value": Object {
+                            "off": [MockFunction],
+                            "on": [MockFunction],
+                            "once": [MockFunction],
+                            "set": [MockFunction],
+                          },
+                        },
+                        Object {
+                          "isThrow": false,
+                          "value": Object {
+                            "off": [MockFunction],
+                            "on": [MockFunction],
+                            "once": [MockFunction],
+                            "set": [MockFunction],
+                          },
+                        },
+                      ],
+                    },
+                  },
+                },
+                Object {
+                  "isThrow": false,
+                  "value": Object {
+                    "priority": [MockFunction],
+                    "ref": [MockFunction] {
+                      "calls": Array [
+                        Array [
+                          "objects",
+                        ],
+                        Array [
+                          "objects/123123123",
+                        ],
+                        Array [
+                          "objects/321321321",
+                        ],
+                      ],
+                      "results": Array [
+                        Object {
+                          "isThrow": false,
+                          "value": Object {
+                            "off": [MockFunction],
+                            "on": [MockFunction],
+                            "once": [MockFunction],
+                            "set": [MockFunction],
+                          },
+                        },
+                        Object {
+                          "isThrow": false,
+                          "value": Object {
+                            "off": [MockFunction],
+                            "on": [MockFunction],
+                            "once": [MockFunction],
+                            "set": [MockFunction],
+                          },
+                        },
+                        Object {
+                          "isThrow": false,
+                          "value": Object {
+                            "off": [MockFunction],
+                            "on": [MockFunction],
+                            "once": [MockFunction],
+                            "set": [MockFunction],
+                          },
+                        },
+                      ],
+                    },
+                  },
+                },
+              ],
+            },
+          },
+          "refreshToken": null,
+          "safeWrites": true,
+          "shard": "mongofb-mock",
+        },
+        "events": Object {},
+        "ref": Object {
+          "off": [MockFunction],
+          "on": [MockFunction],
+          "once": [MockFunction],
+          "set": [MockFunction],
+        },
+      },
+    },
+    "data": Object {
+      "_id": "123123123",
+      "data": Object {
+        "fromTest": true,
+      },
+      "name": "test object",
+      "site_id": "5bdce894a1649c5974fb30c3",
+    },
+    "database": Database {
+      "api": "/app/v1",
+      "apiKey": "MOCK_API_KEY",
+      "cache": true,
+      "currentUser": null,
+      "firebase": Object {
+        "auth": [MockFunction],
+        "database": [MockFunction] {
+          "calls": Array [
+            Array [],
+            Array [],
+            Array [],
+          ],
+          "results": Array [
+            Object {
+              "isThrow": false,
+              "value": Object {
+                "priority": [MockFunction],
+                "ref": [MockFunction] {
+                  "calls": Array [
+                    Array [
+                      "objects",
+                    ],
+                    Array [
+                      "objects/123123123",
+                    ],
+                    Array [
+                      "objects/321321321",
+                    ],
+                  ],
+                  "results": Array [
+                    Object {
+                      "isThrow": false,
+                      "value": Object {
+                        "off": [MockFunction],
+                        "on": [MockFunction],
+                        "once": [MockFunction],
+                        "set": [MockFunction],
+                      },
+                    },
+                    Object {
+                      "isThrow": false,
+                      "value": Object {
+                        "off": [MockFunction],
+                        "on": [MockFunction],
+                        "once": [MockFunction],
+                        "set": [MockFunction],
+                      },
+                    },
+                    Object {
+                      "isThrow": false,
+                      "value": Object {
+                        "off": [MockFunction],
+                        "on": [MockFunction],
+                        "once": [MockFunction],
+                        "set": [MockFunction],
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+            Object {
+              "isThrow": false,
+              "value": Object {
+                "priority": [MockFunction],
+                "ref": [MockFunction] {
+                  "calls": Array [
+                    Array [
+                      "objects",
+                    ],
+                    Array [
+                      "objects/123123123",
+                    ],
+                    Array [
+                      "objects/321321321",
+                    ],
+                  ],
+                  "results": Array [
+                    Object {
+                      "isThrow": false,
+                      "value": Object {
+                        "off": [MockFunction],
+                        "on": [MockFunction],
+                        "once": [MockFunction],
+                        "set": [MockFunction],
+                      },
+                    },
+                    Object {
+                      "isThrow": false,
+                      "value": Object {
+                        "off": [MockFunction],
+                        "on": [MockFunction],
+                        "once": [MockFunction],
+                        "set": [MockFunction],
+                      },
+                    },
+                    Object {
+                      "isThrow": false,
+                      "value": Object {
+                        "off": [MockFunction],
+                        "on": [MockFunction],
+                        "once": [MockFunction],
+                        "set": [MockFunction],
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+            Object {
+              "isThrow": false,
+              "value": Object {
+                "priority": [MockFunction],
+                "ref": [MockFunction] {
+                  "calls": Array [
+                    Array [
+                      "objects",
+                    ],
+                    Array [
+                      "objects/123123123",
+                    ],
+                    Array [
+                      "objects/321321321",
+                    ],
+                  ],
+                  "results": Array [
+                    Object {
+                      "isThrow": false,
+                      "value": Object {
+                        "off": [MockFunction],
+                        "on": [MockFunction],
+                        "once": [MockFunction],
+                        "set": [MockFunction],
+                      },
+                    },
+                    Object {
+                      "isThrow": false,
+                      "value": Object {
+                        "off": [MockFunction],
+                        "on": [MockFunction],
+                        "once": [MockFunction],
+                        "set": [MockFunction],
+                      },
+                    },
+                    Object {
+                      "isThrow": false,
+                      "value": Object {
+                        "off": [MockFunction],
+                        "on": [MockFunction],
+                        "once": [MockFunction],
+                        "set": [MockFunction],
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+          ],
+        },
+      },
+      "refreshToken": null,
+      "safeWrites": true,
+      "shard": "mongofb-mock",
+    },
+    "key": "objects/123123123",
+    "query": Object {
+      "criteria": Object {
+        "site_id": "5bdce894a1649c5974fb30c3",
+      },
+      "options": Object {},
+    },
+    "ref": DocumentRef {
+      "collection": PseudoCollection {
+        "database": Database {
+          "api": "/app/v1",
+          "apiKey": "MOCK_API_KEY",
+          "cache": true,
+          "currentUser": null,
+          "firebase": Object {
+            "auth": [MockFunction],
+            "database": [MockFunction] {
+              "calls": Array [
+                Array [],
+                Array [],
+                Array [],
+              ],
+              "results": Array [
+                Object {
+                  "isThrow": false,
+                  "value": Object {
+                    "priority": [MockFunction],
+                    "ref": [MockFunction] {
+                      "calls": Array [
+                        Array [
+                          "objects",
+                        ],
+                        Array [
+                          "objects/123123123",
+                        ],
+                        Array [
+                          "objects/321321321",
+                        ],
+                      ],
+                      "results": Array [
+                        Object {
+                          "isThrow": false,
+                          "value": Object {
+                            "off": [MockFunction],
+                            "on": [MockFunction],
+                            "once": [MockFunction],
+                            "set": [MockFunction],
+                          },
+                        },
+                        Object {
+                          "isThrow": false,
+                          "value": Object {
+                            "off": [MockFunction],
+                            "on": [MockFunction],
+                            "once": [MockFunction],
+                            "set": [MockFunction],
+                          },
+                        },
+                        Object {
+                          "isThrow": false,
+                          "value": Object {
+                            "off": [MockFunction],
+                            "on": [MockFunction],
+                            "once": [MockFunction],
+                            "set": [MockFunction],
+                          },
+                        },
+                      ],
+                    },
+                  },
+                },
+                Object {
+                  "isThrow": false,
+                  "value": Object {
+                    "priority": [MockFunction],
+                    "ref": [MockFunction] {
+                      "calls": Array [
+                        Array [
+                          "objects",
+                        ],
+                        Array [
+                          "objects/123123123",
+                        ],
+                        Array [
+                          "objects/321321321",
+                        ],
+                      ],
+                      "results": Array [
+                        Object {
+                          "isThrow": false,
+                          "value": Object {
+                            "off": [MockFunction],
+                            "on": [MockFunction],
+                            "once": [MockFunction],
+                            "set": [MockFunction],
+                          },
+                        },
+                        Object {
+                          "isThrow": false,
+                          "value": Object {
+                            "off": [MockFunction],
+                            "on": [MockFunction],
+                            "once": [MockFunction],
+                            "set": [MockFunction],
+                          },
+                        },
+                        Object {
+                          "isThrow": false,
+                          "value": Object {
+                            "off": [MockFunction],
+                            "on": [MockFunction],
+                            "once": [MockFunction],
+                            "set": [MockFunction],
+                          },
+                        },
+                      ],
+                    },
+                  },
+                },
+                Object {
+                  "isThrow": false,
+                  "value": Object {
+                    "priority": [MockFunction],
+                    "ref": [MockFunction] {
+                      "calls": Array [
+                        Array [
+                          "objects",
+                        ],
+                        Array [
+                          "objects/123123123",
+                        ],
+                        Array [
+                          "objects/321321321",
+                        ],
+                      ],
+                      "results": Array [
+                        Object {
+                          "isThrow": false,
+                          "value": Object {
+                            "off": [MockFunction],
+                            "on": [MockFunction],
+                            "once": [MockFunction],
+                            "set": [MockFunction],
+                          },
+                        },
+                        Object {
+                          "isThrow": false,
+                          "value": Object {
+                            "off": [MockFunction],
+                            "on": [MockFunction],
+                            "once": [MockFunction],
+                            "set": [MockFunction],
+                          },
+                        },
+                        Object {
+                          "isThrow": false,
+                          "value": Object {
+                            "off": [MockFunction],
+                            "on": [MockFunction],
+                            "once": [MockFunction],
+                            "set": [MockFunction],
+                          },
+                        },
+                      ],
+                    },
+                  },
+                },
+              ],
+            },
+          },
+          "refreshToken": null,
+          "safeWrites": true,
+          "shard": "mongofb-mock",
+        },
+        "defaults": Object {
+          "site_id": "5bdce894a1649c5974fb30c3",
+        },
+        "name": "objects",
+        "ref": CollectionRef {
+          "collection": [Circular],
+          "database": Database {
+            "api": "/app/v1",
+            "apiKey": "MOCK_API_KEY",
+            "cache": true,
+            "currentUser": null,
+            "firebase": Object {
+              "auth": [MockFunction],
+              "database": [MockFunction] {
+                "calls": Array [
+                  Array [],
+                  Array [],
+                  Array [],
+                ],
+                "results": Array [
+                  Object {
+                    "isThrow": false,
+                    "value": Object {
+                      "priority": [MockFunction],
+                      "ref": [MockFunction] {
+                        "calls": Array [
+                          Array [
+                            "objects",
+                          ],
+                          Array [
+                            "objects/123123123",
+                          ],
+                          Array [
+                            "objects/321321321",
+                          ],
+                        ],
+                        "results": Array [
+                          Object {
+                            "isThrow": false,
+                            "value": Object {
+                              "off": [MockFunction],
+                              "on": [MockFunction],
+                              "once": [MockFunction],
+                              "set": [MockFunction],
+                            },
+                          },
+                          Object {
+                            "isThrow": false,
+                            "value": Object {
+                              "off": [MockFunction],
+                              "on": [MockFunction],
+                              "once": [MockFunction],
+                              "set": [MockFunction],
+                            },
+                          },
+                          Object {
+                            "isThrow": false,
+                            "value": Object {
+                              "off": [MockFunction],
+                              "on": [MockFunction],
+                              "once": [MockFunction],
+                              "set": [MockFunction],
+                            },
+                          },
+                        ],
+                      },
+                    },
+                  },
+                  Object {
+                    "isThrow": false,
+                    "value": Object {
+                      "priority": [MockFunction],
+                      "ref": [MockFunction] {
+                        "calls": Array [
+                          Array [
+                            "objects",
+                          ],
+                          Array [
+                            "objects/123123123",
+                          ],
+                          Array [
+                            "objects/321321321",
+                          ],
+                        ],
+                        "results": Array [
+                          Object {
+                            "isThrow": false,
+                            "value": Object {
+                              "off": [MockFunction],
+                              "on": [MockFunction],
+                              "once": [MockFunction],
+                              "set": [MockFunction],
+                            },
+                          },
+                          Object {
+                            "isThrow": false,
+                            "value": Object {
+                              "off": [MockFunction],
+                              "on": [MockFunction],
+                              "once": [MockFunction],
+                              "set": [MockFunction],
+                            },
+                          },
+                          Object {
+                            "isThrow": false,
+                            "value": Object {
+                              "off": [MockFunction],
+                              "on": [MockFunction],
+                              "once": [MockFunction],
+                              "set": [MockFunction],
+                            },
+                          },
+                        ],
+                      },
+                    },
+                  },
+                  Object {
+                    "isThrow": false,
+                    "value": Object {
+                      "priority": [MockFunction],
+                      "ref": [MockFunction] {
+                        "calls": Array [
+                          Array [
+                            "objects",
+                          ],
+                          Array [
+                            "objects/123123123",
+                          ],
+                          Array [
+                            "objects/321321321",
+                          ],
+                        ],
+                        "results": Array [
+                          Object {
+                            "isThrow": false,
+                            "value": Object {
+                              "off": [MockFunction],
+                              "on": [MockFunction],
+                              "once": [MockFunction],
+                              "set": [MockFunction],
+                            },
+                          },
+                          Object {
+                            "isThrow": false,
+                            "value": Object {
+                              "off": [MockFunction],
+                              "on": [MockFunction],
+                              "once": [MockFunction],
+                              "set": [MockFunction],
+                            },
+                          },
+                          Object {
+                            "isThrow": false,
+                            "value": Object {
+                              "off": [MockFunction],
+                              "on": [MockFunction],
+                              "once": [MockFunction],
+                              "set": [MockFunction],
+                            },
+                          },
+                        ],
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+            "refreshToken": null,
+            "safeWrites": true,
+            "shard": "mongofb-mock",
+          },
+          "events": Object {},
+          "ref": Object {
+            "off": [MockFunction],
+            "on": [MockFunction],
+            "once": [MockFunction],
+            "set": [MockFunction],
+          },
+        },
+      },
+      "counter": 1,
+      "data": Object {
+        "_id": "123123123",
+        "data": Object {
+          "fromTest": true,
+        },
+        "name": "test object",
+        "site_id": "5bdce894a1649c5974fb30c3",
+      },
+      "database": Database {
+        "api": "/app/v1",
+        "apiKey": "MOCK_API_KEY",
+        "cache": true,
+        "currentUser": null,
+        "firebase": Object {
+          "auth": [MockFunction],
+          "database": [MockFunction] {
+            "calls": Array [
+              Array [],
+              Array [],
+              Array [],
+            ],
+            "results": Array [
+              Object {
+                "isThrow": false,
+                "value": Object {
+                  "priority": [MockFunction],
+                  "ref": [MockFunction] {
+                    "calls": Array [
+                      Array [
+                        "objects",
+                      ],
+                      Array [
+                        "objects/123123123",
+                      ],
+                      Array [
+                        "objects/321321321",
+                      ],
+                    ],
+                    "results": Array [
+                      Object {
+                        "isThrow": false,
+                        "value": Object {
+                          "off": [MockFunction],
+                          "on": [MockFunction],
+                          "once": [MockFunction],
+                          "set": [MockFunction],
+                        },
+                      },
+                      Object {
+                        "isThrow": false,
+                        "value": Object {
+                          "off": [MockFunction],
+                          "on": [MockFunction],
+                          "once": [MockFunction],
+                          "set": [MockFunction],
+                        },
+                      },
+                      Object {
+                        "isThrow": false,
+                        "value": Object {
+                          "off": [MockFunction],
+                          "on": [MockFunction],
+                          "once": [MockFunction],
+                          "set": [MockFunction],
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+              Object {
+                "isThrow": false,
+                "value": Object {
+                  "priority": [MockFunction],
+                  "ref": [MockFunction] {
+                    "calls": Array [
+                      Array [
+                        "objects",
+                      ],
+                      Array [
+                        "objects/123123123",
+                      ],
+                      Array [
+                        "objects/321321321",
+                      ],
+                    ],
+                    "results": Array [
+                      Object {
+                        "isThrow": false,
+                        "value": Object {
+                          "off": [MockFunction],
+                          "on": [MockFunction],
+                          "once": [MockFunction],
+                          "set": [MockFunction],
+                        },
+                      },
+                      Object {
+                        "isThrow": false,
+                        "value": Object {
+                          "off": [MockFunction],
+                          "on": [MockFunction],
+                          "once": [MockFunction],
+                          "set": [MockFunction],
+                        },
+                      },
+                      Object {
+                        "isThrow": false,
+                        "value": Object {
+                          "off": [MockFunction],
+                          "on": [MockFunction],
+                          "once": [MockFunction],
+                          "set": [MockFunction],
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+              Object {
+                "isThrow": false,
+                "value": Object {
+                  "priority": [MockFunction],
+                  "ref": [MockFunction] {
+                    "calls": Array [
+                      Array [
+                        "objects",
+                      ],
+                      Array [
+                        "objects/123123123",
+                      ],
+                      Array [
+                        "objects/321321321",
+                      ],
+                    ],
+                    "results": Array [
+                      Object {
+                        "isThrow": false,
+                        "value": Object {
+                          "off": [MockFunction],
+                          "on": [MockFunction],
+                          "once": [MockFunction],
+                          "set": [MockFunction],
+                        },
+                      },
+                      Object {
+                        "isThrow": false,
+                        "value": Object {
+                          "off": [MockFunction],
+                          "on": [MockFunction],
+                          "once": [MockFunction],
+                          "set": [MockFunction],
+                        },
+                      },
+                      Object {
+                        "isThrow": false,
+                        "value": Object {
+                          "off": [MockFunction],
+                          "on": [MockFunction],
+                          "once": [MockFunction],
+                          "set": [MockFunction],
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+            ],
+          },
+        },
+        "refreshToken": null,
+        "safeWrites": true,
+        "shard": "mongofb-mock",
+      },
+      "document": [Circular],
+      "events": Object {},
+      "key": "objects/123123123",
+      "path": Array [],
+      "ref": Object {
+        "off": [MockFunction],
+        "on": [MockFunction],
+        "once": [MockFunction],
+        "set": [MockFunction],
+      },
+    },
+  },
+  Document {
+    "collection": PseudoCollection {
+      "database": Database {
+        "api": "/app/v1",
+        "apiKey": "MOCK_API_KEY",
+        "cache": true,
+        "currentUser": null,
+        "firebase": Object {
+          "auth": [MockFunction],
+          "database": [MockFunction] {
+            "calls": Array [
+              Array [],
+              Array [],
+              Array [],
+            ],
+            "results": Array [
+              Object {
+                "isThrow": false,
+                "value": Object {
+                  "priority": [MockFunction],
+                  "ref": [MockFunction] {
+                    "calls": Array [
+                      Array [
+                        "objects",
+                      ],
+                      Array [
+                        "objects/123123123",
+                      ],
+                      Array [
+                        "objects/321321321",
+                      ],
+                    ],
+                    "results": Array [
+                      Object {
+                        "isThrow": false,
+                        "value": Object {
+                          "off": [MockFunction],
+                          "on": [MockFunction],
+                          "once": [MockFunction],
+                          "set": [MockFunction],
+                        },
+                      },
+                      Object {
+                        "isThrow": false,
+                        "value": Object {
+                          "off": [MockFunction],
+                          "on": [MockFunction],
+                          "once": [MockFunction],
+                          "set": [MockFunction],
+                        },
+                      },
+                      Object {
+                        "isThrow": false,
+                        "value": Object {
+                          "off": [MockFunction],
+                          "on": [MockFunction],
+                          "once": [MockFunction],
+                          "set": [MockFunction],
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+              Object {
+                "isThrow": false,
+                "value": Object {
+                  "priority": [MockFunction],
+                  "ref": [MockFunction] {
+                    "calls": Array [
+                      Array [
+                        "objects",
+                      ],
+                      Array [
+                        "objects/123123123",
+                      ],
+                      Array [
+                        "objects/321321321",
+                      ],
+                    ],
+                    "results": Array [
+                      Object {
+                        "isThrow": false,
+                        "value": Object {
+                          "off": [MockFunction],
+                          "on": [MockFunction],
+                          "once": [MockFunction],
+                          "set": [MockFunction],
+                        },
+                      },
+                      Object {
+                        "isThrow": false,
+                        "value": Object {
+                          "off": [MockFunction],
+                          "on": [MockFunction],
+                          "once": [MockFunction],
+                          "set": [MockFunction],
+                        },
+                      },
+                      Object {
+                        "isThrow": false,
+                        "value": Object {
+                          "off": [MockFunction],
+                          "on": [MockFunction],
+                          "once": [MockFunction],
+                          "set": [MockFunction],
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+              Object {
+                "isThrow": false,
+                "value": Object {
+                  "priority": [MockFunction],
+                  "ref": [MockFunction] {
+                    "calls": Array [
+                      Array [
+                        "objects",
+                      ],
+                      Array [
+                        "objects/123123123",
+                      ],
+                      Array [
+                        "objects/321321321",
+                      ],
+                    ],
+                    "results": Array [
+                      Object {
+                        "isThrow": false,
+                        "value": Object {
+                          "off": [MockFunction],
+                          "on": [MockFunction],
+                          "once": [MockFunction],
+                          "set": [MockFunction],
+                        },
+                      },
+                      Object {
+                        "isThrow": false,
+                        "value": Object {
+                          "off": [MockFunction],
+                          "on": [MockFunction],
+                          "once": [MockFunction],
+                          "set": [MockFunction],
+                        },
+                      },
+                      Object {
+                        "isThrow": false,
+                        "value": Object {
+                          "off": [MockFunction],
+                          "on": [MockFunction],
+                          "once": [MockFunction],
+                          "set": [MockFunction],
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+            ],
+          },
+        },
+        "refreshToken": null,
+        "safeWrites": true,
+        "shard": "mongofb-mock",
+      },
+      "defaults": Object {
+        "site_id": "5bdce894a1649c5974fb30c3",
+      },
+      "name": "objects",
+      "ref": CollectionRef {
+        "collection": [Circular],
+        "database": Database {
+          "api": "/app/v1",
+          "apiKey": "MOCK_API_KEY",
+          "cache": true,
+          "currentUser": null,
+          "firebase": Object {
+            "auth": [MockFunction],
+            "database": [MockFunction] {
+              "calls": Array [
+                Array [],
+                Array [],
+                Array [],
+              ],
+              "results": Array [
+                Object {
+                  "isThrow": false,
+                  "value": Object {
+                    "priority": [MockFunction],
+                    "ref": [MockFunction] {
+                      "calls": Array [
+                        Array [
+                          "objects",
+                        ],
+                        Array [
+                          "objects/123123123",
+                        ],
+                        Array [
+                          "objects/321321321",
+                        ],
+                      ],
+                      "results": Array [
+                        Object {
+                          "isThrow": false,
+                          "value": Object {
+                            "off": [MockFunction],
+                            "on": [MockFunction],
+                            "once": [MockFunction],
+                            "set": [MockFunction],
+                          },
+                        },
+                        Object {
+                          "isThrow": false,
+                          "value": Object {
+                            "off": [MockFunction],
+                            "on": [MockFunction],
+                            "once": [MockFunction],
+                            "set": [MockFunction],
+                          },
+                        },
+                        Object {
+                          "isThrow": false,
+                          "value": Object {
+                            "off": [MockFunction],
+                            "on": [MockFunction],
+                            "once": [MockFunction],
+                            "set": [MockFunction],
+                          },
+                        },
+                      ],
+                    },
+                  },
+                },
+                Object {
+                  "isThrow": false,
+                  "value": Object {
+                    "priority": [MockFunction],
+                    "ref": [MockFunction] {
+                      "calls": Array [
+                        Array [
+                          "objects",
+                        ],
+                        Array [
+                          "objects/123123123",
+                        ],
+                        Array [
+                          "objects/321321321",
+                        ],
+                      ],
+                      "results": Array [
+                        Object {
+                          "isThrow": false,
+                          "value": Object {
+                            "off": [MockFunction],
+                            "on": [MockFunction],
+                            "once": [MockFunction],
+                            "set": [MockFunction],
+                          },
+                        },
+                        Object {
+                          "isThrow": false,
+                          "value": Object {
+                            "off": [MockFunction],
+                            "on": [MockFunction],
+                            "once": [MockFunction],
+                            "set": [MockFunction],
+                          },
+                        },
+                        Object {
+                          "isThrow": false,
+                          "value": Object {
+                            "off": [MockFunction],
+                            "on": [MockFunction],
+                            "once": [MockFunction],
+                            "set": [MockFunction],
+                          },
+                        },
+                      ],
+                    },
+                  },
+                },
+                Object {
+                  "isThrow": false,
+                  "value": Object {
+                    "priority": [MockFunction],
+                    "ref": [MockFunction] {
+                      "calls": Array [
+                        Array [
+                          "objects",
+                        ],
+                        Array [
+                          "objects/123123123",
+                        ],
+                        Array [
+                          "objects/321321321",
+                        ],
+                      ],
+                      "results": Array [
+                        Object {
+                          "isThrow": false,
+                          "value": Object {
+                            "off": [MockFunction],
+                            "on": [MockFunction],
+                            "once": [MockFunction],
+                            "set": [MockFunction],
+                          },
+                        },
+                        Object {
+                          "isThrow": false,
+                          "value": Object {
+                            "off": [MockFunction],
+                            "on": [MockFunction],
+                            "once": [MockFunction],
+                            "set": [MockFunction],
+                          },
+                        },
+                        Object {
+                          "isThrow": false,
+                          "value": Object {
+                            "off": [MockFunction],
+                            "on": [MockFunction],
+                            "once": [MockFunction],
+                            "set": [MockFunction],
+                          },
+                        },
+                      ],
+                    },
+                  },
+                },
+              ],
+            },
+          },
+          "refreshToken": null,
+          "safeWrites": true,
+          "shard": "mongofb-mock",
+        },
+        "events": Object {},
+        "ref": Object {
+          "off": [MockFunction],
+          "on": [MockFunction],
+          "once": [MockFunction],
+          "set": [MockFunction],
+        },
+      },
+    },
+    "data": Object {
+      "_id": "321321321",
+      "data": Object {
+        "fromTest": true,
+      },
+      "name": "test object 2",
+      "site_id": "5bdce894a1649c5974fb30c3",
+    },
+    "database": Database {
+      "api": "/app/v1",
+      "apiKey": "MOCK_API_KEY",
+      "cache": true,
+      "currentUser": null,
+      "firebase": Object {
+        "auth": [MockFunction],
+        "database": [MockFunction] {
+          "calls": Array [
+            Array [],
+            Array [],
+            Array [],
+          ],
+          "results": Array [
+            Object {
+              "isThrow": false,
+              "value": Object {
+                "priority": [MockFunction],
+                "ref": [MockFunction] {
+                  "calls": Array [
+                    Array [
+                      "objects",
+                    ],
+                    Array [
+                      "objects/123123123",
+                    ],
+                    Array [
+                      "objects/321321321",
+                    ],
+                  ],
+                  "results": Array [
+                    Object {
+                      "isThrow": false,
+                      "value": Object {
+                        "off": [MockFunction],
+                        "on": [MockFunction],
+                        "once": [MockFunction],
+                        "set": [MockFunction],
+                      },
+                    },
+                    Object {
+                      "isThrow": false,
+                      "value": Object {
+                        "off": [MockFunction],
+                        "on": [MockFunction],
+                        "once": [MockFunction],
+                        "set": [MockFunction],
+                      },
+                    },
+                    Object {
+                      "isThrow": false,
+                      "value": Object {
+                        "off": [MockFunction],
+                        "on": [MockFunction],
+                        "once": [MockFunction],
+                        "set": [MockFunction],
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+            Object {
+              "isThrow": false,
+              "value": Object {
+                "priority": [MockFunction],
+                "ref": [MockFunction] {
+                  "calls": Array [
+                    Array [
+                      "objects",
+                    ],
+                    Array [
+                      "objects/123123123",
+                    ],
+                    Array [
+                      "objects/321321321",
+                    ],
+                  ],
+                  "results": Array [
+                    Object {
+                      "isThrow": false,
+                      "value": Object {
+                        "off": [MockFunction],
+                        "on": [MockFunction],
+                        "once": [MockFunction],
+                        "set": [MockFunction],
+                      },
+                    },
+                    Object {
+                      "isThrow": false,
+                      "value": Object {
+                        "off": [MockFunction],
+                        "on": [MockFunction],
+                        "once": [MockFunction],
+                        "set": [MockFunction],
+                      },
+                    },
+                    Object {
+                      "isThrow": false,
+                      "value": Object {
+                        "off": [MockFunction],
+                        "on": [MockFunction],
+                        "once": [MockFunction],
+                        "set": [MockFunction],
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+            Object {
+              "isThrow": false,
+              "value": Object {
+                "priority": [MockFunction],
+                "ref": [MockFunction] {
+                  "calls": Array [
+                    Array [
+                      "objects",
+                    ],
+                    Array [
+                      "objects/123123123",
+                    ],
+                    Array [
+                      "objects/321321321",
+                    ],
+                  ],
+                  "results": Array [
+                    Object {
+                      "isThrow": false,
+                      "value": Object {
+                        "off": [MockFunction],
+                        "on": [MockFunction],
+                        "once": [MockFunction],
+                        "set": [MockFunction],
+                      },
+                    },
+                    Object {
+                      "isThrow": false,
+                      "value": Object {
+                        "off": [MockFunction],
+                        "on": [MockFunction],
+                        "once": [MockFunction],
+                        "set": [MockFunction],
+                      },
+                    },
+                    Object {
+                      "isThrow": false,
+                      "value": Object {
+                        "off": [MockFunction],
+                        "on": [MockFunction],
+                        "once": [MockFunction],
+                        "set": [MockFunction],
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+          ],
+        },
+      },
+      "refreshToken": null,
+      "safeWrites": true,
+      "shard": "mongofb-mock",
+    },
+    "key": "objects/321321321",
+    "query": Object {
+      "criteria": Object {
+        "site_id": "5bdce894a1649c5974fb30c3",
+      },
+      "options": Object {},
+    },
+    "ref": DocumentRef {
+      "collection": PseudoCollection {
+        "database": Database {
+          "api": "/app/v1",
+          "apiKey": "MOCK_API_KEY",
+          "cache": true,
+          "currentUser": null,
+          "firebase": Object {
+            "auth": [MockFunction],
+            "database": [MockFunction] {
+              "calls": Array [
+                Array [],
+                Array [],
+                Array [],
+              ],
+              "results": Array [
+                Object {
+                  "isThrow": false,
+                  "value": Object {
+                    "priority": [MockFunction],
+                    "ref": [MockFunction] {
+                      "calls": Array [
+                        Array [
+                          "objects",
+                        ],
+                        Array [
+                          "objects/123123123",
+                        ],
+                        Array [
+                          "objects/321321321",
+                        ],
+                      ],
+                      "results": Array [
+                        Object {
+                          "isThrow": false,
+                          "value": Object {
+                            "off": [MockFunction],
+                            "on": [MockFunction],
+                            "once": [MockFunction],
+                            "set": [MockFunction],
+                          },
+                        },
+                        Object {
+                          "isThrow": false,
+                          "value": Object {
+                            "off": [MockFunction],
+                            "on": [MockFunction],
+                            "once": [MockFunction],
+                            "set": [MockFunction],
+                          },
+                        },
+                        Object {
+                          "isThrow": false,
+                          "value": Object {
+                            "off": [MockFunction],
+                            "on": [MockFunction],
+                            "once": [MockFunction],
+                            "set": [MockFunction],
+                          },
+                        },
+                      ],
+                    },
+                  },
+                },
+                Object {
+                  "isThrow": false,
+                  "value": Object {
+                    "priority": [MockFunction],
+                    "ref": [MockFunction] {
+                      "calls": Array [
+                        Array [
+                          "objects",
+                        ],
+                        Array [
+                          "objects/123123123",
+                        ],
+                        Array [
+                          "objects/321321321",
+                        ],
+                      ],
+                      "results": Array [
+                        Object {
+                          "isThrow": false,
+                          "value": Object {
+                            "off": [MockFunction],
+                            "on": [MockFunction],
+                            "once": [MockFunction],
+                            "set": [MockFunction],
+                          },
+                        },
+                        Object {
+                          "isThrow": false,
+                          "value": Object {
+                            "off": [MockFunction],
+                            "on": [MockFunction],
+                            "once": [MockFunction],
+                            "set": [MockFunction],
+                          },
+                        },
+                        Object {
+                          "isThrow": false,
+                          "value": Object {
+                            "off": [MockFunction],
+                            "on": [MockFunction],
+                            "once": [MockFunction],
+                            "set": [MockFunction],
+                          },
+                        },
+                      ],
+                    },
+                  },
+                },
+                Object {
+                  "isThrow": false,
+                  "value": Object {
+                    "priority": [MockFunction],
+                    "ref": [MockFunction] {
+                      "calls": Array [
+                        Array [
+                          "objects",
+                        ],
+                        Array [
+                          "objects/123123123",
+                        ],
+                        Array [
+                          "objects/321321321",
+                        ],
+                      ],
+                      "results": Array [
+                        Object {
+                          "isThrow": false,
+                          "value": Object {
+                            "off": [MockFunction],
+                            "on": [MockFunction],
+                            "once": [MockFunction],
+                            "set": [MockFunction],
+                          },
+                        },
+                        Object {
+                          "isThrow": false,
+                          "value": Object {
+                            "off": [MockFunction],
+                            "on": [MockFunction],
+                            "once": [MockFunction],
+                            "set": [MockFunction],
+                          },
+                        },
+                        Object {
+                          "isThrow": false,
+                          "value": Object {
+                            "off": [MockFunction],
+                            "on": [MockFunction],
+                            "once": [MockFunction],
+                            "set": [MockFunction],
+                          },
+                        },
+                      ],
+                    },
+                  },
+                },
+              ],
+            },
+          },
+          "refreshToken": null,
+          "safeWrites": true,
+          "shard": "mongofb-mock",
+        },
+        "defaults": Object {
+          "site_id": "5bdce894a1649c5974fb30c3",
+        },
+        "name": "objects",
+        "ref": CollectionRef {
+          "collection": [Circular],
+          "database": Database {
+            "api": "/app/v1",
+            "apiKey": "MOCK_API_KEY",
+            "cache": true,
+            "currentUser": null,
+            "firebase": Object {
+              "auth": [MockFunction],
+              "database": [MockFunction] {
+                "calls": Array [
+                  Array [],
+                  Array [],
+                  Array [],
+                ],
+                "results": Array [
+                  Object {
+                    "isThrow": false,
+                    "value": Object {
+                      "priority": [MockFunction],
+                      "ref": [MockFunction] {
+                        "calls": Array [
+                          Array [
+                            "objects",
+                          ],
+                          Array [
+                            "objects/123123123",
+                          ],
+                          Array [
+                            "objects/321321321",
+                          ],
+                        ],
+                        "results": Array [
+                          Object {
+                            "isThrow": false,
+                            "value": Object {
+                              "off": [MockFunction],
+                              "on": [MockFunction],
+                              "once": [MockFunction],
+                              "set": [MockFunction],
+                            },
+                          },
+                          Object {
+                            "isThrow": false,
+                            "value": Object {
+                              "off": [MockFunction],
+                              "on": [MockFunction],
+                              "once": [MockFunction],
+                              "set": [MockFunction],
+                            },
+                          },
+                          Object {
+                            "isThrow": false,
+                            "value": Object {
+                              "off": [MockFunction],
+                              "on": [MockFunction],
+                              "once": [MockFunction],
+                              "set": [MockFunction],
+                            },
+                          },
+                        ],
+                      },
+                    },
+                  },
+                  Object {
+                    "isThrow": false,
+                    "value": Object {
+                      "priority": [MockFunction],
+                      "ref": [MockFunction] {
+                        "calls": Array [
+                          Array [
+                            "objects",
+                          ],
+                          Array [
+                            "objects/123123123",
+                          ],
+                          Array [
+                            "objects/321321321",
+                          ],
+                        ],
+                        "results": Array [
+                          Object {
+                            "isThrow": false,
+                            "value": Object {
+                              "off": [MockFunction],
+                              "on": [MockFunction],
+                              "once": [MockFunction],
+                              "set": [MockFunction],
+                            },
+                          },
+                          Object {
+                            "isThrow": false,
+                            "value": Object {
+                              "off": [MockFunction],
+                              "on": [MockFunction],
+                              "once": [MockFunction],
+                              "set": [MockFunction],
+                            },
+                          },
+                          Object {
+                            "isThrow": false,
+                            "value": Object {
+                              "off": [MockFunction],
+                              "on": [MockFunction],
+                              "once": [MockFunction],
+                              "set": [MockFunction],
+                            },
+                          },
+                        ],
+                      },
+                    },
+                  },
+                  Object {
+                    "isThrow": false,
+                    "value": Object {
+                      "priority": [MockFunction],
+                      "ref": [MockFunction] {
+                        "calls": Array [
+                          Array [
+                            "objects",
+                          ],
+                          Array [
+                            "objects/123123123",
+                          ],
+                          Array [
+                            "objects/321321321",
+                          ],
+                        ],
+                        "results": Array [
+                          Object {
+                            "isThrow": false,
+                            "value": Object {
+                              "off": [MockFunction],
+                              "on": [MockFunction],
+                              "once": [MockFunction],
+                              "set": [MockFunction],
+                            },
+                          },
+                          Object {
+                            "isThrow": false,
+                            "value": Object {
+                              "off": [MockFunction],
+                              "on": [MockFunction],
+                              "once": [MockFunction],
+                              "set": [MockFunction],
+                            },
+                          },
+                          Object {
+                            "isThrow": false,
+                            "value": Object {
+                              "off": [MockFunction],
+                              "on": [MockFunction],
+                              "once": [MockFunction],
+                              "set": [MockFunction],
+                            },
+                          },
+                        ],
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+            "refreshToken": null,
+            "safeWrites": true,
+            "shard": "mongofb-mock",
+          },
+          "events": Object {},
+          "ref": Object {
+            "off": [MockFunction],
+            "on": [MockFunction],
+            "once": [MockFunction],
+            "set": [MockFunction],
+          },
+        },
+      },
+      "counter": 2,
+      "data": Object {
+        "_id": "321321321",
+        "data": Object {
+          "fromTest": true,
+        },
+        "name": "test object 2",
+        "site_id": "5bdce894a1649c5974fb30c3",
+      },
+      "database": Database {
+        "api": "/app/v1",
+        "apiKey": "MOCK_API_KEY",
+        "cache": true,
+        "currentUser": null,
+        "firebase": Object {
+          "auth": [MockFunction],
+          "database": [MockFunction] {
+            "calls": Array [
+              Array [],
+              Array [],
+              Array [],
+            ],
+            "results": Array [
+              Object {
+                "isThrow": false,
+                "value": Object {
+                  "priority": [MockFunction],
+                  "ref": [MockFunction] {
+                    "calls": Array [
+                      Array [
+                        "objects",
+                      ],
+                      Array [
+                        "objects/123123123",
+                      ],
+                      Array [
+                        "objects/321321321",
+                      ],
+                    ],
+                    "results": Array [
+                      Object {
+                        "isThrow": false,
+                        "value": Object {
+                          "off": [MockFunction],
+                          "on": [MockFunction],
+                          "once": [MockFunction],
+                          "set": [MockFunction],
+                        },
+                      },
+                      Object {
+                        "isThrow": false,
+                        "value": Object {
+                          "off": [MockFunction],
+                          "on": [MockFunction],
+                          "once": [MockFunction],
+                          "set": [MockFunction],
+                        },
+                      },
+                      Object {
+                        "isThrow": false,
+                        "value": Object {
+                          "off": [MockFunction],
+                          "on": [MockFunction],
+                          "once": [MockFunction],
+                          "set": [MockFunction],
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+              Object {
+                "isThrow": false,
+                "value": Object {
+                  "priority": [MockFunction],
+                  "ref": [MockFunction] {
+                    "calls": Array [
+                      Array [
+                        "objects",
+                      ],
+                      Array [
+                        "objects/123123123",
+                      ],
+                      Array [
+                        "objects/321321321",
+                      ],
+                    ],
+                    "results": Array [
+                      Object {
+                        "isThrow": false,
+                        "value": Object {
+                          "off": [MockFunction],
+                          "on": [MockFunction],
+                          "once": [MockFunction],
+                          "set": [MockFunction],
+                        },
+                      },
+                      Object {
+                        "isThrow": false,
+                        "value": Object {
+                          "off": [MockFunction],
+                          "on": [MockFunction],
+                          "once": [MockFunction],
+                          "set": [MockFunction],
+                        },
+                      },
+                      Object {
+                        "isThrow": false,
+                        "value": Object {
+                          "off": [MockFunction],
+                          "on": [MockFunction],
+                          "once": [MockFunction],
+                          "set": [MockFunction],
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+              Object {
+                "isThrow": false,
+                "value": Object {
+                  "priority": [MockFunction],
+                  "ref": [MockFunction] {
+                    "calls": Array [
+                      Array [
+                        "objects",
+                      ],
+                      Array [
+                        "objects/123123123",
+                      ],
+                      Array [
+                        "objects/321321321",
+                      ],
+                    ],
+                    "results": Array [
+                      Object {
+                        "isThrow": false,
+                        "value": Object {
+                          "off": [MockFunction],
+                          "on": [MockFunction],
+                          "once": [MockFunction],
+                          "set": [MockFunction],
+                        },
+                      },
+                      Object {
+                        "isThrow": false,
+                        "value": Object {
+                          "off": [MockFunction],
+                          "on": [MockFunction],
+                          "once": [MockFunction],
+                          "set": [MockFunction],
+                        },
+                      },
+                      Object {
+                        "isThrow": false,
+                        "value": Object {
+                          "off": [MockFunction],
+                          "on": [MockFunction],
+                          "once": [MockFunction],
+                          "set": [MockFunction],
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+            ],
+          },
+        },
+        "refreshToken": null,
+        "safeWrites": true,
+        "shard": "mongofb-mock",
+      },
+      "document": [Circular],
+      "events": Object {},
+      "key": "objects/321321321",
+      "path": Array [],
+      "ref": Object {
+        "off": [MockFunction],
+        "on": [MockFunction],
+        "once": [MockFunction],
+        "set": [MockFunction],
+      },
+    },
+  },
+]
+`;
+
 exports[`document nested set updates document correctly 1`] = `
 Object {
   "foo": "bar",

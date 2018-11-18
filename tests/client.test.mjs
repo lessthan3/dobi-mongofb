@@ -1,11 +1,11 @@
-import { alphaPageId, alphaSiteId } from './mockDocuments';
+import { alphaPageId, alphaSiteId, betaSiteId } from './mockDocuments';
 
 const DATABASE_API_KEY = 'MOCK_API_KEY';
 const DATABASE_URL = 'https://mongofb-mock.firebaseio.com';
 let initializeAppMock;
 
-let client;
 let Database;
+let PseudoCollection;
 let axios;
 let firebase;
 
@@ -15,8 +15,9 @@ beforeAll(() => {
 beforeEach(async () => {
   jest.resetModules();
   jest.clearAllMocks();
-  client = await (import('../src/client'));
-  ({ axios, firebase, Database } = client);
+  ({
+    axios, firebase, Database, PseudoCollection,
+  } = await (import('../src/client')));
   ({ initializeApp: initializeAppMock } = firebase);
 });
 
@@ -267,6 +268,28 @@ describe('Collection', () => {
       responseType: 'json',
       url: `/app/v1/pages/${alphaPageId}`,
     });
+  });
+});
+
+describe('PseudoCollection', () => {
+  let pseudoCollection;
+  beforeEach(() => {
+    const instance = new Database({
+      api: '/app/v1',
+      firebase: {
+        apiKey: DATABASE_API_KEY,
+        databaseURL: DATABASE_URL,
+      },
+    });
+
+    pseudoCollection = new PseudoCollection(instance, 'objects', {
+      site_id: alphaSiteId,
+    });
+  });
+
+  it('finds correctly', async () => {
+    const result = await pseudoCollection.find();
+    expect(result).toMatchSnapshot();
   });
 });
 

@@ -24,7 +24,7 @@ class PseudoCollection extends Collection {
    */
   find(...args) {
     const { next, query } = prepareFind(args);
-    const { criteria, fields, options } = query;
+    const { criteria = {}, fields = {}, options = {} } = query;
     return super.find({ ...criteria, ...this.defaults }, fields, options, next);
   }
 
@@ -36,7 +36,7 @@ class PseudoCollection extends Collection {
    */
   findOne(...args) {
     const { query, next } = prepareFind(args, { limit: 1 });
-    const { criteria, options } = query;
+    const { criteria = {}, options = {} } = query;
     return super.findOne({ ...criteria, ...this.defaults }, options, next);
   }
 }
