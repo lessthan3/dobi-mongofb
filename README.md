@@ -60,7 +60,6 @@ app.use mongofb {
     db: 'test'        # the mongodb to connect to
     host: 'localhost' # the host of your mongodb
     pass: ''          # the password to connect with
-    port: 27017       # the port to connect to
     user: 'admin'     # the user to connect with
     options: {}       # other connection options [ref](#https://github.com/mongodb/node-mongodb-native/blob/master/docs/articles/MongoClient.md#basic-parts-of-the-url)
 }

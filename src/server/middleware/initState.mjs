@@ -7,16 +7,14 @@ const connectMongo = async ({ ctx, mongodb, mongoDbConfig = {} }) => {
     database,
     host,
     password,
-    port,
     user,
   } = mongoDbConfig;
   ctx.assert(database, 500, 'initState: database missing from config.mongodb');
   ctx.assert(host, 500, 'initState: host missing from config.mongodb');
   ctx.assert(password, 500, 'initState: password missing from config.mongodb');
-  ctx.assert(port, 500, 'initState: port missing from config.mongodb');
   ctx.assert(user, 500, 'initState: user missing from config.mongodb');
 
-  const url = `mongodb://${user}:${password}@${host}:${port}/${database}`.replace(':@', '@');
+  const url = `mongodb://${user}:${password}@${host}/${database}`.replace(':@', '@');
   const mongoClient = await mongodb.MongoClient.connect(url, {
     autoReconnect: true,
     keepAlive: 120,
