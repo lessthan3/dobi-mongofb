@@ -6,21 +6,12 @@ module.exports = {
     {
       env: {es6: true},
       files: [
-        'src/**/.mjs',
+        'src/**/.js',
       ],
       parserOptions: {
         allowImportExportEverywhere: true,
         ecmaVersion: 9,
         sourceType: 'module',
-      },
-    },
-    // JS files
-    {
-      files: [
-        '**/*.js',
-      ],
-      parserOptions: {
-        sourceType: 'script',
       },
     },
     // Jest tests
