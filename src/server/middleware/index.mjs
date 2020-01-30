@@ -19,7 +19,7 @@ export default (config) => {
   // for testing
   const { admin = defaultAdmin, mongodb = defaultMongodb } = config.testModules || {};
 
-  const { enabled = true, max = 100, redisUri = 'localhost' } = config.cache || {};
+  const { enabled = true, redisUri = 'localhost' } = config.cache || {};
 
   const {
     canRead, canInsert, canRemove, canUpdate, preFind,
@@ -35,7 +35,6 @@ export default (config) => {
   // create cache
   const { cache } = new Cache({
     enabled,
-    lruMaxItems: max,
     redisUri,
   });
 
