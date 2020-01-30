@@ -7,8 +7,8 @@
     "build": "NODE_ENV=production webpack",
     "coverage": "NODE_ENV=test jest --verbose --no-cache --collectCoverage=true",
     "coverage:open": "opener ./coverage/lcov-report/index.html",
-    "format": "eslint . --ext js,mjs --fix",
-    "lint": "eslint . --ext js,mjs",
+    "format": "eslint . --ext js --fix",
+    "lint": "eslint . --ext js",
     "prepublishOnly": "NODE_ENV=production npm run build",
     "test": "NODE_ENV=test jest --verbose --no-cache --collectCoverage=false",
     "test:watch": "NODE_ENV=test jest --watch --no-cache --verbose --collectCoverage=false"
