@@ -19,7 +19,7 @@ export default (config) => {
   // for testing
   const { admin = defaultAdmin, mongodb = defaultMongodb } = config.testModules || {};
 
-  const { enabled = true, redisUri = 'localhost' } = config.cache || {};
+  const { enabled = true, keyPrefix, redisUri = 'localhost' } = config.cache || {};
 
   const {
     canRead, canInsert, canRemove, canUpdate, preFind,
@@ -35,7 +35,7 @@ export default (config) => {
   // create cache
   const { cache } = new Cache({
     enabled,
-    keyPrefix: 'cache:dobi:mongofb',
+    keyPrefix,
     redisUri,
   });
 

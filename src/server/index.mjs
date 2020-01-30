@@ -17,7 +17,7 @@ import {
  * @param {Object} config
  * @param {Object} config.cache
  * @param {boolean} config.cache.enabled=true
- * @param {number} config.cache.max=100
+ * @param {string} config.cache.keyPrefix
  * @param {string} config.cache.redisUri=localhost
  * @param {Object[]} config.firebaseShards
  * @param {string} config.firebaseShards.*.apiKey
