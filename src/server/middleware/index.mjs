@@ -35,6 +35,7 @@ export default (config) => {
   // create cache
   const { cache } = new Cache({
     enabled,
+    keyPrefix: 'cache:dobi:mongofb',
     redisUri,
   });
 
