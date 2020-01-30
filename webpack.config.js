@@ -58,7 +58,7 @@ module.exports = {
     }),
   ],
   resolve: {
-    extensions: ['.js', '.mjs'],
+    extensions: ['.js'],
     modules: [
       'node_modules',
     ],
