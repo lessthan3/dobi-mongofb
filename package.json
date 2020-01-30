@@ -17,7 +17,7 @@
     "@babel/runtime": "^7.0.0",
     "@google-cloud/promisify": "^0.3.1",
     "axios": "^0.18.0",
-    "dobi-cache-2": "^4.0.6",
+    "dobi-cache-2": "^4.1.0",
     "firebase": "^5.5.0",
     "firebase-admin": "^6.0.0",
     "googleapis": "^33.0.0",
@@ -71,5 +71,5 @@
   "engines": {
     "node": ">= 10"
   },
-  "version": "5.0.4"
+  "version": "5.1.0"
 }
