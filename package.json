@@ -13,7 +13,7 @@
     "test": "NODE_ENV=test jest --verbose --no-cache --collectCoverage=false",
     "test:watch": "NODE_ENV=test jest --watch --no-cache --verbose --collectCoverage=false"
   },
-  "version": "5.2.3",
+  "version": "5.2.4",
   "dependencies": {
     "@babel/runtime": "^7.0.0",
     "@google-cloud/promisify": "^0.3.1",
@@ -63,7 +63,7 @@
   },
   "description": "Dobi Mongo Firebase",
   "license": "MIT",
-  "main": "src/server",
+  "main": "src/server/index.js",
   "name": "dobi-mongofb",
   "repository": {
     "type": "git",
