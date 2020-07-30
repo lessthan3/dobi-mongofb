@@ -2,27 +2,19 @@ import isArray from 'lodash/isArray';
 
 const SHARD_REGEX = /^https?:\/\/([\w\d-_]+)\.firebaseio\.com/;
 
-const connectMongo = async ({ ctx, mongodb, mongoDbConfig = {} }) => {
+const connectMongo = async ({ mongodb, mongoDbConfig = {} }) => {
   const {
-    database,
-    host,
-    password,
-    user,
+    uri
   } = mongoDbConfig;
-  ctx.assert(database, 500, 'initState: database missing from config.mongodb');
-  ctx.assert(host, 500, 'initState: host missing from config.mongodb');
-  ctx.assert(password, 500, 'initState: password missing from config.mongodb');
-  ctx.assert(user, 500, 'initState: user missing from config.mongodb');
 
-  const url = `mongodb://${user}:${password}@${host}/${database}`.replace(':@', '@');
-  const mongoClient = await mongodb.MongoClient.connect(url, {
+  const mongoClient = await mongodb.MongoClient.connect(uri, {
     autoReconnect: true,
     keepAlive: 120,
     native_parser: false,
     poolSize: 10,
     useNewUrlParser: true,
   });
-  return mongoClient.db(database);
+  return mongoClient.db();
 };
 
 
