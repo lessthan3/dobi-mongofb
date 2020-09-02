@@ -21,7 +21,7 @@
     "dobi-cache-2": "^4.1.6",
     "firebase": "^5.5.0",
     "firebase-admin": "^6.0.0",
-    "googleapis": "^33.0.0",
+    "googleapis": "^39.1.0",
     "jwt-simple": "^0.5.5",
     "koa-bodyparser": "^4.2.1",
     "koa-compose": "^4.1.0",
