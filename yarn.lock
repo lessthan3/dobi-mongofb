@@ -3278,10 +3278,10 @@ diffie-hellman@^5.0.0:
     miller-rabin "^4.0.0"
     randombytes "^2.0.0"
 
-dobi-cache-2@^5.0.6:
-  version "5.0.6"
-  resolved "https://registry.yarnpkg.com/dobi-cache-2/-/dobi-cache-2-5.0.6.tgz#b1d5372b3338717a27dab88f57c0072882d5b3b5"
-  integrity sha512-ubTzMMDKpzAs0ndVsaJHHSp+PJ2yfqlXkqxLh1qGtbFW6P8wqlRWG9OnEo63BVLsTFORoN9inDqlYN1Iuc9Gzg==
+dobi-cache-2@^5.0.8:
+  version "5.0.8"
+  resolved "https://registry.yarnpkg.com/dobi-cache-2/-/dobi-cache-2-5.0.8.tgz#887d87d62ba4883dfe24868398747c5bda345943"
+  integrity sha512-4gBzWDaG3ZDTyZw5dnupBM1ezupeC/hE/Ftaxra8zyvxiK7RJIbdxLoWcJmsl5WTD96R2g+AP1TJo8KcEntwJA==
   dependencies:
     ioredis "4.28.5"
     koa-is-json "1.0.0"
