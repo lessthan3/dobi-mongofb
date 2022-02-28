@@ -19,7 +19,13 @@ export default (config) => {
   // for testing
   const { admin = defaultAdmin, mongodb = defaultMongodb } = config.testModules || {};
 
-  const { enabled = true, keyPrefix, redisUri = 'localhost' } = config.cache || {};
+  const {
+    enabled = true,
+    keyPrefix,
+    redisModeMap = { default: 'single' },
+    redisPort = null,
+    redisUri = 'localhost',
+  } = config.cache || {};
 
   const {
     canRead, canInsert, canRemove, canUpdate, preFind,
@@ -36,12 +42,14 @@ export default (config) => {
   const { cache } = new Cache({
     enabled,
     keyPrefix,
+    redisModeMap,
+    redisPort,
     redisUri,
   });
 
   const baseMiddleware = [
     bodyParser(),
-    initState({ admin, mongodb, config }),
+    initState({ admin, config, mongodb }),
     validateCollection,
   ];
 
